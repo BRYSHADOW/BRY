@@ -22,7 +22,7 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
 
        MinimizeButton({
        Image = "http://www.roblox.com/asset/?id=96114075322069",
-       Size = {60, 60},
+       Size = {50, 50},
        Color = Color3.fromRGB(10, 10, 10),
        Corner = true,
        Stroke = false,
@@ -49,5 +49,29 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/r
      Name = "lumtraitudoisv",
     Callback = function()
 	  loadstring(game:HttpGet("https://raw.githubusercontent.com/marisdeptrai/Script-Free/main/FruitFinder.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Volcano Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/wpisstestfprg/Volcano/refs/heads/main/VolcanoLocal.lua", true))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "hack dieu chinh",
+    Callback = function()
+	  loadstring(Game:HttpGet("https://raw.githubusercontent.com/VanThanhIOS/OniiChanVanThanhIOS/refs/heads/main/oniichanpakavanthanhios"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Script Trẩu",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/TrauHub/refs/heads/main/TrauXt"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Rubu RedZ Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/RubuRoblox/refs/heads/main/RubuBF"))()
   end
   })
