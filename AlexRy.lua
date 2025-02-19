@@ -75,3 +75,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/r
 	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/RubuRoblox/refs/heads/main/RubuBF"))()
   end
   })
+  AddButton(Tab1o, {
+     Name = "scriptđổisv rip katav2 và nhìu thứ",
+    Callback = function()
+	  getgenv().Team = “Pirates”
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/AutoDoughking-Rip-byTeddy"))()
+  end
+  })
