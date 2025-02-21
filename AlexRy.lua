@@ -92,3 +92,9 @@ getgenv().ForceUseWalkSpeedModifier = false --Force turn on Walk Speed Modifier 
 loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()
   end
   })
+  AddButton(Tab2o, {
+     Name = "script siêu vip",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/TeddyHop-FREE"))()
+  end
+  })
