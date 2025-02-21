@@ -22,7 +22,7 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
 
        MinimizeButton({
        Image = "http://www.roblox.com/asset/?id=96114075322069",
-       Size = {40, 40},
+       Size = {35, 35},
        Color = Color3.fromRGB(10, 10, 10),
        Corner = true,
        Stroke = false,
@@ -73,5 +73,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/r
      Name = "Rubu RedZ Hub",
     Callback = function()
 	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/RubuRoblox/refs/heads/main/RubuBF"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "ASTRAL Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/Overgustx2/Main/refs/heads/main/BloxFruits_25.html"))()
   end
   })
