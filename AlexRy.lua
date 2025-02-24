@@ -9,7 +9,7 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
         KeySystem = false,
         Title = "Key System",
         Description = "",
-        KeyLink = "bio.link/bory",
+        KeyLink = "",
         Keys = {"1234"},
         Notifi = {
         Notifications = true,
@@ -93,15 +93,9 @@ loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc61
   end
   })
   AddButton(Tab2o, {
-     Name = "script siêu vip",
+     Name = "script siêu vip đã update mới nhất",
     Callback = function()
-	  loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/TeddyHop-FREE"))()
-  end
-  })
-  AddButton(Tab2o, {
-     Name = "autokatav2hop",
-    Callback = function()
-	  loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/AutoDoughKing-Kill-Teddy"))()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/Dex-Bear/VxezeHubHopBoss/refs/heads/main/SkidConCacBaM"))()
   end
   })
   AddButton(Tab2o, {
