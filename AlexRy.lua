@@ -2,7 +2,7 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
 
        local Window = MakeWindow({
          Hub = {
-         Title = "BRY LR",
+         Title = "BRY V2",
          Animation = "FB: Chau Mcbr"
          },
         Key = {
@@ -11,7 +11,7 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
         Description = "",
         KeyLink = "",
         Keys = {"1234"},
-        Notifi = {
+        Notifi = {githubusercontent
         Notifications = true,
         CorrectKey = "Running the Script...",
        Incorrectkey = "The key is incorrect",
@@ -93,12 +93,6 @@ loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc61
   end
   })
   AddButton(Tab2o, {
-     Name = "script siêu vip đã update mới nhất",
-    Callback = function()
-	  loadstring(game:HttpGet("https://raw.githubusercontent.com/Dex-Bear/VxezeHubHopBoss/refs/heads/main/SkidConCacBaM"))()
-  end
-  })
-  AddButton(Tab2o, {
      Name = "Treo Farmlv",
     Callback = function()
 	  getgenv().simple_settings = {
@@ -172,5 +166,11 @@ loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc61
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/simple-hubs/contents/refs/heads/main/bloxfruit-kaitan-main.lua"))()
+  end
+  })
+AddButton(Tab1o, {
+     Name = "Script Min Siêu Vip",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinXoV"))()
   end
   })
