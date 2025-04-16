@@ -2,15 +2,15 @@ loadstring(game:HttpGet(("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V
 
        local Window = MakeWindow({
          Hub = {
-         Title = "HACKBORY V2 HUB",
+         Title = "HACKBORY V3 HUB",
          Animation = "Admin: ༺A͢͢͢L͢͢͢ɆӾ✦ℛY༻"
          },
        Key = {
         KeySystem = true,
-        Title = "Key System",
-        Description = "Ko free ok",
+        Title = "Get Key Đi",
+        Description = "Ko free ok🕳️",
         KeyLink = "https://yeumoney.com/dmtRuN",
-        Keys = {"anhrydepzainhatthegioi"},
+        Keys = {"anhrydepzainhatthegioi","1"},
         Notifi = {
         Notifications = true,
         CorrectKey = "Umm Đr vào thui",
@@ -188,7 +188,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/simple-hubs/contents/
 	  loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/TraiCay.lua"))()
   end
   })
-  AddButton(Tab3o, {
+  AddButton(Tab2o, {
      Name = "BRY FIXLAG",
     Callback = function()
 	  loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/main/FixLag.lua"))()
@@ -230,5 +230,17 @@ loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e0c7fcf6c077fc
      Name = "Ronix Hub",
     Callback = function()
 	  loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/513ccdb3ae8a61d4d7698fc337e5256d.lua"))()
+  end
+  })
+  AddButton(Tab3o, {
+     Name = "Hack Biểu cảm và chiêu blue lock",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/BRYBIEUCAM.KINANG.lua"))()
+  end
+  })
+  AddButton(Tab3o, {
+     Name = "BRY Blue lock",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/BRYBL.lua"))()
   end
   })
