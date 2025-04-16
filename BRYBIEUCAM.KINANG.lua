@@ -7,7 +7,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Presi
 MakeWindow({
   Hub = {
     Title = "BORY HUB",
-    Animation = "Thưởng thức nhé!🔥👀","Sài mới Bt"
+    Animation = "Thưởng thức nhé!🔥👀"
   },
   Key = {
     KeySystem = true,
