@@ -1,0 +1,250 @@
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local teams = game:GetService("Teams")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PresidentZuyi/S/refs/heads/main/C"))()
+
+       local Window = MakeWindow({
+         Hub = {
+         Title = "HACKBORY V3 HUB",
+         Animation = "Admin: ༺A͢͢͢L͢͢͢ɆӾ✦ℛY༻"
+         },
+       Key = {
+        KeySystem = true,
+        Title = "Get Key Đi",
+        Description = "Ko free ok🕳️",
+        KeyLink = "https://yeumoney.com/dmtRuN",
+        Keys = {"anhrydepzainhatthegioi","1"},
+        Notifi = {
+        Notifications = true,
+        CorrectKey = "Umm Đr vào thui",
+       Incorrectkey = "Umm Sai me roi",
+       CopyKeyLink = "Đã sao chép link"
+      }
+    }
+  })
+
+       MinimizeButton({
+       Image = "http://www.roblox.com/asset/?id=96114075322069",
+       Size = {33, 33},
+       Color = Color3.fromRGB(10, 10, 10),
+       Corner = true,
+       Stroke = false,
+       StrokeColor = Color3.fromRGB(255, 0, 0)
+      })
+      
+------ Tab
+     local Tab1o = MakeTab({Name = "Menu 1"})
+     local Tab2o = MakeTab({Name = "Menu 2"})
+     local Tab3o = MakeTab({Name = "Menu 3"})
+------- BUTTON
+    
+    AddButton(Tab1o, {
+     Name = "Redz Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/ShimeKano/redz/refs/heads/main/Source.luau"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "lumtraitudoisv",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/marisdeptrai/Script-Free/main/FruitFinder.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Volcano Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/wpisstestfprg/Volcano/refs/heads/main/VolcanoLocal.lua", true))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "hack dieu chinh",
+    Callback = function()
+	  loadstring(Game:HttpGet("https://raw.githubusercontent.com/VanThanhIOS/OniiChanVanThanhIOS/refs/heads/main/oniichanpakavanthanhios"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Script Trẩu",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/TrauHub/refs/heads/main/TrauAp1"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Rubu RedZ Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/RubuRoblox/refs/heads/main/RubuBF"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "ASTRAL Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/Overgustx2/Main/refs/heads/main/BloxFruits_25.html"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "W-AZURE mới",
+    Callback = function()
+	  getgenv().Team = "Pirates"
+getgenv().AutoLoad = false --Will Load Script On Server Hop
+getgenv().SlowLoadUi = false
+getgenv().ForceUseSilentAimDashModifier = false --Force turn on silent aim , if error then executor problem
+getgenv().ForceUseWalkSpeedModifier = false --Force turn on Walk Speed Modifier , if error then executor problem
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "script siêu vip",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinHopBoss"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "automua3kiemzoro",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinHopSword"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "Treo Farmlv",
+    Callback = function()
+	  getgenv().simple_settings = {
+
+    ["MASTERY"] = { -- Settings related to leveling up weapon or skill mastery
+
+        ["ACTIVE"] = true, -- Enable or disable mastery leveling (true = enabled, false = disabled)
+
+        ["METHOD"] = "Half", -- Method for gaining mastery, "Half"[300] or "Full"[600]
+
+    },
+
+ 
+
+    ["OBJECTIVE"] = { -- Goals for farming and unlocking features
+
+        ["GODHUMAN"] = true, -- Automatically unlock the "Godhuman" fighting style
+
+        ["RACE-V3"] = true, -- Automatically upgrade character race to V3 if possible Human, Mink, (Fishman, Ghoul, Cyborg) soon
+
+        ["FRAGMENT"] = 100000, -- Limit number of fragments to collect
+
+ 
+
+        -- SWORD
+
+        ["CANVANDER"] = true,
+
+        ["BUDDY-SWORD"] = true,
+
+        ["CURSED-DUAL-KATANA"] = true,
+
+        ["SHARK-ANCHOR"] = true, -- soon..
+
+ 
+
+        --GUN
+
+        ["ACIDUM-RIFLE"] = true,
+
+        ["VENOM-BOW"] = true,
+
+        ["SOUL-GUITAR"] = true,
+
+    },
+
+ 
+
+    ["FRUITPURCHASE"] = true, -- Automatically purchase fruits based on priority list
+
+    ["PRIORITYFRUIT"] = { -- List of preferred fruits to purchase or eat in order of priority
+
+        [1] = "Dragon-Dragon",
+
+        [2] = "Flame-Flame",
+
+        [3] = "Rumble-Rumble",
+
+        [4] = "Human-Human: Buddha",
+
+        [5] = "Dark-Dark",
+
+    },
+
+ 
+
+    ["FPSCAP"] = 30, -- Limit the frame rate to optimize performance
+
+    ["LOWTEXTURE"] = true -- Reduce graphic quality for better performance
+
+}
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/simple-hubs/contents/refs/heads/main/bloxfruit-kaitan-main.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Turbo Lite",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/Main.lua"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "Turbo Lite Lumtrai",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/TraiCay.lua"))()
+  end
+  })
+  AddButton(Tab2o, {
+     Name = "BRY FIXLAG",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/main/FixLag.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Script Cực vip Lion",
+    Callback = function()
+	  repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().team = "Pirates" -- Marines
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e0c7fcf6c077fc23475cf4ce4db58e42.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Script Min Vip",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinXoV"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Script Doraemon",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/obfmoonsec/Masterhub/refs/heads/main/obf"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Ganteng Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/516a5669fc39b4945cd0609a08264505.lua"))()
+  end
+  })
+  AddButton(Tab1o, {
+     Name = "Zis Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Zis/refs/heads/main/ZisRb3"))()
+  end
+  })
+ AddButton(Tab1o, {
+     Name = "Ronix Hub",
+    Callback = function()
+	  loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/513ccdb3ae8a61d4d7698fc337e5256d.lua"))()
+  end
+  })
+  AddButton(Tab3o, {
+     Name = "Hack Biểu cảm và chiêu blue lock",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/BRYBIEUCAM.KINANG.lua"))()
+  end
+  })
+  AddButton(Tab3o, {
+     Name = "BRY Blue lock",
+    Callback = function()
+	  loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/BRYBL.lua"))()
+  end
+  })
