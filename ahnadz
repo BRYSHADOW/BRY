@@ -42,7 +42,12 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Presi
     AddButton(Tab1o, {
      Name = "Redz Hub",
     Callback = function()
-	  loadstring(game:HttpGet("https://raw.githubusercontent.com/ShimeKano/redz/refs/heads/main/Source.luau"))()
+	  local Settings = {
+ JoinTeam = "Pirates"; -- Pirates/Marines 
+Translator = true; -- true/false 
+ } 
+ 
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/newredz/BloxFruits/refs/heads/main/Source.luau"))(Settings)
   end
   })
   AddButton(Tab2o, {
