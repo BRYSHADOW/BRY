@@ -1,0 +1,99 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local placeId = game.PlaceId
+
+-- GUI LIB
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+local Window = OrionLib:MakeWindow({
+    Name = "🌟 HACKBORY V4 - PREMIUM",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "HACKBORYV4"
+})
+
+-- Tab Thông Tin
+local TabInfo = Window:MakeTab({Name = "🧑‍💻 Thông Tin", Icon = "rbxassetid://7734053494", PremiumOnly = false})
+TabInfo:AddParagraph("Tên người chơi:", LocalPlayer.DisplayName)
+TabInfo:AddParagraph("Game đang chơi:", game:GetService("MarketplaceService"):GetProductInfo(placeId).Name)
+
+-- Tab Tùy Chức Năng Chung
+local TabFunc = Window:MakeTab({Name = "⚙️ Tùy Chức Năng", Icon = "rbxassetid://7733954761", PremiumOnly = false})
+
+TabFunc:AddButton({
+    Name = "📸 Mở Avatar",
+    Callback = function()
+        loadstring(game:HttpGet("http://www.roblox.com/asset/?id=96114075322069"))()
+    end
+})
+
+TabFunc:AddToggle({
+    Name = "🛡️ Anti-AFK",
+    Default = true,
+    Callback = function()
+        local vu = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        end)
+    end
+})
+
+TabFunc:AddButton({
+    Name = "🚫 Anti-Ban (Disable Error)",
+    Callback = function()
+        for i,v in pairs(getconnections(game:GetService("ScriptContext").Error)) do
+            v:Disable()
+        end
+    end
+})
+
+TabFunc:AddSlider({
+    Name = "⚡ Speed Hack",
+    Min = 16,
+    Max = 150,
+    Default = 16,
+    Callback = function(Value)
+        LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
+})
+
+TabFunc:AddToggle({
+    Name = "🕊️ Fly (Simple)",
+    Default = false,
+    Callback = function(state)
+        loadstring(game:HttpGet("https://pastebin.com/raw/CwA7qKFD"))()
+    end
+})
+
+TabFunc:AddButton({
+    Name = "👁️ ESP (Player/Enemy)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ElkoDev/BloxyESP/main/main.lua"))()
+    end
+})
+
+TabFunc:AddButton({
+    Name = "📊 Đo FPS",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/KvbdZyYB"))()
+    end
+})
+
+-- Game Specific Functions
+if placeId == 2753915549 then -- Blox Fruits
+    local Tab = Window:MakeTab({Name = "🍩 Blox Fruits", Icon = "rbxassetid://7734005271", PremiumOnly = false})
+    Tab:AddParagraph("Tình trạng:", "✅ Đã tích hợp hack")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/BRYV3"))()
+
+elseif placeId == 126884695634066 then -- Grow A Garden
+    local Tab = Window:MakeTab({Name = "🌱 Grow A Garden", Icon = "rbxassetid://7733984192", PremiumOnly = false})
+    Tab:AddParagraph("Tình trạng:", "✅ Đã tích hợp")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+
+else
+    local Tab = Window:MakeTab({Name = "❌ Game Không Hỗ Trợ", Icon = "rbxassetid://7734068320", PremiumOnly = false})
+    Tab:AddParagraph("Thông báo:", "⚠️ Game này hiện không thể hack được.")
+end
+
+OrionLib:Init()
