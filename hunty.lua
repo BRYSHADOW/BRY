@@ -59,5 +59,5 @@ while true do
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/hunty.lua"))()
     end)
-    task.wait(5) -- chờ 5s rồi chạy lại, tránh spam quá nhanh
+    task.wait(1) -- chờ 5s rồi chạy lại, tránh spam quá nhanh
 end
