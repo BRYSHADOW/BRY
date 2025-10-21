@@ -344,7 +344,7 @@ local v15 = v14:CreateWindow({
     Title = "HACKBORY V4 - PREMIUM",
     SubTitle = "Blox Fruit",
     TabWidth = 160,
-    Theme = "Dark",
+    Theme = "Light",
     Acrylic = false,
     Size = UDim2.fromOffset(500, 320),
     MinimizeKey = Enum.KeyCode.End
@@ -9356,3 +9356,126 @@ v14:Notify({
     Content = "Bô Ry Đẹp Trai",
     Duration = 10
 });
+
+-- ===== HACKBORY LIGHT ELECTRIC OVERLAY & TAB EFFECTS =====
+-- Creates a persistent overlay UI with light electric styling and hover glow for tabs/buttons.
+pcall(function()
+    local core = game:GetService("CoreGui")
+    local overlayGui = Instance.new("ScreenGui")
+    overlayGui.Name = "HACKBORY_Overlay"
+    overlayGui.ResetOnSpawn = false
+    overlayGui.Parent = core
+
+    local overlay = Instance.new("Frame")
+    overlay.Name = "BlueOverlay"
+    overlay.AnchorPoint = Vector2.new(0.5, 0.5)
+    overlay.Position = UDim2.new(0.5, 0, 0.5, 0)
+    overlay.Size = UDim2.new(0.6, 0, 0.78, 0)
+    overlay.BackgroundTransparency = 0.65
+    overlay.BackgroundColor3 = Color3.fromRGB(180, 235, 255) -- light cyan tint
+    overlay.BorderSizePixel = 0
+    overlay.ZIndex = 2
+    overlay.Parent = overlayGui
+
+    local overlayCorner = Instance.new("UICorner")
+    overlayCorner.CornerRadius = UDim.new(0, 22)
+    overlayCorner.Parent = overlay
+
+    -- subtle inner glow using another frame
+    local glow = Instance.new("Frame")
+    glow.Name = "Glow"
+    glow.AnchorPoint = Vector2.new(0.5, 0.5)
+    glow.Position = UDim2.new(0.5, 0, 0.02, 0)
+    glow.Size = UDim2.new(1.02, 0, 0.06, 0)
+    glow.BackgroundTransparency = 0.9
+    glow.BorderSizePixel = 0
+    glow.Parent = overlayGui
+    local glowLabel = Instance.new("TextLabel")
+    glowLabel.Name = "GlowLabel"
+    glowLabel.BackgroundTransparency = 0
+    glowLabel.Size = UDim2.new(1,0,1,0)
+    glowLabel.Text = ""
+    glowLabel.Parent = glow
+    glowLabel.BackgroundColor3 = Color3.fromRGB(3,200,255)
+    glowLabel.BackgroundTransparency = 0.95
+    local glowCorner = Instance.new("UICorner")
+    glowCorner.CornerRadius = UDim.new(0, 30)
+    glowCorner.Parent = glowLabel
+
+    -- persistent brand logo (top-right)
+    local brandGui = Instance.new("ScreenGui")
+    brandGui.Name = "HACKBORY_Brand"
+    brandGui.ResetOnSpawn = false
+    brandGui.Parent = core
+
+    local brandLabel = Instance.new("TextLabel")
+    brandLabel.Name = "BrandTopRight"
+    brandLabel.Parent = brandGui
+    brandLabel.AnchorPoint = Vector2.new(1, 0)
+    brandLabel.Position = UDim2.new(1, -16, 0, 8)
+    brandLabel.Size = UDim2.new(0, 260, 0, 30)
+    brandLabel.BackgroundTransparency = 1
+    brandLabel.Font = Enum.Font.GothamBold
+    brandLabel.TextSize = 16
+    brandLabel.Text = "⚡ HACKBORY V4 - PREMIUM"
+    brandLabel.TextColor3 = Color3.fromRGB(120, 225, 255)
+    brandLabel.ZIndex = 5
+    local brandCorner = Instance.new("UICorner")
+    brandCorner.CornerRadius = UDim.new(0, 8)
+    brandCorner.Parent = brandLabel
+
+    -- glow animation for brand
+    spawn(function()
+        while true do
+            pcall(function()
+                TweenObject(brandLabel, 0.9, {TextColor3 = Color3.fromRGB(200,255,255)})
+                wait(0.9)
+                TweenObject(brandLabel, 0.9, {TextColor3 = Color3.fromRGB(120,225,255)})
+                wait(0.9)
+            end)
+        end
+    end)
+
+    -- Hover glow effect for tab-like TextButtons in CoreGui (best-effort)
+    spawn(function()
+        while wait(1) do
+            pcall(function()
+                for _, gui in ipairs(core:GetChildren()) do
+                    for _, obj in ipairs(gui:GetDescendants()) do
+                        if obj:IsA("TextButton") and not obj:GetAttribute("HACKBORY_Hovered") then
+                            obj:SetAttribute("HACKBORY_Hovered", true)
+                            -- connect events safely
+                            pcall(function()
+                                obj.MouseEnter:Connect(function()
+                                    pcall(function()
+                                        TweenObject(obj, 0.18, {BackgroundTransparency = 0.25})
+                                        if obj.TextColor3 then
+                                            TweenObject(obj, 0.18, {TextColor3 = Color3.fromRGB(200,255,255)})
+                                        end
+                                    end)
+                                end)
+                                obj.MouseLeave:Connect(function()
+                                    pcall(function()
+                                        TweenObject(obj, 0.18, {BackgroundTransparency = 0.7})
+                                        if obj.TextColor3 then
+                                            TweenObject(obj, 0.18, {TextColor3 = Color3.fromRGB(150,200,255)})
+                                        end
+                                    end)
+                                end)
+                            end)
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+
+    -- Opening pulse on overlay for VIP effect
+    pcall(function()
+        TweenObject(overlay, 0.35, {Size = UDim2.new(0.62,0,0.8,0)})
+        wait(0.12)
+        TweenObject(overlay, 0.35, {Size = UDim2.new(0.6,0,0.78,0)})
+    end)
+end)
+-- ===== End overlay =====
+
