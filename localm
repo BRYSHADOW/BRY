@@ -1,139 +1,139 @@
-🖕 [1]
-🖕 [1]
-🖕 [1]
-🖕 [1]
-🖕 [1]
-{"hadAgreePolicy":"true","UGPHONE-MQTT":"{\"client_id\":14257857,\"login_id\":\"ff7420d5-34a4-03f5-11fd-68d811fd38f3\",\"access_token\":\"9d916bdf77e1811966c045fd2798aaa220251021001644\",\"access_key\":\"ff7420d5f30e3dc66520db4a4267be43\",\"access_secret\":\"f7420d5211fdf5d0ac2fc2f0abc70927\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257857/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257857_web\",\"mqtt_username\":\"mqtt_client_14257857\",\"mqtt_password\":\"177bf54f98d5188ae27ec3db995d7901\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","UGPHONE-Token":"9d916bdf77e1811966c045fd2798aaa220251021001644","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976988900},\"expires\":1768752988900}}","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"ff7420d5-34a4-03f5-11fd-68d811fd38f3"}
+😹 [1]
+😹 [1]
+😹 [1]
+😹 [1]
+😹 [1]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"295cf8da-bf08-6556-daf3-b93951f80e26","hadAgreePolicy":"true","UGPHONE-Token":"b5d3fd0316722f6ebc7cfc85af59648120251102153339","UGPHONE-MQTT":"{\"client_id\":14552015,\"login_id\":\"295cf8da-bf08-6556-daf3-b93951f80e26\",\"access_token\":\"b5d3fd0316722f6ebc7cfc85af59648120251102153339\",\"access_key\":\"295cf8daa2227e4f7e4f223daf38c1fd\",\"access_secret\":\"95cf8da6fd0a556a955956fc08928d3\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14552015/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14552015_web\",\"mqtt_username\":\"mqtt_client_14552015\",\"mqtt_password\":\"6c830ca8cdec6218e2f11eae7aa33077\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [2]
-🖕 [2]
-🖕 [2]
-🖕 [2]
-🖕 [2]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257832,\"login_id\":\"f8db5b4d-b515-77c2-68a0-5ca155b3c68a\",\"access_token\":\"940a356c7b44caeb1e0e0841ba69a5c420251021001526\",\"access_key\":\"5f8db5b4a4a20aded5cdd37772c9c61b\",\"access_secret\":\"8db5b4d8a26f77c2de46bbb58f1b8c5a\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257832/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257832_web\",\"mqtt_username\":\"mqtt_client_14257832\",\"mqtt_password\":\"1685003f86a65e216894bfcc1b5c17c3\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976911177},\"expires\":1768752911177}}","hadAgreePolicy":"true","UGPHONE-Token":"940a356c7b44caeb1e0e0841ba69a5c420251021001526","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"f8db5b4d-b515-77c2-68a0-5ca155b3c68a"}
+😹 [2]
+😹 [2]
+😹 [2]
+😹 [2]
+😹 [2]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"61b213d9-6dca-617c-829d-695829d594d8","hadAgreePolicy":"true","UGPHONE-Token":"508c1e4c3e2e2a6127d6e550785a432c20251102153136","UGPHONE-MQTT":"{\"client_id\":14551965,\"login_id\":\"61b213d9-6dca-617c-829d-695829d594d8\",\"access_token\":\"508c1e4c3e2e2a6127d6e550785a432c20251102153136\",\"access_key\":\"b213d965d98c28619a01baaf93c22122\",\"access_secret\":\"7ba4061b004d70f2f3cf17c7fa7128fb\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551965/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551965_web\",\"mqtt_username\":\"mqtt_client_14551965\",\"mqtt_password\":\"4dae4ecb86020a0730a99f1878508a53\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [3]
-🖕 [3]
-🖕 [3]
-🖕 [3]
-🖕 [3]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257821,\"login_id\":\"58b6bd93-718c-65d9-8b10-849668031f1e\",\"access_token\":\"ff8a2102991e7bbae253efeed9dff92b20251021001507\",\"access_key\":\"31e0e64745c218c268a0014b2ad154af\",\"access_secret\":\"6bd931e0391a1079f168e98b1079343c\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257821/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257821_web\",\"mqtt_username\":\"mqtt_client_14257821\",\"mqtt_password\":\"734864f417e140765c445fa7ddd49d9f\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976893533},\"expires\":1768752893533}}","hadAgreePolicy":"true","UGPHONE-Token":"ff8a2102991e7bbae253efeed9dff92b20251021001507","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"58b6bd93-718c-65d9-8b10-849668031f1e"}
+😹 [3]
+😹 [3]
+😹 [3]
+😹 [3]
+😹 [3]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"305f9dc7-1473-c81c-498b-85756d00e8eb","hadAgreePolicy":"true","UGPHONE-Token":"4b6c2a1977ef0e71892cf3944976019b20251102153204","UGPHONE-MQTT":"{\"client_id\":14551986,\"login_id\":\"305f9dc7-1473-c81c-498b-85756d00e8eb\",\"access_token\":\"4b6c2a1977ef0e71892cf3944976019b20251102153204\",\"access_key\":\"7197d9bca35f498b074552147379a241\",\"access_secret\":\"9dc7197d15878007a241c80074545f2e\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551986/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551986_web\",\"mqtt_username\":\"mqtt_client_14551986\",\"mqtt_password\":\"ebbe16768a92483e4ac8ea5eb513fd43\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [4]
-🖕 [4]
-🖕 [4]
-🖕 [4]
-🖕 [4]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257817,\"login_id\":\"eb4c307a-7311-4bcf-bf4a-f5e9d2a859\",\"access_token\":\"69f445eef202f8d319a3c4f78a6dc49720251021001453\",\"access_key\":\"ac0bd75fd7436f580f0758ad25dfea66\",\"access_secret\":\"ac0bd75fb23c9aab10f06f58ad25dfea\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257817/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257817_web\",\"mqtt_username\":\"mqtt_client_14257817\",\"mqtt_password\":\"787a1bff96293e1e88c5ad1cb6832523\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976876176},\"expires\":1768752876176}}","hadAgreePolicy":"true","UGPHONE-Token":"69f445eef202f8d319a3c4f78a6dc49720251021001453","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"eb4c307a-7311-4bcf-bf4a-f5e9d2a859"}
+😹 [4]
+😹 [4]
+😹 [4]
+😹 [4]
+😹 [4]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"5b1f984f-7444-6cb9-51ac-07530121ea9","hadAgreePolicy":"true","UGPHONE-Token":"a97ce9b437d4feadb5507ecb1d470ddf20251102152933","UGPHONE-MQTT":"{\"client_id\":14551915,\"login_id\":\"5b1f984f-7444-6cb9-51ac-07530121ea9\",\"access_token\":\"a97ce9b437d4feadb5507ecb1d470ddf20251102152933\",\"access_key\":\"303621d2bf9d025afaf04c2a1de96e52\",\"access_secret\":\"03621d2997911b410b94f963bf9d4923\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551915/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551915_web\",\"mqtt_username\":\"mqtt_client_14551915\",\"mqtt_password\":\"a9be76c5bd070125233375be9a25e19b\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [5]
-🖕 [5]
-🖕 [5]
-🖕 [5]
-🖕 [5]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257801,\"login_id\":\"4e78c0e2-9e99-9925-a913-9620b5d430\",\"access_token\":\"315f15a5f1252ab3d1bc813bbdfe951820251021001336\",\"access_key\":\"a94e78c097f6d0c9a0a40a43dcec53a2\",\"access_secret\":\"4e78c0e2b99373a42f6a268d0c9338c2\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257801/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257801_web\",\"mqtt_username\":\"mqtt_client_14257801\",\"mqtt_password\":\"a2dc2696eb68ff01920e3b9a6392f23b\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976802435},\"expires\":1768752802435}}","hadAgreePolicy":"true","UGPHONE-Token":"315f15a5f1252ab3d1bc813bbdfe951820251021001336","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"4e78c0e2-9e99-9925-a913-9620b5d430"}
+😹 [5]
+😹 [5]
+😹 [5]
+😹 [5]
+😹 [5]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"4949061a-93dd-472e-8f84-140ed6c72369","hadAgreePolicy":"true","UGPHONE-Token":"0ab635e97356cf29737d584e765aaa1720251102152842","UGPHONE-MQTT":"{\"client_id\":14551898,\"login_id\":\"4949061a-93dd-472e-8f84-140ed6c72369\",\"access_token\":\"0ab635e97356cf29737d584e765aaa1720251102152842\",\"access_key\":\"4949061aae85f8478502cdca18f8659d\",\"access_secret\":\"ced494901b59b82af8473ddd5f8973cb\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551898/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551898_web\",\"mqtt_username\":\"mqtt_client_14551898\",\"mqtt_password\":\"744fc3ef2c1e7523542346f938d7a4d8\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [6]
-🖕 [6]
-🖕 [6]
-🖕 [6]
-🖕 [6]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257797,\"login_id\":\"3122963c-3b0c-a2e2-c172-5d2ddd6e8a2e\",\"access_token\":\"de362da0fa773c8d0c92fc5eb80d316820251021001321\",\"access_key\":\"63c8ed953c4d5e3a842b140f48c200f7\",\"access_secret\":\"5831229608dcb2f851c3720122825165\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257797/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257797_web\",\"mqtt_username\":\"mqtt_client_14257797\",\"mqtt_password\":\"0743c02d83f1314fb8e866036a9c287b\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976787328},\"expires\":1768752787328}}","hadAgreePolicy":"true","UGPHONE-Token":"de362da0fa773c8d0c92fc5eb80d316820251021001321","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"3122963c-3b0c-a2e2-c172-5d2ddd6e8a2e"}
+😹 [6]
+😹 [6]
+😹 [6]
+😹 [6]
+😹 [6]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"0304b78b-fc9a-bc93-cbc9-832e1cbc93d2","hadAgreePolicy":"true","UGPHONE-Token":"b4499435f99610d909c4523a2e20705d20251102152736","UGPHONE-MQTT":"{\"client_id\":14551868,\"login_id\":\"0304b78b-fc9a-bc93-cbc9-832e1cbc93d2\",\"access_token\":\"b4499435f99610d909c4523a2e20705d20251102152736\",\"access_key\":\"00304b78ac3f4890535cd2a832e1cbc9\",\"access_secret\":\"b600304bdc2ac85dc85de4890504aa5f\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551868/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551868_web\",\"mqtt_username\":\"mqtt_client_14551868\",\"mqtt_password\":\"7a4cc0a152dee6cd3b3489bb51f369ee\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [7]
-🖕 [7]
-🖕 [7]
-🖕 [7]
-🖕 [7]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14257787,\"login_id\":\"9cbe7ded-dcaf-bad6-1e8f-6ae5cb9facc3\",\"access_token\":\"5f718871ad7cff1c7aa50bb832e4b68320251021001304\",\"access_key\":\"dd1b51b90eba0d3dae5c62ff70d3d426\",\"access_secret\":\"1b51b9260e8bd49d44520e7e32b48d\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14257787/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14257787_web\",\"mqtt_username\":\"mqtt_client_14257787\",\"mqtt_password\":\"61a96eb9dc61d0204abe0821f64c23c7\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760976765545},\"expires\":1768752765545}}","hadAgreePolicy":"true","UGPHONE-Token":"5f718871ad7cff1c7aa50bb832e4b68320251021001304","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"9cbe7ded-dcaf-bad6-1e8f-6ae5cb9facc3"}
+😹 [7]
+😹 [7]
+😹 [7]
+😹 [7]
+😹 [7]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"eb91bec2-d238-bc3c-9efe-3ee5d23845fa","hadAgreePolicy":"true","UGPHONE-Token":"16e34715b130e49241ac4ede3f595b1220251102152644","UGPHONE-MQTT":"{\"client_id\":14551852,\"login_id\":\"eb91bec2-d238-bc3c-9efe-3ee5d23845fa\",\"access_token\":\"16e34715b130e49241ac4ede3f595b1220251102152644\",\"access_key\":\"93e557fd238471ec2253d7a5b98e31\",\"access_secret\":\"bec293e5bc455390efe7b5d4446e9149\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551852/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551852_web\",\"mqtt_username\":\"mqtt_client_14551852\",\"mqtt_password\":\"5c37050fd64d454e7116f3c4baf2b834\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [8]
-🖕 [8]
-🖕 [8]
-🖕 [8]
-🖕 [8]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249630,\"login_id\":\"ffec4b94-62b8-c84f-fc72-6243bb3a389f\",\"access_token\":\"3edc802eb55d6c3d0444a7c4c74a6cd820251020181736\",\"access_key\":\"4d8cd098ea549fbd55c0d37fb995b8b4\",\"access_secret\":\"94d8cd09bbea5c0303a59fbd57c843a0\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249630/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249630_web\",\"mqtt_username\":\"mqtt_client_14249630\",\"mqtt_password\":\"f905c581e2437a745e4b5bc42dbdc568\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955443732},\"expires\":1768731443732}}","hadAgreePolicy":"true","UGPHONE-Token":"3edc802eb55d6c3d0444a7c4c74a6cd820251020181736","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"ffec4b94-62b8-c84f-fc72-6243bb3a389f"}
+😹 [8]
+😹 [8]
+😹 [8]
+😹 [8]
+😹 [8]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"9f4269bf-948d-c0f1-ba60-d2f806ba60b7","hadAgreePolicy":"true","UGPHONE-Token":"9fabff72f0d17be2a6eaf04e1dda143620251102152443","UGPHONE-MQTT":"{\"client_id\":14551803,\"login_id\":\"9f4269bf-948d-c0f1-ba60-d2f806ba60b7\",\"access_token\":\"9fabff72f0d17be2a6eaf04e1dda143620251102152443\",\"access_key\":\"9bfc494306ba8a5e3dc15ab7c85c2cb3\",\"access_secret\":\"29f4269b6e869ec711e848d2f806ba60\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551803/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551803_web\",\"mqtt_username\":\"mqtt_client_14551803\",\"mqtt_password\":\"3f8920dfb7c3c7917a50d0d749d29bfd\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [9]
-🖕 [9]
-🖕 [9]
-🖕 [9]
-🖕 [9]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249624,\"login_id\":\"98742ac1-1182-fbfc-0a4e-bfc7d87f511b\",\"access_token\":\"1ad69ab5c3b02b7c0b65dba1aaf6b96920251020181722\",\"access_key\":\"c745098713de7671767107860a4ea349\",\"access_secret\":\"8742ac1a61b8cbc2fbfca48946701bb2\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249624/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249624_web\",\"mqtt_username\":\"mqtt_client_14249624\",\"mqtt_password\":\"7417619e835bfb54b70f3f733ee65b68\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955425264},\"expires\":1768731425264}}","hadAgreePolicy":"true","UGPHONE-Token":"1ad69ab5c3b02b7c0b65dba1aaf6b96920251020181722","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"98742ac1-1182-fbfc-0a4e-bfc7d87f511b"}
+😹 [9]
+😹 [9]
+😹 [9]
+😹 [9]
+😹 [9]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"b908e604-830b-a9be-9110-80be3244e609","hadAgreePolicy":"true","UGPHONE-Token":"2e0cc3a64da81458dc3f5497bae518c520251102152320","UGPHONE-MQTT":"{\"client_id\":14551761,\"login_id\":\"b908e604-830b-a9be-9110-80be3244e609\",\"access_token\":\"2e0cc3a64da81458dc3f5497bae518c520251102152320\",\"access_key\":\"908e60484c0bd50d11037e99bfcd9549\",\"access_secret\":\"b908e6046e9a15c8fcd936f17715c8ad\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551761/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551761_web\",\"mqtt_username\":\"mqtt_client_14551761\",\"mqtt_password\":\"497718eac0557dab4a9a11ba90834c7e\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [10]
-🖕 [10]
-🖕 [10]
-🖕 [10]
-🖕 [10]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249600,\"login_id\":\"42e7b6e8-3c2c-ffc6-c621-e0ac06e99e7a\",\"access_token\":\"6eb9efd190a73a134d8c8353435e6b4f20251020181604\",\"access_key\":\"e7b6e8d6809c1bcec06e03b6efb3b693\",\"access_secret\":\"857642e74809219c62193c2c833a99eb\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249600/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249600_web\",\"mqtt_username\":\"mqtt_client_14249600\",\"mqtt_password\":\"e8563e2c71f91821aa45487e21047e03\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955349491},\"expires\":1768731349491}}","hadAgreePolicy":"true","UGPHONE-Token":"6eb9efd190a73a134d8c8353435e6b4f20251020181604","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"42e7b6e8-3c2c-ffc6-c621-e0ac06e99e7a"}
+😹 [10]
+😹 [10]
+😹 [10]
+😹 [10]
+😹 [10]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"e4c7d079-b1a5-7d28-2bf9-ae08ade7a426","hadAgreePolicy":"true","UGPHONE-Token":"381dca3eb6bb9b0f2434073d03f1b7b720251102152247","UGPHONE-MQTT":"{\"client_id\":14551748,\"login_id\":\"e4c7d079-b1a5-7d28-2bf9-ae08ade7a426\",\"access_token\":\"381dca3eb6bb9b0f2434073d03f1b7b720251102152247\",\"access_key\":\"6ebf644e33cbbd6358dc73294fcd9714\",\"access_secret\":\"44e46eafef0517cbc10d05957978801b\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551748/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551748_web\",\"mqtt_username\":\"mqtt_client_14551748\",\"mqtt_password\":\"bcec3c37ed09de47526edd864ac53b50\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [11]
-🖕 [11]
-🖕 [11]
-🖕 [11]
-🖕 [11]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249597,\"login_id\":\"7cbdd6d2-ce09-baeb-9acd-29f225b0c267\",\"access_token\":\"2c212b74b59cad46e4fdc1e93f4edc3920251020181555\",\"access_key\":\"a3be92afa019a0f2e09c3ab47982990b\",\"access_secret\":\"71cd7afe51244ba0a0f2a3d7b06c9df7\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249597/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249597_web\",\"mqtt_username\":\"mqtt_client_14249597\",\"mqtt_password\":\"2e5ba0a0a41c20f5f03fdff2358e146a\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955333363},\"expires\":1768731333363}}","hadAgreePolicy":"true","UGPHONE-Token":"2c212b74b59cad46e4fdc1e93f4edc3920251020181555","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"7cbdd6d2-ce09-baeb-9acd-29f225b0c267"}
+😹 [11]
+😹 [11]
+😹 [11]
+😹 [11]
+😹 [11]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"8c5162a3-d658-a224-364b-d56b48e369c7","hadAgreePolicy":"true","UGPHONE-Token":"806b21082b78d238e36a63972bb76f2020251102152115","UGPHONE-MQTT":"{\"client_id\":14551707,\"login_id\":\"8c5162a3-d658-a224-364b-d56b48e369c7\",\"access_token\":\"806b21082b78d238e36a63972bb76f2020251102152115\",\"access_key\":\"529313e5c385c0fc990b6090ec5d43a2\",\"access_secret\":\"62a35529dd5324101699385991d4108a\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551707/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551707_web\",\"mqtt_username\":\"mqtt_client_14551707\",\"mqtt_password\":\"b14e25a9058f2b1465741795fd528fe2\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [12]
-🖕 [12]
-🖕 [12]
-🖕 [12]
-🖕 [12]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249591,\"login_id\":\"07d4529c-1bf0-4787-0fae-f33f13e6df5c\",\"access_token\":\"826bbaaa83777eaaf5461dceb34a077420251020181535\",\"access_key\":\"4ea97598548eca4dcaaca80fae304593\",\"access_secret\":\"c4ea9759e56e4c1d4c1dae304593248c\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249591/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249591_web\",\"mqtt_username\":\"mqtt_client_14249591\",\"mqtt_password\":\"a4a5fce28840ebced6d9c55e03cacddf\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955317118},\"expires\":1768731317118}}","hadAgreePolicy":"true","UGPHONE-Token":"826bbaaa83777eaaf5461dceb34a077420251020181535","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"07d4529c-1bf0-4787-0fae-f33f13e6df5c"}
+😹 [12]
+😹 [12]
+😹 [12]
+😹 [12]
+😹 [12]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"02a1f6df-1770-6d4d-d4d4-bd23384ec26c","hadAgreePolicy":"true","UGPHONE-Token":"5b43011c019e5542a585d73422a325f420251102151835","UGPHONE-MQTT":"{\"client_id\":14551644,\"login_id\":\"02a1f6df-1770-6d4d-d4d4-bd23384ec26c\",\"access_token\":\"5b43011c019e5542a585d73422a325f420251102151835\",\"access_key\":\"1f6df9ef45f2a79a1a79c26c1acf80af\",\"access_secret\":\"a1f6df9e45f2a79ab68bec648c3e3bb\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551644/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551644_web\",\"mqtt_username\":\"mqtt_client_14551644\",\"mqtt_password\":\"53a3c079dd01f746bffd055152f90356\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [13]
-🖕 [13]
-🖕 [13]
-🖕 [13]
-🖕 [13]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14249573,\"login_id\":\"13ad6bca-b6e4-e0e6-b7e0-01b6e4719631\",\"access_token\":\"93108fa7a78ed21021c658c715439cec20251020181413\",\"access_key\":\"c3b3813a5d491c32f549615d49d1c323\",\"access_secret\":\"13ad6bca8708d49d7e0ed49d1c323f84\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14249573/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14249573_web\",\"mqtt_username\":\"mqtt_client_14249573\",\"mqtt_password\":\"233b29c84b670dbed5967181ae149d4c\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760955239383},\"expires\":1768731239383}}","hadAgreePolicy":"true","UGPHONE-Token":"93108fa7a78ed21021c658c715439cec20251020181413","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"13ad6bca-b6e4-e0e6-b7e0-01b6e4719631"}
+😹 [13]
+😹 [13]
+😹 [13]
+😹 [13]
+😹 [13]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"ccc91296-c7fb-8a6e-a5ba-cd730db0c817","hadAgreePolicy":"true","UGPHONE-Token":"009fbc99e897952a8f3b36592227d2fa20251102151757","UGPHONE-MQTT":"{\"client_id\":14551624,\"login_id\":\"ccc91296-c7fb-8a6e-a5ba-cd730db0c817\",\"access_token\":\"009fbc99e897952a8f3b36592227d2fa20251102151757\",\"access_key\":\"a0fc21e37f4bfac790c60c66a3bdcd75\",\"access_secret\":\"2cda7fa0f95cab46f2ad08b4f9dd8d6b\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551624/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551624_web\",\"mqtt_username\":\"mqtt_client_14551624\",\"mqtt_password\":\"95ed0160e50177b56121bef1aa64ae29\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [14]
-🖕 [14]
-🖕 [14]
-🖕 [14]
-🖕 [14]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244440,\"login_id\":\"368dd4fd-0935-e007-dd14-6770d825a536\",\"access_token\":\"5824f837bcbb47d5984fdd73cbd542a820251020133949\",\"access_key\":\"1666368d09351f7335db9c12a28e07d2\",\"access_secret\":\"68dd4fdfdcf25dbddbdd7c394efe1622\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244440/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244440_web\",\"mqtt_username\":\"mqtt_client_14244440\",\"mqtt_password\":\"56143a722006b322267ba8196358c4b7\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938776037},\"expires\":1768714776037}}","hadAgreePolicy":"true","UGPHONE-Token":"5824f837bcbb47d5984fdd73cbd542a820251020133949","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"368dd4fd-0935-e007-dd14-6770d825a536"}
+😹 [14]
+😹 [14]
+😹 [14]
+😹 [14]
+😹 [14]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"0e2c64cb-6be3-b2bc-3f6e-e8f38ae432","hadAgreePolicy":"true","UGPHONE-Token":"bf34e69bfd4e6a7fbcfc09ad97bba5c820251102151628","UGPHONE-MQTT":"{\"client_id\":14551593,\"login_id\":\"0e2c64cb-6be3-b2bc-3f6e-e8f38ae432\",\"access_token\":\"bf34e69bfd4e6a7fbcfc09ad97bba5c820251102151628\",\"access_key\":\"66521b806f7f3f6eb078e3cfaee8f38a\",\"access_secret\":\"666521b8417f75e138ec0ee1597b18b5\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551593/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551593_web\",\"mqtt_username\":\"mqtt_client_14551593\",\"mqtt_password\":\"fd2c486e2e064bafda2e959fc2c73424\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [15]
-🖕 [15]
-🖕 [15]
-🖕 [15]
-🖕 [15]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244436,\"login_id\":\"caa5242b-f48d-acc6-5f58-84d1dfe6c725\",\"access_token\":\"f4072e3dca2b7318bf3ab5ed094a858620251020133937\",\"access_key\":\"242b302f8357aba948d867c311aee8b5\",\"access_secret\":\"242b302f6d1ee7b6094864ec5b6c05\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244436/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244436_web\",\"mqtt_username\":\"mqtt_client_14244436\",\"mqtt_password\":\"03bb1faddc3805ddddfa0a17c15934e4\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938763204},\"expires\":1768714763204}}","hadAgreePolicy":"true","UGPHONE-Token":"f4072e3dca2b7318bf3ab5ed094a858620251020133937","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"caa5242b-f48d-acc6-5f58-84d1dfe6c725"}
+😹 [15]
+😹 [15]
+😹 [15]
+😹 [15]
+😹 [15]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"676f2dbe-6dcd-8957-e315-dec1c4123a","hadAgreePolicy":"true","UGPHONE-Token":"17d54ced8bbce42b99ecbf8f3b70eca920251102151557","UGPHONE-MQTT":"{\"client_id\":14551575,\"login_id\":\"676f2dbe-6dcd-8957-e315-dec1c4123a\",\"access_token\":\"17d54ced8bbce42b99ecbf8f3b70eca920251102151557\",\"access_key\":\"6a43e67602f61d1371458957c17248f2\",\"access_secret\":\"d6a43e67e01dc282b3f3a245cd7856a9\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551575/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551575_web\",\"mqtt_username\":\"mqtt_client_14551575\",\"mqtt_password\":\"c1451494d86a00c418bbcb9a2bb7ea50\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [16]
-🖕 [16]
-🖕 [16]
-🖕 [16]
-🖕 [16]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244433,\"login_id\":\"80433047-6f4f-849d-5b65-cca7889d189d\",\"access_token\":\"e548f2c7dbbb430d1bb1d51e90ea4f4420251020133920\",\"access_key\":\"71b7865e8447039cae57ed01b0123461\",\"access_secret\":\"5e9236412a95632dae5785acd237764a\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244433/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244433_web\",\"mqtt_username\":\"mqtt_client_14244433\",\"mqtt_password\":\"70064c03b4c45c5040288fff8aea4a26\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938739151},\"expires\":1768714739151}}","hadAgreePolicy":"true","UGPHONE-Token":"e548f2c7dbbb430d1bb1d51e90ea4f4420251020133920","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"80433047-6f4f-849d-5b65-cca7889d189d"}
+😹 [16]
+😹 [16]
+😹 [16]
+😹 [16]
+😹 [16]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"b8fa3870-2975-dd0c-b9b9-739514fde477","hadAgreePolicy":"true","UGPHONE-Token":"4ba25eb7e0c0d407214084a46af9ca9520251102151429","UGPHONE-MQTT":"{\"client_id\":14551536,\"login_id\":\"b8fa3870-2975-dd0c-b9b9-739514fde477\",\"access_token\":\"4ba25eb7e0c0d407214084a46af9ca9520251102151429\",\"access_key\":\"3e690eb8fbf1594df50b739514fde477\",\"access_secret\":\"33e690ebbfa0f68c03a2f68cccdad528\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551536/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551536_web\",\"mqtt_username\":\"mqtt_client_14551536\",\"mqtt_password\":\"fead0ddbc0012366062b09abd17905cd\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [17]
-🖕 [17]
-🖕 [17]
-🖕 [17]
-🖕 [17]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244416,\"login_id\":\"214398b2-c9e2-fc4f-4e62-1019bb7433a6\",\"access_token\":\"4f0135adc930e24827e15f842b83670520251020133756\",\"access_key\":\"14398b263e02c4f5a6572eb68b4300b5\",\"access_secret\":\"214398b2483e7b162eb606ad764e62a2\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244416/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244416_web\",\"mqtt_username\":\"mqtt_client_14244416\",\"mqtt_password\":\"0848471c5d1eaca9220cd9b4a297a7f5\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938662333},\"expires\":1768714662333}}","hadAgreePolicy":"true","UGPHONE-Token":"4f0135adc930e24827e15f842b83670520251020133756","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"214398b2-c9e2-fc4f-4e62-1019bb7433a6"}
+😹 [17]
+😹 [17]
+😹 [17]
+😹 [17]
+😹 [17]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"b4824318-9571-e2d7-6357-14f5e22ffae7","hadAgreePolicy":"true","UGPHONE-Token":"3ff508307ca62a48a84f33f1a31d39d320251102151355","UGPHONE-MQTT":"{\"client_id\":14551518,\"login_id\":\"b4824318-9571-e2d7-6357-14f5e22ffae7\",\"access_token\":\"3ff508307ca62a48a84f33f1a31d39d320251102151355\",\"access_key\":\"4824318b8a40b7d279fcf5e22ffae79f\",\"access_secret\":\"78a7cb485c252d778b7d1ad31f4c3ebf\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551518/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551518_web\",\"mqtt_username\":\"mqtt_client_14551518\",\"mqtt_password\":\"23341a10c2df5312e917c08db81bc21b\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [18]
-🖕 [18]
-🖕 [18]
-🖕 [18]
-🖕 [18]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244412,\"login_id\":\"00f429ef-7113-c9bc-1d84-d35b829d3d5f\",\"access_token\":\"32d1db1a40b1dc5c8bda85cc1d17641120251020133738\",\"access_key\":\"f0a73b814241eb9decbe4d8708de3378\",\"access_secret\":\"81029ea41835bc63eb9da7b5a8cd22ec\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244412/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244412_web\",\"mqtt_username\":\"mqtt_client_14244412\",\"mqtt_password\":\"787fb6bbfeb3b64a7eff09c0389ae2b2\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938645399},\"expires\":1768714645399}}","hadAgreePolicy":"true","UGPHONE-Token":"32d1db1a40b1dc5c8bda85cc1d17641120251020133738","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"00f429ef-7113-c9bc-1d84-d35b829d3d5f"}
+😹 [18]
+😹 [18]
+😹 [18]
+😹 [18]
+😹 [18]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"66a8f135-9afa-63d5-47c8-f3087b86599d","hadAgreePolicy":"true","UGPHONE-Token":"5bdb3376a93612400942d66dc773179620251102151228","UGPHONE-MQTT":"{\"client_id\":14551478,\"login_id\":\"66a8f135-9afa-63d5-47c8-f3087b86599d\",\"access_token\":\"5bdb3376a93612400942d66dc773179620251102151228\",\"access_key\":\"f13523c599d505586f7781196e80f6dd\",\"access_secret\":\"d366a8f1cf895585fed192111ec175fe\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551478/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551478_web\",\"mqtt_username\":\"mqtt_client_14551478\",\"mqtt_password\":\"170560e659f899d0408d8a9a620d49c5\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [19]
-🖕 [19]
-🖕 [19]
-🖕 [19]
-🖕 [19]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244407,\"login_id\":\"4929906b-c948-c044-aabb-d78f2c8129e6\",\"access_token\":\"1e2a77a69bdb8d57ce94afd95c9f30d220251020133724\",\"access_key\":\"9906b06ac2c0dddb9ddd15cef66aea0c\",\"access_secret\":\"65d49299c05eddbbc73fdfccc05efd2a\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244407/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244407_web\",\"mqtt_username\":\"mqtt_client_14244407\",\"mqtt_password\":\"0a1cd009732832c89100769c8857febd\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938626948},\"expires\":1768714626948}}","hadAgreePolicy":"true","UGPHONE-Token":"1e2a77a69bdb8d57ce94afd95c9f30d220251020133724","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"4929906b-c948-c044-aabb-d78f2c8129e6"}
+😹 [19]
+😹 [19]
+😹 [19]
+😹 [19]
+😹 [19]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"6420bbda-b945-6f5c-6198-29f4066db0e","hadAgreePolicy":"true","UGPHONE-Token":"1d5f90826c1ac7443696d18322e8acd020251102151150","UGPHONE-MQTT":"{\"client_id\":14551455,\"login_id\":\"6420bbda-b945-6f5c-6198-29f4066db0e\",\"access_token\":\"1d5f90826c1ac7443696d18322e8acd020251102151150\",\"access_key\":\"420bbdabc5f501e574465f557446ed1b\",\"access_secret\":\"d6420bbde7c9b0ef529fe2afb9454dd8\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551455/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551455_web\",\"mqtt_username\":\"mqtt_client_14551455\",\"mqtt_password\":\"ceba66f898fc97e575858cd37e322d4d\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
 
-🖕 [20]
-🖕 [20]
-🖕 [20]
-🖕 [20]
-🖕 [20]
-{"UGrightSlideTips":"0","UGPHONE-MQTT":"{\"client_id\":14244385,\"login_id\":\"ad3ea544-6910-6cf4-444f-3e817f130d2e\",\"access_token\":\"3ee6319b3804c348e922492e5bf7ef1920251020133559\",\"access_key\":\"3ea5447787160d1a76222cc87166cdc5\",\"access_secret\":\"3ea544779536622f47b866cdc54ad309\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14244385/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14244385_web\",\"mqtt_username\":\"mqtt_client_14244385\",\"mqtt_password\":\"a5b659f0060da9269f2cc7f20726732d\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}","hasWalletGuide":"1","ugPhoneLang":"vi","_gcl_ls":"{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1760938543554},\"expires\":1768714543554}}","hadAgreePolicy":"true","UGPHONE-Token":"3ee6319b3804c348e922492e5bf7ef1920251020133559","ugBrowserId":"bd3f2991f77d7bfba8ee3aaac59b22a3","UGPHONE-ID":"ad3ea544-6910-6cf4-444f-3e817f130d2e"}
+😹 [20]
+😹 [20]
+😹 [20]
+😹 [20]
+😹 [20]
+{"ugPhoneLang":"en","ugBrowserId":"087aa8e1e961e9a019e16297c74b85f2","UGPHONE-ID":"98d2e97b-bd35-375b-655d-26f76c64fdc9","hadAgreePolicy":"true","UGPHONE-Token":"3560d24cfabdd6ad4d3817dcade1b68220251102151028","UGPHONE-MQTT":"{\"client_id\":14551421,\"login_id\":\"98d2e97b-bd35-375b-655d-26f76c64fdc9\",\"access_token\":\"3560d24cfabdd6ad4d3817dcade1b68220251102151028\",\"access_key\":\"b1dfea1e08990cdd9afb1e8b47c3eda6\",\"access_secret\":\"b1dfea1e2dce7d3c99bdb4486006d7c\",\"mqtt_url\":\"tcp://mqtt.ugphone.com:20001\",\"mqtt_ssl_url\":\"ssl://mqtt.ugphone.com:20003\",\"mqtt_ws_url\":\"ws://mqtt.ugphone.com:20002/mqtt\",\"mqtt_wss_url\":\"wss://mqtt.ugphone.com:8183/mqtt\",\"mqtt_topic\":\"game-toc/online/mqtt_client_14551421/2567a5ec9705eb7ac2c984033e06189d\",\"mqtt_client_id\":\"mqtt_client_14551421_web\",\"mqtt_username\":\"mqtt_client_14551421\",\"mqtt_password\":\"b2bae3e983e897df21837a083d8f1ce9\",\"ws_url\":\"wss://www.ugphone.com:2351\",\"first_login\":1,\"is_visitor\":0}"}
