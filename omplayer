@@ -1,127 +1,129 @@
---// HACKBORY V4 - PREMIUM 💞 ÔM PLAYER GUI
---// Tác giả: Chau Bô Ry (AlexRyVipPro)
+-- 👑 HUG PLAYER GUI - by BORY
+-- HACKBORY V4 - PREMIUM Style 💫
 
--- Tạo ScreenGui
-local gui = Instance.new("ScreenGui")
-gui.Name = "HUG_GUI"
-gui.ResetOnSpawn = false
-gui.Parent = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- Khung chính
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 160)
-frame.Position = UDim2.new(0.4, 0, 0.3, 0)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
-frame.Visible = true
-frame.Parent = gui
+-- GUI Setup
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "HugGuiBory"
 
--- Bo góc
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
-UICorner.Parent = frame
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 320, 0, 170)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -85)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
 
--- Tiêu đề
-local title = Instance.new("TextLabel")
-title.Text = "💞 ÔM PLAYER 💞"
-title.Size = UDim2.new(1, 0, 0, 35)
-title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-title.TextColor3 = Color3.fromRGB(255, 182, 193)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.Parent = frame
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 20)
 
-local UICornerTitle = Instance.new("UICorner")
-UICornerTitle.CornerRadius = UDim.new(0, 12)
-UICornerTitle.Parent = title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.BorderSizePixel = 0
+Title.Text = "🤗 HUG PLAYER GUI"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextSize = 16
+Title.Font = Enum.Font.SourceSansBold
 
--- Ô nhập tên người chơi
-local textbox = Instance.new("TextBox")
-textbox.PlaceholderText = "Nhập tên người muốn ôm..."
-textbox.Size = UDim2.new(0.9, 0, 0, 35)
-textbox.Position = UDim2.new(0.05, 0, 0.35, 0)
-textbox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-textbox.TextColor3 = Color3.fromRGB(255, 255, 255)
-textbox.TextScaled = true
-textbox.Font = Enum.Font.Gotham
-textbox.Parent = frame
-
-local UICornerBox = Instance.new("UICorner")
-UICornerBox.CornerRadius = UDim.new(0, 8)
-UICornerBox.Parent = textbox
-
--- Nút ôm
-local hugButton = Instance.new("TextButton")
-hugButton.Text = "🤗 ÔM NGAY"
-hugButton.Size = UDim2.new(0.9, 0, 0, 35)
-hugButton.Position = UDim2.new(0.05, 0, 0.65, 0)
-hugButton.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
-hugButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-hugButton.TextScaled = true
-hugButton.Font = Enum.Font.GothamBold
-hugButton.Parent = frame
-
-local UICornerBtn = Instance.new("UICorner")
-UICornerBtn.CornerRadius = UDim.new(0, 8)
-UICornerBtn.Parent = hugButton
-
--- Nút đóng/mở
-local toggleButton = Instance.new("TextButton")
-toggleButton.Text = "-"
-toggleButton.Size = UDim2.new(0, 35, 0, 35)
-toggleButton.Position = UDim2.new(0.5, -17, 0, -45)
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.TextSize = 25
-toggleButton.Font = Enum.Font.GothamBold
-toggleButton.Parent = gui
-
-local UICornerToggle = Instance.new("UICorner")
-UICornerToggle.CornerRadius = UDim.new(1, 0)
-UICornerToggle.Parent = toggleButton
-
--- Chức năng đóng mở GUI
-local open = true
-toggleButton.MouseButton1Click:Connect(function()
-	open = not open
-	frame.Visible = open
-	toggleButton.Text = open and "-" or "+"
+local CloseBtn = Instance.new("TextButton", MainFrame)
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -30, 0, 0)
+CloseBtn.Text = "X"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.TextColor3 = Color3.new(1,1,1)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
 end)
 
--- Chức năng ôm người chơi
-hugButton.MouseButton1Click:Connect(function()
-	local targetName = textbox.Text
-	local player = game.Players:FindFirstChild(targetName)
-	local localPlayer = game.Players.LocalPlayer
+local MinBtn = Instance.new("TextButton", MainFrame)
+MinBtn.Size = UDim2.new(0, 50, 0, 30)
+MinBtn.Position = UDim2.new(1, -80, 0, 0)
+MinBtn.Text = "-"
+MinBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
+MinBtn.TextColor3 = Color3.new(1,1,1)
+MinBtn.BorderSizePixel = 0
 
-	if player and player.Character and localPlayer.Character then
-		local targetHumanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-		local myHRP = localPlayer.Character:FindFirstChild("HumanoidRootPart")
-
-		if targetHumanoidRootPart and myHRP then
-			-- Dịch chuyển đến người chơi
-			myHRP.CFrame = targetHumanoidRootPart.CFrame * CFrame.new(0, 0, 1)
-
-			-- Tạo weld để "ôm"
-			local weld = Instance.new("WeldConstraint")
-			weld.Part0 = myHRP
-			weld.Part1 = targetHumanoidRootPart
-			weld.Parent = myHRP
-
-			hugButton.Text = "🤗 ĐANG ÔM " .. targetName .. " 💞"
-			wait(3)
-			weld:Destroy()
-			hugButton.Text = "🤗 ÔM NGAY"
-		else
-			hugButton.Text = "⚠️ Lỗi: Không tìm thấy nhân vật!"
-			wait(2)
-			hugButton.Text = "🤗 ÔM NGAY"
+local minimized = false
+MinBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	for _,v in pairs(MainFrame:GetChildren()) do
+		if v ~= Title and v ~= MinBtn and v ~= CloseBtn then
+			v.Visible = not minimized
 		end
-	else
-		hugButton.Text = "❌ Không tìm thấy người chơi!"
-		wait(2)
-		hugButton.Text = "🤗 ÔM NGAY"
 	end
+	MainFrame.Size = minimized and UDim2.new(0,320,0,30) or UDim2.new(0,320,0,170)
+end)
+
+local Box = Instance.new("TextBox", MainFrame)
+Box.Size = UDim2.new(0.9,0,0,35)
+Box.Position = UDim2.new(0.05,0,0.3,0)
+Box.PlaceholderText = "Nhập tên người cần ôm..."
+Box.Text = ""
+Box.BackgroundColor3 = Color3.fromRGB(45,45,45)
+Box.TextColor3 = Color3.new(1,1,1)
+Box.TextSize = 14
+Box.BorderSizePixel = 0
+
+local Btn = Instance.new("TextButton", MainFrame)
+Btn.Size = UDim2.new(0.9,0,0,35)
+Btn.Position = UDim2.new(0.05,0,0.65,0)
+Btn.BackgroundColor3 = Color3.fromRGB(70,130,180)
+Btn.Text = "🤍 Bắt đầu ôm"
+Btn.TextColor3 = Color3.new(1,1,1)
+Btn.TextSize = 15
+Btn.BorderSizePixel = 0
+
+local hugging = false
+
+Btn.MouseButton1Click:Connect(function()
+	if hugging then
+		hugging = false
+		Btn.Text = "🤍 Bắt đầu ôm"
+		return
+	end
+
+	local name = Box.Text:lower()
+	local target
+	for _,p in pairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer and (p.Name:lower():find(name) or p.DisplayName:lower():find(name)) then
+			target = p
+			break
+		end
+	end
+
+	if not target or not target.Character then
+		Box.Text = "❌ Không tìm thấy player!"
+		return
+	end
+
+	hugging = true
+	Btn.Text = "💔 Dừng ôm"
+
+	local char = LocalPlayer.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+	local anim = Instance.new("Animation")
+	anim.AnimationId = "rbxassetid://182789003" -- animation ôm
+	local playAnim = hum:LoadAnimation(anim)
+	playAnim.Looped = true
+	playAnim:Play()
+
+	while hugging and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") do
+		local hrp = target.Character.HumanoidRootPart
+		local myhrp = char and char:FindFirstChild("HumanoidRootPart")
+		if not (hrp and myhrp) then break end
+
+		-- Vị trí đứng sau lưng người bị ôm
+		local offset = hrp.CFrame * CFrame.new(0, 0, 1.2)
+		myhrp.CFrame = CFrame.new(offset.Position) * CFrame.Angles(0, math.atan2(-hrp.LookVector.X, -hrp.LookVector.Z), 0)
+		task.wait(0.1)
+	end
+
+	hugging = false
+	Btn.Text = "🤍 Bắt đầu ôm"
+	playAnim:Stop()
 end)
