@@ -7,10 +7,10 @@ import sys
 # --- CẤU HÌNH ---
 SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
 DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
-GAME_URL = "https://www.roblox.com/vi/games/2753915549/Blox-Fruits"
+GAME_URL = "https://ro.blox.com/ch/Ebh5?is_retargeting=false&pid=experiencestart_mobileweb&af_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29&af_web_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29&deep_link_value=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29"
 
-# Từ khóa để tìm package (Ví dụ máy bạn tên là com.roblox.client thì sửa thành 'roblox')
-KEYWORD_SEARCH = "delta" 
+# Từ khóa tìm package (để tự động tìm tên đúng của app Delta/Roblox)
+KEYWORD_SEARCH = "delta" # Nếu không tìm thấy, hãy thử đổi thành "roblox"
 
 def log(text):
     print(f"\033[92m[AUTO]\033[0m {text}")
@@ -24,73 +24,94 @@ def check_permission():
         sys.exit(1)
 
 def find_packages():
-    log(f"Đang quét các ứng dụng có tên chứa chữ '{KEYWORD_SEARCH}'...")
+    log(f"Đang tìm ứng dụng chứa chữ '{KEYWORD_SEARCH}'...")
     try:
-        # Lấy danh sách tất cả ứng dụng trong máy
-        cmd = "pm list packages"
+        # Dùng /system/bin/pm thay vì pm trần
+        cmd = "/system/bin/pm list packages"
         output = subprocess.getoutput(cmd)
         
-        # Lọc ra các package có chứa từ khóa (ví dụ: delta)
         found_packages = []
         for line in output.splitlines():
             if KEYWORD_SEARCH in line:
-                # Dòng kết quả thường là 'package:zam.delta.vn1', cần cắt bỏ chữ 'package:'
                 pkg_name = line.replace("package:", "").strip()
                 found_packages.append(pkg_name)
         
         if not found_packages:
-            error(f"Không tìm thấy ứng dụng nào có tên chứa '{KEYWORD_SEARCH}' trong máy!")
-            error("Gợi ý: Hãy kiểm tra lại xem app tên là gì (ví dụ: 'roblox' hay 'delta').")
+            error(f"Không tìm thấy package nào tên '{KEYWORD_SEARCH}'.")
             return []
             
-        log(f"Đã tìm thấy {len(found_packages)} ứng dụng: {found_packages}")
+        log(f"Đã tìm thấy: {found_packages}")
         return found_packages
     except Exception as e:
-        error(f"Lỗi khi quét ứng dụng: {e}")
+        error(f"Lỗi tìm package: {e}")
         return []
 
-def open_apps_verbose(packages):
-    log("Đang thử mở các ứng dụng...")
+def open_apps(packages):
+    log("Đang mở ứng dụng...")
     
     for pkg in packages:
         print(f"\n--- Đang mở: {pkg} ---")
-        # Lệnh monkey đơn giản nhất, hiển thị kết quả ra màn hình
-        cmd = f"monkey -p {pkg} 1"
         
-        # Chạy và lấy kết quả trả về
-        result = subprocess.getoutput(cmd)
+        # CÁCH 1: Dùng Monkey (Thêm /system/bin/)
+        # Đây là cách hiệu quả nhất cho máy không root
+        cmd_monkey = f"/system/bin/monkey -p {pkg} -c android.intent.category.LAUNCHER 1"
         
-        if "No activities found" in result:
-            error(f"Lỗi: Không tìm thấy app {pkg} (Sai tên package?)")
-        elif "monkey aborted" in result:
-            error(f"Lỗi: Hệ thống chặn mở app {pkg}.")
-        elif "Events injected: 1" in result:
-            log(f"-> Thành công: Đã gửi lệnh mở {pkg}")
-        else:
-            # In toàn bộ lỗi lạ để bạn đọc
-            print(result) 
+        # CÁCH 2: Dùng AM Start (Dự phòng)
+        cmd_am = f"/system/bin/am start -n {pkg}/com.roblox.client.ActivityShim"
+        
+        try:
+            # Thử cách 1 trước
+            log(f"Đang thử mở bằng Monkey...")
+            output = subprocess.getoutput(cmd_monkey)
             
-        time.sleep(2)
+            if "not found" in output:
+                error("Vẫn lỗi 'not found'. Đang thử cách 2 (AM Start)...")
+                # Thử cách 2
+                subprocess.call(cmd_am, shell=True)
+            elif "Events injected" in output:
+                 log("-> Lệnh Monkey đã gửi thành công.")
+            else:
+                # In ra để xem có lỗi gì khác không
+                print(output)
+                
+        except Exception as e:
+            error(f"Lỗi: {e}")
+
+        time.sleep(3) # Đợi 3s để máy load
 
 def main():
     check_permission()
     
-    # Bước 1: Copy file (Giữ nguyên như cũ)
-    # (Tôi rút gọn đoạn này để tập trung vào lỗi mở app)
-    # ...
-    
-    # Bước 2: Tự động tìm đúng tên Package
-    real_packages = find_packages()
-    
-    if real_packages:
-        # Bước 3: Thử mở và hiện lỗi
-        open_apps_verbose(real_packages)
+    # 1. COPY FILE
+    log("Bắt đầu copy scripts...")
+    if os.path.exists(SOURCE_PATH):
+        if not os.path.exists(DEST_PATH):
+            os.makedirs(DEST_PATH)
+        
+        count = 0
+        for f in os.listdir(SOURCE_PATH):
+            src = os.path.join(SOURCE_PATH, f)
+            dst = os.path.join(DEST_PATH, f)
+            if os.path.isfile(src):
+                shutil.copy2(src, dst)
+                count += 1
+        log(f"Đã copy {count} file.")
     else:
-        log("Bỏ qua bước mở App vì không tìm thấy Package.")
+        error("Không tìm thấy thư mục Scripts nguồn.")
 
-    # Bước 4: Mở link (Cái này bạn bảo đã chạy tốt)
+    # 2. TÌM VÀ MỞ APP
+    pkgs = find_packages()
+    if pkgs:
+        open_apps(pkgs)
+    else:
+        log("Bỏ qua mở App do không tìm thấy tên package.")
+
+    # 3. MỞ LINK GAME
     log("Đang mở link game...")
+    # Dùng termux-open-url (lệnh chuẩn của termux)
     os.system(f'termux-open-url "{GAME_URL}"')
+    
+    log("HOÀN TẤT.")
 
 if __name__ == "__main__":
     main()
