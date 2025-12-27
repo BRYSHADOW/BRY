@@ -7,7 +7,7 @@ import sys
 # --- CẤU HÌNH ---
 SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
 DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
-GAME_URL = "https://ro.blox.com/ch/Ebh5?is_retargeting=false&pid=experiencestart_mobileweb&af_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29&af_web_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29&deep_link_value=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D2753915549%26joinAttemptId%3Dd25eee06-0ce0-47dd-8f0c-d52cb5a52c29"
+GAME_URL = "https://www.roblox.com/vi/games/2753915549/Blox-Fruits"
 KEYWORD_SEARCH = "delta" 
 
 def log(text):
