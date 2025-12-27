@@ -62,7 +62,7 @@ def main():
             
         if i < 4: # Chỉ delay nếu chưa phải lần cuối
             log("Đang đợi 3 giây...")
-            time.sleep(10)
+            time.sleep(15)
     
     print("\n" + "="*20)
     log("HOÀN TẤT QUÁ TRÌNH.")
