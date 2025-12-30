@@ -62,7 +62,7 @@ def spin_loading(text, duration):
         i += 1
     sys.stdout.write("\r" + " " * get_width() + "\r") # Xóa dòng
 
-msg banner():
+def msg_banner():
     os.system('clear')
     print(R + "=" * get_width() + RESET)
     logo = f"""
@@ -71,8 +71,8 @@ msg banner():
 ██████╔╝██║   ██║██████╔╝ ╚████╔╝ ██║  ██║  ███╔╝ 
 ██╔══██╗██║   ██║██╔══██╗  ╚██╔╝  ██║  ██║ ███╔╝  
 ██████╔╝╚██████╔╝██║  ██║   ██║   ██████╔╝███████╗
-╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝ {RESET}
-    """
+╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝{RESET}
+"""
     lines = logo.split("\n")
     for line in lines:
         print(center(line, C))
