@@ -73,9 +73,8 @@ def msg_banner():
 ██████╔╝╚██████╔╝██║  ██║   ██║   ██████╔╝███████╗
 ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝{RESET}
 """
-    lines = logo.split("\n")
-    for line in lines:
-        print(center(line, C))
+    # In logo trực tiếp thay vì dùng center để tránh vỡ hình khối
+    print(logo)
     
     print(center(f"{BG}  SYSTEM: ONLINE | USER: VIP | MODE: GOD  {RESET}"))
     print(R + "=" * get_width() + RESET)
@@ -97,7 +96,7 @@ def flush_input():
 def main():
     # 1. INTRO
     matrix_rain()
-    banner()
+    msg_banner() # <--- ĐÃ SỬA: Thay banner() thành msg_banner()
     
     # Fake System Check
     print(center(f"{GR}Kiểm tra thông số hệ thống...{RESET}"))
@@ -195,5 +194,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except:
-        print(f"\n{R}[SYSTEM FAILURE] Force Stop.{RESET}")
+    except Exception as e: # <--- ĐÃ SỬA: Hiện lỗi chi tiết nếu có
+        print(f"\n{R}[SYSTEM FAILURE] Error Detail: {e}{RESET}")
