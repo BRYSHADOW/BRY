@@ -2,96 +2,157 @@ import os
 import shutil
 import time
 import sys
+import random
+import platform
 
-# --- CẤU HÌNH ---
+# ================== CẤU HÌNH ==================
 SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
-DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
+DEST_PATH   = "/storage/emulated/0/Delta/Autoexecute/"
+GAME_URL    = "roblox://placeId=2753915549"
+DELAY_SECONDS = 15
 
-# Link Deep-link (Vào thẳng game)
-GAME_URL = "roblox://placeId=2753915549" 
+# ================== ANSI COLORS ==================
+R  = "\033[38;5;196m"
+G  = "\033[38;5;46m"
+C  = "\033[38;5;51m"
+P  = "\033[38;5;201m"
+Y  = "\033[38;5;226m"
+W  = "\033[1;37m"
+GR = "\033[38;5;240m"
+BG = "\033[48;5;235m"
+RESET = "\033[0m"
 
-def log(text):
-    print(f"\033[92m[AUTO]\033[0m {text}")
+ANSI_CODES = [R, G, C, P, Y, W, GR, BG, RESET]
 
-def error(text):
-    print(f"\033[91m[ERROR]\033[0m {text}")
+# ================== HÀM HIỂN THỊ ==================
+def get_width():
+    try:
+        return os.get_terminal_size().columns
+    except:
+        return 80
 
-def check_permission():
-    # Kiểm tra quyền truy cập bộ nhớ
-    if not os.access("/storage/emulated/0/", os.R_OK):
-        error("Chưa cấp quyền bộ nhớ! Hãy chạy lệnh: termux-setup-storage")
-        sys.exit(1)
+def center(text, color=W):
+    w = get_width()
+    stripped = text
+    for code in ANSI_CODES:
+        stripped = stripped.replace(code, "")
+    pad = (w - len(stripped)) // 2
+    if pad < 0:
+        pad = 0
+    return " " * pad + color + text + RESET
 
+def matrix_rain():
+    os.system("clear")
+    chars = ["10", "01", "<>", "{}", "[]", "//", "--", "||"]
+    w = get_width()
+    for _ in range(25):
+        line = ""
+        for _ in range(w // 3):
+            line += random.choice(chars) + " "
+        print(f"{G}{line}{RESET}")
+        time.sleep(0.03)
+    os.system("clear")
+
+def spin_loading(text, duration):
+    icons = ["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]
+    end = time.time() + duration
+    i = 0
+    while time.time() < end:
+        sys.stdout.write("\r" + center(f"{C}{icons[i%8]} {text} {icons[i%8]}"))
+        sys.stdout.flush()
+        time.sleep(0.1)
+        i += 1
+    sys.stdout.write("\r" + " " * get_width() + "\r")
+
+def msg_banner():
+    os.system("clear")
+    print(R + "=" * get_width() + RESET)
+    print(f"""{C}
+██████╗  ██████╗ ██████╗ ██╗   ██╗██████╗ ███████╗
+██╔══██╗██╔═══██╗██╔══██╗╚██╗ ██╔╝██╔══██╗╚══███╔╝
+██████╔╝██║   ██║██████╔╝ ╚████╔╝ ██║  ██║  ███╔╝
+██╔══██╗██║   ██║██╔══██╗  ╚██╔╝  ██║  ██║ ███╔╝
+██████╔╝╚██████╔╝██║  ██║   ██║   ██████╔╝███████╗
+╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝
+{RESET}""")
+    print(center(f"{BG}  SYSTEM: ONLINE | USER: VIP | MODE: GOD  "))
+    print(R + "=" * get_width() + RESET)
+
+def box_msg(title, msg, color=W):
+    w = get_width() - 6
+    print(center(f"{color}┌─ {title} {'─'*(w-len(title)-2)}┐"))
+    print(center(f"{color}│ {msg.center(w)} │"))
+    print(center(f"{color}└{'─'*(w+2)}┘"))
+
+# ================== MAIN ==================
 def main():
-    check_permission()
-    
-    # --- PHẦN 1: COPY FILE ---
-    print("\n" + "="*20)
-    log("Đang kiểm tra và copy scripts...")
-    
+    matrix_rain()
+    msg_banner()
+
+    print(center(f"{GR}Kiểm tra hệ thống...{RESET}"))
+    time.sleep(0.5)
+    print(center(f"{GR}OS: {platform.system()} | {platform.release()}{RESET}"))
+    spin_loading("Đang tối ưu RAM", 2)
+
+    print()
+    count = 0
     if os.path.exists(SOURCE_PATH):
-        if not os.path.exists(DEST_PATH):
-            try:
-                os.makedirs(DEST_PATH)
-            except: pass
-        
-        count = 0
-        try:
-            files = os.listdir(SOURCE_PATH)
-            for f in files:
-                src = os.path.join(SOURCE_PATH, f)
-                dst = os.path.join(DEST_PATH, f)
-                if os.path.isfile(src):
-                    shutil.copyfile(src, dst)
-                    count += 1
-            log(f"Đã copy thành công: {count} file.")
-        except Exception as e:
-            error(f"Lỗi khi copy: {e}")
+        os.makedirs(DEST_PATH, exist_ok=True)
+        for f in os.listdir(SOURCE_PATH):
+            src = os.path.join(SOURCE_PATH, f)
+            dst = os.path.join(DEST_PATH, f)
+            if os.path.isfile(src) and not os.path.exists(dst):
+                shutil.copy2(src, dst)
+                count += 1
+                print(f"{G}[SYNC] {f}{RESET}")
+                time.sleep(0.05)
+        box_msg("REPORT", f"Đã đồng bộ {count} script", C)
     else:
-        log(f"Không tìm thấy thư mục nguồn: {SOURCE_PATH}")
-        log("Bỏ qua bước copy.")
+        box_msg("ERROR", "Không tìm thấy thư mục Scripts", R)
 
-    # --- PHẦN 2: NHẬP SỐ LẦN MUỐN MỞ ---
-    print("="*20)
-    while True:
-        try:
-            # Nhập input từ bàn phím
-            user_input = input("\033[93m👉 Nhập số lần muốn mở game (Mặc định Enter là 4): \033[0m").strip()
-            
-            if user_input == "":
-                so_lan = 4 # Nếu không nhập gì thì lấy số 4
-                break
-            
-            so_lan = int(user_input)
-            if so_lan > 0:
-                break
-            else:
-                print("⚠️ Vui lòng nhập số lớn hơn 0.")
-        except ValueError:
-            print("⚠️ Lỗi: Chỉ được nhập con số (Ví dụ: 1, 2, 5...)")
+    print()
+    print(center(f"{Y}NHẬP SỐ LẦN CHẠY (ENTER = 4){RESET}"))
+    loop = 4
+    try:
+        inp = input(f"{P}➤ INPUT > {RESET}")
+        if inp.strip():
+            loop = max(1, int(inp))
+    except:
+        loop = 4
 
-    # --- PHẦN 3: THỰC THI MỞ GAME ---
-    log(f"Bắt đầu mở game {so_lan} lần...")
-    
-    for i in range(1, so_lan + 1):
-        print(f"\n--- Lần mở thứ {i}/{so_lan} ---")
-        try:
-            # Lệnh Termux để mở link
+    spin_loading("INIT LAUNCH SEQUENCE", 2)
+
+    for i in range(1, loop + 1):
+        os.system("clear")
+        percent = int(i / loop * 100)
+        bar_len = 20
+        fill = int(i / loop * bar_len)
+        bar = "█"*fill + "░"*(bar_len-fill)
+
+        print(center(f"{C}PROGRESS [{bar}] {percent}%"))
+        print(center(f"{Y}LOOP {i}/{loop}{RESET}"))
+        print()
+
+        box_msg("ACTION", "OPENING ROBLOX URL", G)
+
+        if "termux" in platform.platform().lower():
             os.system(f'termux-open-url "{GAME_URL}"')
-            log(f"Đã gửi lệnh mở Roblox.")
-        except Exception as e:
-            error(f"Lỗi hệ thống: {e}")
-            
-        # Nếu chưa phải lần cuối thì đợi 3 giây
-        if i < so_lan: 
-            log("Đang đợi 3 giây để mở lần tiếp theo...")
-            time.sleep(3)
-    
-    print("\n" + "="*20)
-    log("HOÀN TẤT! Chúc bạn chơi vui vẻ.")
+
+        if i < loop:
+            for s in range(DELAY_SECONDS, 0, -1):
+                col = R if s <= 3 else (Y if s <= 7 else G)
+                sys.stdout.write("\r" + center(f"{GR}Next run in {col}{s:02d}{GR}s"))
+                sys.stdout.flush()
+                time.sleep(1)
+
+    os.system("clear")
+    print(center(f"{G}╔════════════════════════════╗"))
+    print(center(f"{G}║   BÔ RY SYSTEM FINISHED    ║"))
+    print(center(f"{G}╚════════════════════════════╝"))
+    input(center(f"{GR}Press Enter to exit{RESET}"))
 
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt:
-        print("\n\033[91m[STOP]\033[0m Đã dừng tool thủ công.")
+    except Exception as e:
+        print(f"{R}[ERROR] {e}{RESET}")
