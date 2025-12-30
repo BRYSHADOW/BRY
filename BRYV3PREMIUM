@@ -15,7 +15,7 @@ local messages = {
 -- Hiển thị từng dòng với thời gian chờ
 for _, msg in ipairs(messages) do
     v0.new(msg):Display()
-wait(2.1)
+wait(0.5)
 end
 repeat
 	wait();
