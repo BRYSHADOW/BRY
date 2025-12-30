@@ -9,73 +9,100 @@ DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
 GAME_URL = "roblox://placeId=2753915549" 
 DELAY_SECONDS = 15
 
-# --- HÀM HỖ TRỢ ---
+# --- MÀU SẮC ---
+R, G, Y, C, B, RESET = "\033[91m", "\033[92m", "\033[93m", "\033[96m", "\033[1m", "\033[0m"
+
+def banner():
+    os.system('clear')
+    print(f"{C}{B}╔══════════════════════════════════════════╗")
+    print(f"║      AUTO DELTA EXECUTOR - VIP V3        ║")
+    print(f"╚══════════════════════════════════════════╝{RESET}")
+
+def log(text): print(f"{G}[OK]{RESET} {text}")
+def error(text): print(f"{R}[LỖI]{RESET} {text}")
+
+def check_permission():
+    if not os.access("/storage/emulated/0/", os.R_OK):
+        error("Chưa cấp quyền! Chạy: termux-setup-storage")
+        sys.exit(1)
+
+# HÀM XÓA BỘ ĐỆM BÀN PHÍM (Fix lỗi tự Enter)
 def flush_input():
-    """Xóa bộ nhớ đệm bàn phím để tránh lỗi tự nhập"""
     try:
         import termios
         termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-    except:
-        pass
+    except: pass
+
+def countdown(t):
+    while t:
+        print(f"\r{Y}[CHỜ] Mở lại sau: {t}s ...{RESET}", end="")
+        time.sleep(1)
+        t -= 1
+    print("\r" + " " * 30 + "\r", end="")
 
 def main():
-    os.system('clear')
-    print("=== TOOL AUTO EXECUTE (LITE VERSION) ===\n")
-
-    # 1. COPY FILE (Đơn giản hóa)
+    check_permission()
+    banner()
+    
+    # 1. COPY FILE
     if os.path.exists(SOURCE_PATH):
-        if not os.path.exists(DEST_PATH):
-            os.makedirs(DEST_PATH)
-        
-        files = os.listdir(SOURCE_PATH)
-        count = 0
-        print(f"[*] Đang đồng bộ từ: {SOURCE_PATH}")
-        
-        for f in files:
-            full_src = os.path.join(SOURCE_PATH, f)
-            if os.path.isfile(full_src):
-                shutil.copy2(full_src, os.path.join(DEST_PATH, f))
+        os.makedirs(DEST_PATH, exist_ok=True)
+        try:
+            files = [f for f in os.listdir(SOURCE_PATH) if os.path.isfile(os.path.join(SOURCE_PATH, f))]
+            count = 0
+            for f in files:
+                shutil.copy2(os.path.join(SOURCE_PATH, f), os.path.join(DEST_PATH, f))
                 count += 1
-                print(f"  + Đã chép: {f}")
-        
-        print(f"-> Hoàn tất! Đã chép {count} file.\n")
+            log(f"Đã copy {count} script.")
+        except Exception as e: error(f"Lỗi copy: {e}")
     else:
-        print(f"[!] Lỗi: Không tìm thấy thư mục nguồn {SOURCE_PATH}\n")
+        error("Không thấy thư mục Scripts.")
 
-    # 2. NHẬP SỐ LẦN CHẠY (Giữ fix lỗi trôi lệnh)
-    flush_input() # Xóa phím thừa
-    try:
-        raw = input("➤ Nhập số lần chạy (Enter để mặc định là 4): ")
-        loop_count = int(raw) if raw.strip() else 4
-    except ValueError:
-        loop_count = 4
+    print("-" * 40)
+    
+    # 2. NHẬP SỐ LƯỢNG (Đã Fix lỗi trôi lệnh)
+    # Xả bộ đệm để tránh lệnh Enter cũ dính vào
+    flush_input() 
+    time.sleep(0.5) 
+    
+    loop_count = 4
+    while True:
+        try:
+            print(f"{Y}➤ Bạn muốn mở bao nhiêu lần?{RESET}")
+            print(f"  (Nhấn {B}Enter{RESET} để lấy mặc định là {B}4{RESET})")
+            raw = input(f"{C}➜ Nhập số: {RESET}")
+            
+            if raw.strip() == "":
+                log("Đã chọn mặc định: 4 lần.")
+                loop_count = 4
+                break
+            
+            loop_count = int(raw)
+            if loop_count > 0:
+                break
+            else:
+                error("Phải nhập số lớn hơn 0!")
+        except ValueError:
+            error("Vui lòng chỉ nhập số (hoặc nhấn Enter)!")
+        except EOFError:
+            # Nếu vẫn bị lỗi này, nghĩa là đang paste code
+            print(f"\n{R}[CẢNH BÁO] Đừng paste code trực tiếp! Hãy lưu vào file.{RESET}")
+            sys.exit()
 
-    print(f"\n[*] Bắt đầu chạy {loop_count} lần với delay {DELAY_SECONDS}s...")
-    time.sleep(1)
+    print(f"\n{G}>>> BẮT ĐẦU CHẠY {loop_count} LẦN <<<{RESET}")
 
-    # 3. VÒNG LẶP CHÍNH
+    # 3. CHẠY LOOP
     for i in range(1, loop_count + 1):
-        print(f"\n----------------------------")
-        print(f"[*] Đang chạy lần: {i}/{loop_count}")
-        
-        # Mở Game
-        os.system(f'termux-open-url "{GAME_URL}"')
-        print("-> Đã mở Roblox.")
-        
-        if i < loop_count:
-            # Đếm ngược đơn giản
-            print(f"-> Chờ {DELAY_SECONDS} giây cho lần tiếp theo...")
-            for s in range(DELAY_SECONDS, 0, -1):
-                sys.stdout.write(f"\r   Còn lại: {s}s ")
-                sys.stdout.flush()
-                time.sleep(1)
-            print("\r   Đang chuyển tiếp...   ")
+        print(f"\n{C}--- Lần {i} / {loop_count} ---{RESET}")
+        try:
+            os.system(f'termux-open-url "{GAME_URL}"')
+            log("Đã mở Roblox.")
+        except: pass
 
-    print("\n\n=== HOÀN TẤT ===")
-    input("Nhập Enter để thoát.")
+        if i < loop_count:
+            countdown(DELAY_SECONDS)
+    
+    print(f"\n{G}✔ HOÀN TẤT.{RESET}")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n[!] Đã dừng tool.")
+    main()
