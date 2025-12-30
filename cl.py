@@ -126,35 +126,28 @@ def main():
     else:
         box_msg("ERROR", "Không tìm thấy thư mục Scripts!", R)
 
-    # 3. NHẬP SỐ LƯỢNG (ĐÃ SỬA LỖI TỰ CHẠY)
+    # 3. NHẬP SỐ LƯỢNG (ĐÃ SỬA: KHÔNG LOOP NỮA)
     print("\n")
-    # Chờ 1 giây để xả sạch bộ đệm bàn phím, tránh bị trôi lệnh Enter cũ
-    time.sleep(1) 
+    time.sleep(0.5) 
     flush_input()
     
     print(center(f"{Y}╔══════════════════════════════╗"))
     print(center(f"{Y}║   NHẬP SỐ LẦN CHẠY (ENTER=4) ║"))
     print(center(f"{Y}╚══════════════════════════════╝"))
     
-    loop_count = 4
-    while True:
-        try:
-            # Nhập input
-            raw = input(f"\n{P}➤ NHẬP SỐ (Nhập số hoặc Enter): {RESET}")
-            
-            # Xử lý logic
-            if raw.strip() == "":
-                print(f"{G}>> Đã chọn mặc định: 4 lần{RESET}")
-                loop_count = 4
-                break # Thoát vòng lặp
-            elif raw.strip().isdigit():
-                loop_count = int(raw)
-                print(f"{G}>> Đã chọn: {loop_count} lần{RESET}")
-                break # Thoát vòng lặp
-            else:
-                print(f"{R}>> Lỗi: Vui lòng nhập con số đàng hoàng!{RESET}")
-        except: 
-            pass
+    loop_count = 4 # Mặc định
+    try:
+        # Chỉ hỏi 1 lần duy nhất, không dùng vòng lặp while
+        raw = input(f"\n{P}➤ SỐ LẦN MUỐN CHẠY: {RESET}")
+        if raw.strip().isdigit():
+            loop_count = int(raw)
+            print(f"{G}>> OK: Chạy {loop_count} lần.{RESET}")
+        else:
+            print(f"{G}>> (Trống/Sai) Tự động chạy mặc định: 4 lần.{RESET}")
+    except: 
+        # Nếu input bị lỗi (như trong ảnh), tự động chọn 4 luôn
+        print(f"\n{R}>> Lỗi nhập liệu! Tự động chạy 4 lần.{RESET}")
+        loop_count = 4
 
     # 4. START LOOP
     print("\n")
@@ -202,7 +195,9 @@ def main():
     print(center(f"{G}║   BÔ RY ĐẸP TRAI VÃI LỒN  ║"))
     print(center(f"{G}╚══════════════════════════╝{RESET}"))
     print(center(f"{GR}(Press Enter to exit){RESET}"))
-    input()
+    try:
+        input()
+    except: pass
 
 if __name__ == "__main__":
     try:
