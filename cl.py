@@ -73,9 +73,7 @@ def msg_banner():
 ██████╔╝╚██████╔╝██║  ██║   ██║   ██████╔╝███████╗
 ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝{RESET}
 """
-    # In logo trực tiếp thay vì dùng center để tránh vỡ hình khối
     print(logo)
-    
     print(center(f"{BG}  SYSTEM: ONLINE | USER: VIP | MODE: GOD  {RESET}"))
     print(R + "=" * get_width() + RESET)
 
@@ -96,7 +94,7 @@ def flush_input():
 def main():
     # 1. INTRO
     matrix_rain()
-    msg_banner() # <--- ĐÃ SỬA: Thay banner() thành msg_banner()
+    msg_banner()
     
     # Fake System Check
     print(center(f"{GR}Kiểm tra thông số hệ thống...{RESET}"))
@@ -128,8 +126,10 @@ def main():
     else:
         box_msg("ERROR", "Không tìm thấy thư mục Scripts!", R)
 
-    # 3. NHẬP SỐ LƯỢNG
+    # 3. NHẬP SỐ LƯỢNG (ĐÃ SỬA LỖI TỰ CHẠY)
     print("\n")
+    # Chờ 1 giây để xả sạch bộ đệm bàn phím, tránh bị trôi lệnh Enter cũ
+    time.sleep(1) 
     flush_input()
     
     print(center(f"{Y}╔══════════════════════════════╗"))
@@ -137,11 +137,24 @@ def main():
     print(center(f"{Y}╚══════════════════════════════╝"))
     
     loop_count = 4
-    try:
-        raw = input(f"\n{P}➤ INPUT COMMAND > {RESET}")
-        if raw.strip():
-            loop_count = int(raw)
-    except: pass
+    while True:
+        try:
+            # Nhập input
+            raw = input(f"\n{P}➤ NHẬP SỐ (Nhập số hoặc Enter): {RESET}")
+            
+            # Xử lý logic
+            if raw.strip() == "":
+                print(f"{G}>> Đã chọn mặc định: 4 lần{RESET}")
+                loop_count = 4
+                break # Thoát vòng lặp
+            elif raw.strip().isdigit():
+                loop_count = int(raw)
+                print(f"{G}>> Đã chọn: {loop_count} lần{RESET}")
+                break # Thoát vòng lặp
+            else:
+                print(f"{R}>> Lỗi: Vui lòng nhập con số đàng hoàng!{RESET}")
+        except: 
+            pass
 
     # 4. START LOOP
     print("\n")
@@ -194,5 +207,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # <--- ĐÃ SỬA: Hiện lỗi chi tiết nếu có
+    except Exception as e:
         print(f"\n{R}[SYSTEM FAILURE] Error Detail: {e}{RESET}")
