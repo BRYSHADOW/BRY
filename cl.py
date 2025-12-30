@@ -2,205 +2,85 @@ import os
 import shutil
 import time
 import sys
-import random
-import platform
 
 # --- CẤU HÌNH ---
 SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
 DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
+
+# Link Deep-link
 GAME_URL = "roblox://placeId=2753915549" 
-DELAY_SECONDS = 15
 
-# --- MÀU SẮC NEON ---
-R = "\033[38;5;196m" # Red Neon
-G = "\033[38;5;46m"  # Green Matrix
-C = "\033[38;5;51m"  # Cyan Neon
-P = "\033[38;5;201m" # Pink Neon
-Y = "\033[38;5;226m" # Yellow
-W = "\033[1;37m"     # White Bold
-GR = "\033[38;5;240m" # Gray
-BG = "\033[48;5;235m" # Dark Background
-RESET = "\033[0m"
+def log(text):
+    print(f"\033[92m[AUTO]\033[0m {text}")
 
-# --- HÀM HỖ TRỢ VISUAL ---
+def error(text):
+    print(f"\033[91m[ERROR]\033[0m {text}")
 
-def get_width():
-    try:
-        return os.get_terminal_size().columns
-    except:
-        return 80
-
-def center(text, color=W):
-    w = get_width()
-    stripped = text.replace(R, "").replace(G, "").replace(C, "").replace(P, "").replace(Y, "").replace(W, "").replace(RESET, "")
-    pad = (w - len(stripped)) // 2
-    if pad < 0: pad = 0
-    return " " * pad + color + text + RESET
-
-def matrix_rain():
-    """Hiệu ứng mưa ma trận"""
-    os.system('clear')
-    w = get_width()
-    chars = "10 01 <> {} [] // -- ||"
-    for _ in range(25):
-        line = ""
-        for _ in range(w // 3):
-            line += random.choice(chars) + " "
-        print(f"{G}{line}{RESET}")
-        time.sleep(0.03)
-    os.system('clear')
-
-def spin_loading(text, duration):
-    """Vòng xoay loading đẹp"""
-    chars = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
-    end_time = time.time() + duration
-    i = 0
-    while time.time() < end_time:
-        sys.stdout.write(f"\r{center(f'{C}{chars[i % 8]} {text}... {chars[i % 8]}')}")
-        sys.stdout.flush()
-        time.sleep(0.1)
-        i += 1
-    sys.stdout.write("\r" + " " * get_width() + "\r") # Xóa dòng
-
-def msg_banner():
-    os.system('clear')
-    print(R + "=" * get_width() + RESET)
-    logo = f"""
-{C}██████╗  ██████╗ ██████╗ ██╗   ██╗██████╗ ███████╗
-██╔══██╗██╔═══██╗██╔══██╗╚██╗ ██╔╝██╔══██╗╚══███╔╝
-██████╔╝██║   ██║██████╔╝ ╚████╔╝ ██║  ██║  ███╔╝ 
-██╔══██╗██║   ██║██╔══██╗  ╚██╔╝  ██║  ██║ ███╔╝  
-██████╔╝╚██████╔╝██║  ██║   ██║   ██████╔╝███████╗
-╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝{RESET}
-"""
-    print(logo)
-    print(center(f"{BG}  SYSTEM: ONLINE | USER: VIP | MODE: GOD  {RESET}"))
-    print(R + "=" * get_width() + RESET)
-
-def box_msg(title, msg, color=W):
-    w = get_width() - 4
-    print(center(f"{color}┌─ {title} {'─'*(w-len(title)-5)}┐"))
-    print(center(f"{color}│ {msg.center(w-4)} │"))
-    print(center(f"{color}└{'─'*(w-2)}┘"))
-
-def flush_input():
-    try:
-        import termios
-        termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-    except: pass
-
-# --- LOGIC CHÍNH ---
+def check_permission():
+    if not os.access("/storage/emulated/0/", os.R_OK):
+        error("Chưa cấp quyền bộ nhớ! Chạy: termux-setup-storage")
+        sys.exit(1)
 
 def main():
-    # 1. INTRO
-    matrix_rain()
-    msg_banner()
+    check_permission()
     
-    # Fake System Check
-    print(center(f"{GR}Kiểm tra thông số hệ thống...{RESET}"))
-    time.sleep(0.5)
-    print(center(f"{GR}OS: {platform.system()} | Release: {platform.release()}{RESET}"))
-    spin_loading(f"{P}Đang tối ưu hóa bộ nhớ RAM", 2)
-    
-    # 2. CHECK & COPY
-    print("\n")
-    script_count = 0
+    # 1. COPY FILE (Giữ nguyên)
+    log("Bắt đầu copy scripts...")
     if os.path.exists(SOURCE_PATH):
         if not os.path.exists(DEST_PATH):
-            os.makedirs(DEST_PATH)
+            try:
+                os.makedirs(DEST_PATH)
+            except: pass
         
-        files = os.listdir(SOURCE_PATH)
-        real_files = [f for f in files if os.path.isfile(os.path.join(SOURCE_PATH, f))]
-        
-        # Hiệu ứng copy từng file
-        for f in real_files:
-            src = os.path.join(SOURCE_PATH, f)
-            dst = os.path.join(DEST_PATH, f)
-            shutil.copy2(src, dst)
-            script_count += 1
-            print(f"\r{G} [SYNC] >> {f}{RESET}", end="")
-            time.sleep(0.05)
-        
-        print("\n")
-        box_msg("REPORT", f"Đã đồng bộ thành công {script_count} Scripts", C)
+        count = 0
+        try:
+            files = os.listdir(SOURCE_PATH)
+            for f in files:
+                src = os.path.join(SOURCE_PATH, f)
+                dst = os.path.join(DEST_PATH, f)
+                if os.path.isfile(src):
+                    shutil.copyfile(src, dst)
+                    count += 1
+            log(f"Đã copy xong {count} file.")
+        except Exception as e:
+            error(f"Lỗi khi copy: {e}")
     else:
-        box_msg("ERROR", "Không tìm thấy thư mục Scripts!", R)
+        log("Không tìm thấy thư mục Scripts (Bỏ qua copy).")
 
-    # 3. NHẬP SỐ LƯỢNG (ĐÃ SỬA: KHÔNG LOOP NỮA)
-    print("\n")
-    time.sleep(0.5) 
-    flush_input()
-    
-    print(center(f"{Y}╔══════════════════════════════╗"))
-    print(center(f"{Y}║   NHẬP SỐ LẦN CHẠY (ENTER=4) ║"))
-    print(center(f"{Y}╚══════════════════════════════╝"))
-    
-    loop_count = 4 # Mặc định
-    try:
-        # Chỉ hỏi 1 lần duy nhất, không dùng vòng lặp while
-        raw = input(f"\n{P}➤ SỐ LẦN MUỐN CHẠY: {RESET}")
-        if raw.strip().isdigit():
-            loop_count = int(raw)
-            print(f"{G}>> OK: Chạy {loop_count} lần.{RESET}")
-        else:
-            print(f"{G}>> (Trống/Sai) Tự động chạy mặc định: 4 lần.{RESET}")
-    except: 
-        # Nếu input bị lỗi (như trong ảnh), tự động chọn 4 luôn
-        print(f"\n{R}>> Lỗi nhập liệu! Tự động chạy 4 lần.{RESET}")
-        loop_count = 4
+    # 2. NHẬP SỐ LƯỢNG MỞ GAME
+    print("\n" + "="*20)
+    while True:
+        try:
+            user_input = input("\033[93m👉 Nhập số lần muốn mở game (Mặc định 4): \033[0m").strip()
+            if user_input == "":
+                so_lan = 4 # Mặc định nếu không nhập gì
+                break
+            so_lan = int(user_input)
+            if so_lan > 0:
+                break
+            else:
+                print("⚠️ Vui lòng nhập số lớn hơn 0.")
+        except ValueError:
+            print("⚠️ Lỗi: Chỉ được nhập con số!")
 
-    # 4. START LOOP
-    print("\n")
-    spin_loading(f"{R}INITIATING LAUNCH SEQUENCE", 2)
+    # 3. MỞ LINK THEO SỐ LẦN ĐÃ CHỌN
+    log(f"Bắt đầu mở game {so_lan} lần...")
     
-    for i in range(1, loop_count + 1):
-        os.system('clear')
-        # Giao diện khi đang chạy
-        print(f"{P}╔{'═'* (get_width()-2)}╗{RESET}")
-        print(center(f"{P}║ CYBER-EXECUTE SESSION: {W}#{random.randint(10000, 99999)} {P}║"))
-        print(f"{P}╠{'═'* (get_width()-2)}╣{RESET}")
-        
-        # Thanh tiến trình tổng
-        percent = int((i / loop_count) * 100)
-        bar_len = 20
-        filled = int((i / loop_count) * bar_len)
-        bar = "█" * filled + "░" * (bar_len - filled)
-        
-        print(center(f"{C}PROGRESS: [{bar}] {percent}%"))
-        print(center(f"{Y}LOOP: {i}/{loop_count}"))
-        print(f"{P}╚{'═'* (get_width()-2)}╝{RESET}")
-        
-        # Action
-        print("\n")
-        box_msg("ACTION", "INJECTING URL TO SYSTEM...", G)
+    for i in range(1, so_lan + 1):
+        print(f"\n--- Lần mở thứ {i}/{so_lan} ---")
         try:
             os.system(f'termux-open-url "{GAME_URL}"')
-        except: pass
-        
-        if i < loop_count:
-            # Countdown số to
-            print("\n")
-            remain = DELAY_SECONDS
-            while remain > 0:
-                # Hiệu ứng số đếm ngược thay đổi màu
-                color = R if remain <= 3 else (Y if remain <= 7 else G)
-                sys.stdout.write(f"\r{center(f'{GR}Next payload in: {color}>>> {remain:02d} <<< {GR}seconds')}")
-                sys.stdout.flush()
-                time.sleep(1)
-                remain -= 1
+            log(f"Đã gửi lệnh mở game.")
+        except Exception as e:
+            error(f"Lỗi: {e}")
+            
+        # Chỉ delay nếu chưa phải lần cuối cùng
+        if i < so_lan: 
+            log("Đang đợi 3 giây...")
+            time.sleep(3)
     
-    # 5. END
-    os.system('clear')
-    print(center(f"{G}╔══════════════════════════╗"))
-    print(center(f"{G}║   BÔ RY ĐẸP TRAI VÃI LỒN  ║"))
-    print(center(f"{G}╚══════════════════════════╝{RESET}"))
-    print(center(f"{GR}(Press Enter to exit){RESET}"))
-    try:
-        input()
-    except: pass
+    print("\n" + "="*20)
+    log("HOÀN TẤT QUÁ TRÌNH.")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"\n{R}[SYSTEM FAILURE] Error Detail: {e}{RESET}")
+    main()
