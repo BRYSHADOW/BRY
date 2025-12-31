@@ -6,7 +6,7 @@ import sys
 # --- CẤU HÌNH ---
 SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
 DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
-GAME_URL = "roblox://placeId=2753915549"
+GAME_URL = "roblox://placeId=2753915549"  # Blox Fruits
 DELAY_SECONDS = 15
 DEFAULT_LOOPS = 4
 
@@ -21,8 +21,9 @@ RESET = "\033[0m"
 def banner():
     os.system('clear')
     print(f"{C}{B}╔══════════════════════════════════════════╗")
-    print(f"║      AUTO DELTA EXECUTOR - VIP V4        ║")
-    print(f"║     Copy script & Auto open Blox Fruits  ║")
+    print(f"║      AUTO DELTA EXECUTOR - VIP V6        ║")
+    print(f"║   Copy script & Auto open Blox Fruits    ║")
+    print(f"║     Bypass popup - Hỗ trợ clone ZAM      ║")
     print(f"╚══════════════════════════════════════════╝{RESET}")
 
 def log(text): print(f"{G}[OK]{RESET} {text}")
@@ -31,10 +32,9 @@ def error(text): print(f"{R}[LỖI]{RESET} {text}")
 def check_permission():
     if not os.access("/storage/emulated/0/", os.R_OK | os.W_OK):
         error("Chưa cấp quyền truy cập bộ nhớ!")
-        print(f"{Y}Hãy chạy lệnh: termux-setup-storage{RESET}")
+        print(f"{Y}Chạy lệnh: termux-setup-storage{RESET}")
         sys.exit(1)
 
-# Phát hiện đang chạy qua pipe (curl | python) để tránh lỗi EOF
 def is_running_from_pipe():
     return not sys.stdin.isatty()
 
@@ -52,11 +52,37 @@ def countdown(t):
         t -= 1
     print("\r" + " " * 40 + "\r", end="")
 
+# Tự động tìm package Delta clone - ưu tiên zam.delta.vn
+def get_delta_package():
+    try:
+        output = os.popen("pm list packages | grep delta").read()
+        packages = [line.strip().replace("package:", "") for line in output.splitlines() if line]
+
+        if not packages:
+            return None
+
+        # Ưu tiên package bắt đầu bằng zam.delta.vn
+        zam_packages = [p for p in packages if p.startswith("zam.delta.vn")]
+        if zam_packages:
+            return zam_packages[0]
+
+        # Nếu không có zam, ưu tiên có "clone" hoặc "vng"
+        clone_packages = [p for p in packages if "clone" in p.lower() or "vng" in p.lower()]
+        if clone_packages:
+            return clone_packages[0]
+
+        # Lấy cái đầu tiên nếu không có gì đặc biệt
+        return packages[0]
+
+    except Exception as e:
+        print(f"{Y}Lỗi tìm package: {e}{RESET}")
+        return None
+
 def main():
     check_permission()
     banner()
 
-    # 1. Copy script từ thư mục Scripts sang Autoexecute
+    # 1. Copy scripts
     if os.path.exists(SOURCE_PATH):
         os.makedirs(DEST_PATH, exist_ok=True)
         try:
@@ -70,9 +96,9 @@ def main():
             if count > 0:
                 log(f"Đã copy {count} script vào Autoexecute.")
             else:
-                log("Thư mục Scripts có nhưng không có file nào.")
+                log("Thư mục Scripts không có file nào.")
         except Exception as e:
-            error(f"Lỗi khi copy: {e}")
+            error(f"Lỗi copy: {e}")
     else:
         error("Không tìm thấy thư mục Scripts!")
         print(f"{Y}Đường dẫn: {SOURCE_PATH}{RESET}")
@@ -80,14 +106,24 @@ def main():
 
     print(f"{C}{'-' * 48}{RESET}")
 
+    # Tìm package Delta clone (ưu tiên zam.delta.vn...)
+    delta_package = get_delta_package()
+    if delta_package:
+        log(f"Phát hiện Delta clone: {B}{delta_package}{RESET}")
+        log("Sẽ mở trực tiếp không hiện popup!")
+    else:
+        error("Không tìm thấy package Delta nào!")
+        print(f"{Y}Bạn vui lòng chạy lệnh này trong Termux để lấy package chính xác:{RESET}")
+        print(f"{C}pm list packages | grep delta{RESET}")
+        print(f"{Y}Sau đó chỉnh tay trong code (dòng delta_package = \"...\"){RESET}")
+        delta_package = None  # Dùng cách cũ
+
     # 2. Nhập số lần mở
     loop_count = DEFAULT_LOOPS
 
     if is_running_from_pipe():
-        # Nếu chạy qua curl | python → dùng mặc định luôn, không hỏi
-        log(f"Phát hiện chạy trực tiếp từ web → dùng mặc định {DEFAULT_LOOPS} lần.")
+        log(f"Chạy từ web → dùng mặc định {DEFAULT_LOOPS} lần.")
     else:
-        # Chỉ hỏi khi chạy trong terminal thật
         flush_input()
         time.sleep(0.3)
         while True:
@@ -97,7 +133,7 @@ def main():
                 raw = input(f"{C}➜ Nhập số: {RESET}")
 
                 if raw.strip() == "":
-                    log(f"Đã chọn mặc định: {DEFAULT_LOOPS} lần.")
+                    log(f"Chọn mặc định: {DEFAULT_LOOPS} lần.")
                     break
 
                 loop_count = int(raw)
@@ -105,26 +141,31 @@ def main():
                     log(f"Đã chọn: {loop_count} lần.")
                     break
                 else:
-                    error("Số lần phải lớn hơn 0!")
+                    error("Số lần phải > 0!")
             except ValueError:
-                error("Chỉ được nhập số nguyên dương hoặc nhấn Enter!")
+                error("Chỉ nhập số hoặc Enter!")
 
     print(f"\n{G}{B}>>> BẮT ĐẦU MỞ ROBLOX {loop_count} LẦN <<<{RESET}\n")
 
-    # 3. Vòng lặp mở game
+    # 3. Loop mở game
     for i in range(1, loop_count + 1):
         print(f"{C}─── Lần {i}/{loop_count} ───{RESET}")
-        try:
+
+        if delta_package:
+            # Mở trực tiếp bằng package → bypass popup 100%
+            cmd = f'am start -n {delta_package}/com.roblox.client.GameActivity -a android.intent.action.VIEW -d "{GAME_URL}"'
+            os.system(cmd)
+            log("Đã mở trực tiếp vào Delta clone (no popup).")
+        else:
+            # Fallback cách cũ
             os.system(f'termux-open-url "{GAME_URL}"')
-            log("Đã mở Blox Fruits thành công.")
-        except:
-            error("Lỗi khi mở URL (có thể không có Termux:API)")
+            log("Đã mở Roblox (cách cũ - có thể hiện popup).")
 
         if i < loop_count:
             countdown(DELAY_SECONDS)
 
     print(f"\n{G}{B}✔ HOÀN TẤT! Đã mở xong {loop_count} lần.{RESET}")
-    print(f"{Y}Chúc bạn farm vui vẻ!{RESET}")
+    print(f"{Y}Farm Blox Fruits ngon lành nhé anh em! 🔥{RESET}")
 
 if __name__ == "__main__":
     main()
