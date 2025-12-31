@@ -1,0 +1,130 @@
+import os
+import shutil
+import time
+import sys
+
+# --- CẤU HÌNH ---
+SOURCE_PATH = "/storage/emulated/0/Delta/Scripts/"
+DEST_PATH = "/storage/emulated/0/Delta/Autoexecute/"
+GAME_URL = "roblox://placeId=2753915549"
+DELAY_SECONDS = 15
+DEFAULT_LOOPS = 4
+
+# --- MÀU SẮC ---
+R = "\033[91m"   # Red
+G = "\033[92m"   # Green
+Y = "\033[93m"   # Yellow
+C = "\033[96m"   # Cyan
+B = "\033[1m"    # Bold
+RESET = "\033[0m"
+
+def banner():
+    os.system('clear')
+    print(f"{C}{B}╔══════════════════════════════════════════╗")
+    print(f"║      AUTO DELTA EXECUTOR - VIP V4        ║")
+    print(f"║     Copy script & Auto open Blox Fruits  ║")
+    print(f"╚══════════════════════════════════════════╝{RESET}")
+
+def log(text): print(f"{G}[OK]{RESET} {text}")
+def error(text): print(f"{R}[LỖI]{RESET} {text}")
+
+def check_permission():
+    if not os.access("/storage/emulated/0/", os.R_OK | os.W_OK):
+        error("Chưa cấp quyền truy cập bộ nhớ!")
+        print(f"{Y}Hãy chạy lệnh: termux-setup-storage{RESET}")
+        sys.exit(1)
+
+# Phát hiện đang chạy qua pipe (curl | python) để tránh lỗi EOF
+def is_running_from_pipe():
+    return not sys.stdin.isatty()
+
+def flush_input():
+    try:
+        import termios
+        termios.tcflush(sys.stdin, termios.TCIOFLUSH)
+    except:
+        pass
+
+def countdown(t):
+    while t > 0:
+        print(f"\r{Y}[CHỜ] Mở lại sau {t}s ...{RESET}", end="", flush=True)
+        time.sleep(1)
+        t -= 1
+    print("\r" + " " * 40 + "\r", end="")
+
+def main():
+    check_permission()
+    banner()
+
+    # 1. Copy script từ thư mục Scripts sang Autoexecute
+    if os.path.exists(SOURCE_PATH):
+        os.makedirs(DEST_PATH, exist_ok=True)
+        try:
+            files = [f for f in os.listdir(SOURCE_PATH) if os.path.isfile(os.path.join(SOURCE_PATH, f))]
+            count = 0
+            for f in files:
+                src = os.path.join(SOURCE_PATH, f)
+                dst = os.path.join(DEST_PATH, f)
+                shutil.copy2(src, dst)
+                count += 1
+            if count > 0:
+                log(f"Đã copy {count} script vào Autoexecute.")
+            else:
+                log("Thư mục Scripts có nhưng không có file nào.")
+        except Exception as e:
+            error(f"Lỗi khi copy: {e}")
+    else:
+        error("Không tìm thấy thư mục Scripts!")
+        print(f"{Y}Đường dẫn: {SOURCE_PATH}{RESET}")
+        sys.exit(1)
+
+    print(f"{C}{'-' * 48}{RESET}")
+
+    # 2. Nhập số lần mở
+    loop_count = DEFAULT_LOOPS
+
+    if is_running_from_pipe():
+        # Nếu chạy qua curl | python → dùng mặc định luôn, không hỏi
+        log(f"Phát hiện chạy trực tiếp từ web → dùng mặc định {DEFAULT_LOOPS} lần.")
+    else:
+        # Chỉ hỏi khi chạy trong terminal thật
+        flush_input()
+        time.sleep(0.3)
+        while True:
+            try:
+                print(f"{Y}➤ Bạn muốn mở Roblox bao nhiêu lần?{RESET}")
+                print(f"  (Nhấn {B}Enter{RESET} để dùng mặc định: {B}{DEFAULT_LOOPS}{RESET} lần)")
+                raw = input(f"{C}➜ Nhập số: {RESET}")
+
+                if raw.strip() == "":
+                    log(f"Đã chọn mặc định: {DEFAULT_LOOPS} lần.")
+                    break
+
+                loop_count = int(raw)
+                if loop_count > 0:
+                    log(f"Đã chọn: {loop_count} lần.")
+                    break
+                else:
+                    error("Số lần phải lớn hơn 0!")
+            except ValueError:
+                error("Chỉ được nhập số nguyên dương hoặc nhấn Enter!")
+
+    print(f"\n{G}{B}>>> BẮT ĐẦU MỞ ROBLOX {loop_count} LẦN <<<{RESET}\n")
+
+    # 3. Vòng lặp mở game
+    for i in range(1, loop_count + 1):
+        print(f"{C}─── Lần {i}/{loop_count} ───{RESET}")
+        try:
+            os.system(f'termux-open-url "{GAME_URL}"')
+            log("Đã mở Blox Fruits thành công.")
+        except:
+            error("Lỗi khi mở URL (có thể không có Termux:API)")
+
+        if i < loop_count:
+            countdown(DELAY_SECONDS)
+
+    print(f"\n{G}{B}✔ HOÀN TẤT! Đã mở xong {loop_count} lần.{RESET}")
+    print(f"{Y}Chúc bạn farm vui vẻ!{RESET}")
+
+if __name__ == "__main__":
+    main()
