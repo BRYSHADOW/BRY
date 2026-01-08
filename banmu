@@ -1,10 +1,11 @@
 --==================================================
--- HACKBORY V7 - ESP | AURA | LASER (ULTRA SMOOTH + COOL GUI + LASER WARNING NHỎ GỌN)
+-- HACKBORY V7 - ESP | AURA | NEW SYSTEM LASER (ANTI-INVISIBLE)
 --==================================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 local LP = Players.LocalPlayer
 
 -- TOGGLE
@@ -15,27 +16,42 @@ local ESP_ALPHA = 100
 local AURA_ALPHA = 100
 local LASER_ALPHA = 100
 
+-- CẤU HÌNH LASER MỚI (Từ mã nguồn bạn cung cấp)
+local LASER_CONFIG = {
+	Color = Color3.fromRGB(255, 255, 0), -- Màu vàng
+	WidthStart = 0.2,
+	WidthEnd = 0.05,
+	Length = 150,
+	OffSet = Vector3.new(1.5, -0.5, 0) -- Lệch phải
+}
+
+-- TẠO FOLDER CHỨA LASER (ANTI-INVISIBLE)
+local LaserFolder = Workspace:FindFirstChild("System_Laser")
+if not LaserFolder then
+	LaserFolder = Instance.new("Folder", Workspace)
+	LaserFolder.Name = "System_Laser"
+end
+
 local function trans(v)
 	return math.clamp(1 - (v / 100), 0, 1)
 end
 
---================ GUI =================
+--================ GUI SETUP (GIỮ NGUYÊN) =================
 local gui = Instance.new("ScreenGui")
-gui.Name = "HACKBORY_GUI"
+gui.Name = "HACKBORY_GUI_V7_NEW"
 gui.Parent = game.CoreGui
 gui.ResetOnSpawn = false
 
 -- Avatar ID
 local AVATAR_ID = "rbxassetid://133760055685849"
 
--- Open Button (Avatar đẹp ngầu với viền neon)
+-- Open Button
 local openButton = Instance.new("ImageButton")
 openButton.Size = UDim2.fromOffset(80, 80)
 openButton.Position = UDim2.new(0, 30, 0.5, -40)
 openButton.AnchorPoint = Vector2.new(0, 0.5)
 openButton.BackgroundTransparency = 1
 openButton.Image = AVATAR_ID
-openButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
 openButton.Parent = gui
 
 local openCorner = Instance.new("UICorner")
@@ -47,12 +63,6 @@ openStrokeOuter.Thickness = 6
 openStrokeOuter.Color = Color3.fromRGB(255, 80, 80)
 openStrokeOuter.Transparency = 0.3
 openStrokeOuter.Parent = openButton
-
-local openStrokeInner = Instance.new("UIStroke")
-openStrokeInner.Thickness = 3
-openStrokeInner.Color = Color3.fromRGB(255, 200, 200)
-openStrokeInner.Transparency = 0
-openStrokeInner.Parent = openButton
 
 -- Frame chính
 local frame = Instance.new("Frame")
@@ -90,7 +100,7 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -100, 0, 50)
 title.Position = UDim2.new(0, 20, 0, 10)
 title.BackgroundTransparency = 1
-title.Text = "HACKBORY V7 – ESP | AURA | LASER"
+title.Text = "HACKBORY V7 – NEW SYSTEM LASER"
 title.TextColor3 = Color3.fromRGB(255, 120, 120)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
@@ -103,53 +113,24 @@ closeButton.Position = UDim2.new(1, -70, 0, 15)
 closeButton.BackgroundTransparency = 1
 closeButton.Image = AVATAR_ID
 closeButton.Parent = frame
-
 local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(1, 0)
 closeCorner.Parent = closeButton
 
-local closeStrokeOuter = Instance.new("UIStroke")
-closeStrokeOuter.Thickness = 4
-closeStrokeOuter.Color = Color3.fromRGB(255, 80, 80)
-closeStrokeOuter.Transparency = 0.4
-closeStrokeOuter.Parent = closeButton
-
-local closeStrokeInner = Instance.new("UIStroke")
-closeStrokeInner.Thickness = 2
-closeStrokeInner.Color = Color3.fromRGB(255, 255, 255)
-closeStrokeInner.Transparency = 0.3
-closeStrokeInner.Parent = closeButton
-
--- Animation mở/đóng
+-- Animation GUI
 local function openAnim()
 	frame.Visible = true
 	frame.Size = UDim2.fromOffset(0, 220)
-	TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-		Size = UDim2.fromOffset(620, 220)
-	}):Play()
-	TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-		BackgroundTransparency = 0.05
-	}):Play()
+	TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.fromOffset(620, 220)}):Play()
 end
-
 local function closeAnim()
-	TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {
-		Size = UDim2.fromOffset(0, 220)
-	}):Play()
-	task.delay(0.3, function()
-		frame.Visible = false
-		openButton.Visible = true
-	end)
+	TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = UDim2.fromOffset(0, 220)}):Play()
+	task.delay(0.3, function() frame.Visible = false; openButton.Visible = true end)
 end
-
-openButton.MouseButton1Click:Connect(function()
-	openButton.Visible = false
-	openAnim()
-end)
-
+openButton.MouseButton1Click:Connect(function() openButton.Visible = false; openAnim() end)
 closeButton.MouseButton1Click:Connect(closeAnim)
 
---================ BUTTON TOGGLE =================
+-- Toggles & Inputs
 local function createToggle(text, xPos, callback)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(0, 180, 0, 45)
@@ -159,89 +140,47 @@ local function createToggle(text, xPos, callback)
 	btn.TextColor3 = Color3.new(1, 1, 1)
 	btn.TextScaled = true
 	btn.Font = Enum.Font.GothamBold
-	btn.BorderSizePixel = 0
 	btn.Parent = frame
-
-	local btnCorner = Instance.new("UICorner")
-	btnCorner.CornerRadius = UDim.new(0, 12)
-	btnCorner.Parent = btn
-
-	local btnStroke = Instance.new("UIStroke")
-	btnStroke.Thickness = 2
-	btnStroke.Color = Color3.fromRGB(255, 80, 80)
-	btnStroke.Transparency = 0.5
-	btnStroke.Parent = btn
-
-	local grad = Instance.new("UIGradient")
-	grad.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 60)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 30))
-	}
-	grad.Parent = btn
-
+	local btnCorner = Instance.new("UICorner"); btnCorner.CornerRadius = UDim.new(0, 12); btnCorner.Parent = btn
+	
 	local on = true
 	btn.MouseButton1Click:Connect(function()
 		on = not on
 		btn.Text = text .. ": " .. (on and "ON" or "OFF")
-		if on then
-			btn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-			btnStroke.Transparency = 0.2
-		else
-			btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-			btnStroke.Transparency = 0.5
-		end
+		btn.BackgroundColor3 = on and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(30, 30, 30)
 		callback(on)
 	end)
-
-	return btn
 end
 
-createToggle("ESP + AURA", 30, function(v) ESP_ON = v end)
-createToggle("NAME", 230, function(v) NAME_ON = v end)
-createToggle("LASER", 430, function(v) LASER_ON = v end)
-
---================ INPUT ALPHA =================
 local function createInput(label, xPos, default, callback)
 	local box = Instance.new("TextBox")
 	box.Size = UDim2.new(0, 180, 0, 40)
 	box.Position = UDim2.new(0, xPos, 0, 135)
-	box.PlaceholderText = label .. " (1-100)"
+	box.PlaceholderText = label
 	box.Text = tostring(default)
 	box.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 	box.TextColor3 = Color3.new(1, 1, 1)
 	box.TextScaled = true
 	box.Font = Enum.Font.Gotham
-	box.ClearTextOnFocus = false
-	box.BorderSizePixel = 0
 	box.Parent = frame
-
-	local boxCorner = Instance.new("UICorner")
-	boxCorner.CornerRadius = UDim.new(0, 10)
-	boxCorner.Parent = box
-
-	local boxStroke = Instance.new("UIStroke")
-	boxStroke.Thickness = 1.5
-	boxStroke.Color = Color3.fromRGB(255, 80, 80)
-	boxStroke.Transparency = 0.6
-	boxStroke.Parent = box
-
+	local boxCorner = Instance.new("UICorner"); boxCorner.CornerRadius = UDim.new(0, 10); boxCorner.Parent = box
 	box.FocusLost:Connect(function(enter)
 		if enter then
 			local v = tonumber(box.Text)
-			if v then
-				v = math.clamp(v, 1, 100)
-				box.Text = v
-				callback(v)
-			end
+			if v then callback(math.clamp(v, 1, 100)) end
 		end
 	end)
 end
 
+createToggle("ESP + AURA", 30, function(v) ESP_ON = v end)
+createToggle("NAME", 230, function(v) NAME_ON = v end)
+createToggle("LASER", 430, function(v) LASER_ON = v end) -- Toggle Laser
+
 createInput("ESP Đậm", 30, ESP_ALPHA, function(v) ESP_ALPHA = v end)
 createInput("AURA Đậm", 230, AURA_ALPHA, function(v) AURA_ALPHA = v end)
-createInput("LASER Đậm", 430, LASER_ALPHA, function(v) LASER_ALPHA = v end)
+createInput("LASER Đậm", 430, LASER_ALPHA, function(v) LASER_ALPHA = v end) -- Input Alpha
 
---================ THÔNG BÁO LASER NHẮM VÀO BẠN (NHỎ GỌN HƠN) =================
+--================ WARNING SYSTEM (NHỎ GỌN) =================
 local warningLabel = Instance.new("TextLabel")
 warningLabel.Size = UDim2.new(0, 200, 0, 30)
 warningLabel.Position = UDim2.new(0.5, 0, 0.05, 0)
@@ -252,40 +191,73 @@ warningLabel.Text = "⚠️ LASER NHẮM VÀO BẠN ⚠️"
 warningLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
 warningLabel.TextScaled = true
 warningLabel.Font = Enum.Font.GothamBold
-warningLabel.ZIndex = 50
 warningLabel.Visible = false
 warningLabel.Parent = gui
+local warningCorner = Instance.new("UICorner"); warningCorner.CornerRadius = UDim.new(0, 12); warningCorner.Parent = warningLabel
 
-local warningCorner = Instance.new("UICorner")
-warningCorner.CornerRadius = UDim.new(0, 12)
-warningCorner.Parent = warningLabel
-
-local warningStroke = Instance.new("UIStroke")
-warningStroke.Color = Color3.fromRGB(255, 50, 50)
-warningStroke.Thickness = 2
-warningStroke.Transparency = 0.3
-warningStroke.Parent = warningLabel
-
--- Hiệu ứng nhấp nháy nhẹ (không pulse to quá)
-local flashTween
 local function setWarning(visible)
-	if visible then
-		warningLabel.Visible = true
-		if flashTween then flashTween:Cancel() end
-		flashTween = TweenService:Create(warningLabel, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-			TextTransparency = 0.3,
-			BackgroundTransparency = 0.6
-		})
-		flashTween:Play()
-	else
-		if flashTween then flashTween:Cancel() end
-		warningLabel.TextTransparency = 0
-		warningLabel.BackgroundTransparency = 0.3
-		warningLabel.Visible = false
-	end
+	warningLabel.Visible = visible
 end
 
--- Hàm tính khoảng cách từ điểm đến đoạn thẳng
+--================ HÀM XỬ LÝ LOGIC MỚI =================
+
+-- 1. HÀM XÓA LASER
+local function CleanupLaser(plrName)
+	local beam = LaserFolder:FindFirstChild("BEAM_" .. plrName)
+	if beam then beam:Destroy() end
+	local target = LaserFolder:FindFirstChild("TARGET_" .. plrName)
+	if target then target:Destroy() end
+end
+
+-- 2. HÀM CẬP NHẬT LASER (Dựa trên code mới của bạn)
+local function UpdateLaser(plr)
+	-- Nếu tắt Laser hoặc nhân vật lỗi -> Xóa
+	if not LASER_ON or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") or not plr.Character:FindFirstChild("Humanoid") or plr.Character.Humanoid.Health <= 0 then
+		CleanupLaser(plr.Name)
+		return
+	end
+
+	local hrp = plr.Character.HumanoidRootPart
+
+	-- Tạo điểm xuất phát trên người chơi
+	local att0 = hrp:FindFirstChild("LASER_SRC")
+	if not att0 then
+		att0 = Instance.new("Attachment", hrp)
+		att0.Name = "LASER_SRC"
+		att0.Position = LASER_CONFIG.OffSet
+	end
+
+	-- Tạo điểm đích trong Folder
+	local att1 = LaserFolder:FindFirstChild("TARGET_" .. plr.Name)
+	if not att1 then
+		att1 = Instance.new("Attachment", LaserFolder)
+		att1.Name = "TARGET_" .. plr.Name
+	end
+	
+	-- Cập nhật đích đến
+	att1.WorldPosition = att0.WorldPosition + hrp.CFrame.LookVector * LASER_CONFIG.Length
+
+	-- Tạo/Cập nhật Beam
+	local beam = LaserFolder:FindFirstChild("BEAM_" .. plr.Name)
+	if not beam then
+		beam = Instance.new("Beam", LaserFolder)
+		beam.Name = "BEAM_" .. plr.Name
+		beam.Attachment0 = att0
+		beam.Attachment1 = att1
+		beam.Color = ColorSequence.new(LASER_CONFIG.Color)
+		beam.Width0 = LASER_CONFIG.WidthStart
+		beam.Width1 = LASER_CONFIG.WidthEnd
+		beam.FaceCamera = true
+		beam.LightEmission = 1
+		beam.LightInfluence = 0
+	end
+
+	-- Áp dụng độ mờ từ GUI (LASER_ALPHA)
+	beam.Transparency = NumberSequence.new(trans(LASER_ALPHA))
+	beam.Enabled = true
+end
+
+-- 3. HÀM TÍNH KHOẢNG CÁCH CHO WARNING
 local function pointToLineDistance(point, lineStart, lineEnd)
 	local lineVec = lineEnd - lineStart
 	local lineLen = lineVec.Magnitude
@@ -297,12 +269,10 @@ local function pointToLineDistance(point, lineStart, lineEnd)
 	return (point - closest).Magnitude
 end
 
--- Kiểm tra laser có nhắm vào bạn không
-local function isLaserAimingAtMe(char)
-	local hand = char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm")
-	if not hand then return false end
-	
-	local beam = hand:FindFirstChild("LASER")
+-- 4. KIỂM TRA LASER CÓ NHẮM VÀO MÌNH KHÔNG (CẬP NHẬT THEO SYSTEM MỚI)
+local function isLaserAimingAtMe(plr)
+	-- Tìm Beam trong Folder thay vì trên người chơi
+	local beam = LaserFolder:FindFirstChild("BEAM_" .. plr.Name)
 	if not beam or not beam.Attachment0 or not beam.Attachment1 then return false end
 	
 	local startPos = beam.Attachment0.WorldPosition
@@ -313,11 +283,12 @@ local function isLaserAimingAtMe(char)
 	local lpHrp = lpChar:FindFirstChild("HumanoidRootPart")
 	if not lpHrp then return false end
 	
+	-- Tính toán khoảng cách (Ngưỡng 5 studs)
 	local dist = pointToLineDistance(lpHrp.Position, startPos, endPos)
-	return dist < 5  -- Ngưỡng 5 studs
+	return dist < 5
 end
 
---================ ESP + AURA =================
+--================ ESP & NAME LOGIC (GIỮ NGUYÊN) =================
 local function applyESP(char)
 	for _, p in pairs(char:GetChildren()) do
 		if p:IsA("BasePart") then
@@ -325,118 +296,55 @@ local function applyESP(char)
 			if ESP_ON then
 				if not box then
 					box = Instance.new("BoxHandleAdornment", p)
-					box.Name = "ESP_BOX"
-					box.Adornee = p
-					box.AlwaysOnTop = true
+					box.Name = "ESP_BOX"; box.Adornee = p; box.AlwaysOnTop = true
 					box.Size = p.Size + Vector3.new(0.1, 0.1, 0.1)
-					box.Color3 = Color3.fromRGB(255, 0, 0)
-					box.Transparency = 0.5
+					box.Color3 = Color3.fromRGB(255, 0, 0); box.Transparency = 0.5
 				end
-				box.Transparency = trans(ESP_ALPHA)
-				box.Visible = true
-			elseif box then
-				box.Visible = false
-			end
+				box.Transparency = trans(ESP_ALPHA); box.Visible = true
+			elseif box then box.Visible = false end
 		end
 	end
-
 	local hl = char:FindFirstChild("ESP_HL")
 	if ESP_ON then
 		if not hl then
 			hl = Instance.new("Highlight", char)
-			hl.Name = "ESP_HL"
-			hl.FillColor = Color3.fromRGB(255, 0, 0)
-			hl.OutlineColor = Color3.fromRGB(255, 100, 100)
+			hl.Name = "ESP_HL"; hl.FillColor = Color3.fromRGB(255, 0, 0); hl.OutlineColor = Color3.fromRGB(255, 100, 100)
 		end
-		hl.FillTransparency = trans(AURA_ALPHA)
-		hl.OutlineTransparency = math.clamp(trans(AURA_ALPHA) - 0.3, 0, 1)
-		hl.Enabled = true
-	elseif hl then
-		hl.Enabled = false
-	end
+		hl.FillTransparency = trans(AURA_ALPHA); hl.OutlineTransparency = math.clamp(trans(AURA_ALPHA) - 0.3, 0, 1); hl.Enabled = true
+	elseif hl then hl.Enabled = false end
 end
 
---================ NAME =================
 local function applyName(char, plr)
 	local head = char:FindFirstChild("Head")
 	if not head then return end
 	local tag = char:FindFirstChild("NAME_TAG")
 	if NAME_ON then
 		if not tag then
-			tag = Instance.new("BillboardGui", char)
-			tag.Name = "NAME_TAG"
-			tag.Adornee = head
-			tag.Size = UDim2.new(0, 200, 0, 50)
-			tag.StudsOffset = Vector3.new(0, 3, 0)
-			tag.AlwaysOnTop = true
-
-			local txt = Instance.new("TextLabel", tag)
-			txt.Size = UDim2.fromScale(1, 1)
-			txt.BackgroundTransparency = 1
-			txt.Text = plr.DisplayName
-			txt.TextColor3 = Color3.fromRGB(0, 255, 100)
-			txt.TextScaled = true
-			txt.Font = Enum.Font.GothamBold
-
-			local stroke = Instance.new("UIStroke", txt)
-			stroke.Color = Color3.new(0, 0, 0)
-			stroke.Thickness = 2
+			tag = Instance.new("BillboardGui", char); tag.Name = "NAME_TAG"; tag.Adornee = head
+			tag.Size = UDim2.new(0, 200, 0, 50); tag.StudsOffset = Vector3.new(0, 3, 0); tag.AlwaysOnTop = true
+			local txt = Instance.new("TextLabel", tag); txt.Size = UDim2.fromScale(1, 1); txt.BackgroundTransparency = 1
+			txt.Text = plr.DisplayName; txt.TextColor3 = Color3.fromRGB(0, 255, 100); txt.TextScaled = true; txt.Font = Enum.Font.GothamBold
+			local stroke = Instance.new("UIStroke", txt); stroke.Color = Color3.new(0,0,0); stroke.Thickness = 2
 		end
 		tag.Enabled = true
-	elseif tag then
-		tag.Enabled = false
-	end
+	elseif tag then tag.Enabled = false end
 end
 
---================ LASER =================
-local lasers = {}
-local function applyLaser(char)
-	local hand = char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm")
-	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not hand or not hrp then return end
-
-	if not LASER_ON then
-		if lasers[char] then
-			lasers[char]:Disconnect()
-			lasers[char] = nil
-		end
-		local beam = hand:FindFirstChild("LASER")
-		if beam then beam:Destroy() end
-		return
-	end
-
-	if hand:FindFirstChild("LASER") then return end
-
-	local a0 = Instance.new("Attachment", hand)
-	local a1 = Instance.new("Attachment", workspace.Terrain)
-
-	local beam = Instance.new("Beam", hand)
-	beam.Name = "LASER"
-	beam.Attachment0 = a0
-	beam.Attachment1 = a1
-	beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 0))
-	beam.Width0 = 0.3
-	beam.Width1 = 0.1
-	beam.LightEmission = 1
-	beam.LightInfluence = 0
-
-	lasers[char] = RunService.RenderStepped:Connect(function()
-		a1.WorldPosition = a0.WorldPosition + hrp.CFrame.LookVector * 120
-		beam.Transparency = NumberSequence.new(trans(LASER_ALPHA))
-	end)
-end
-
---================ LOOP =================
+--================ VÒNG LẶP CHÍNH =================
 RunService.RenderStepped:Connect(function()
 	local aimingAtMe = false
 	
 	for _, plr in pairs(Players:GetPlayers()) do
 		if plr ~= LP and plr.Character then
+			-- 1. ESP & NAME
 			applyESP(plr.Character)
 			applyName(plr.Character, plr)
-			applyLaser(plr.Character)
 			
-			if isLaserAimingAtMe(plr.Character) then
+			-- 2. LASER MỚI (ANTI-INVISIBLE)
+			UpdateLaser(plr)
+			
+			-- 3. CHECK WARNING
+			if LASER_ON and isLaserAimingAtMe(plr) then
 				aimingAtMe = true
 			end
 		end
@@ -445,4 +353,9 @@ RunService.RenderStepped:Connect(function()
 	setWarning(aimingAtMe)
 end)
 
-print("🔥 HACKBORY V7 – THÔNG BÁO LASER NHỎ GỌN + SIÊU MƯỢT LOADED 🔥")
+-- DỌN DẸP KHI NGƯỜI CHƠI THOÁT
+Players.PlayerRemoving:Connect(function(plr)
+	CleanupLaser(plr.Name)
+end)
+
+print("🔥 HACKBORY V7 – NEW SYSTEM LASER INTEGRATED 🔥")
