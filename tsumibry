@@ -225,3 +225,39 @@ Tab:AddSlider({
         player.CameraMaxZoomDistance = value
     end
 })
+
+--==================================================
+-- SHIFT LOCK TOGGLE
+--==================================================
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local ShiftLockEnabled = false
+
+-- Bật cho phép Shift Lock
+pcall(function()
+    player.DevEnableMouseLock = true
+end)
+
+Tab:AddToggle({
+    Name = "🔒 Shift Lock",
+    Default = false,
+    Callback = function(state)
+        ShiftLockEnabled = state
+
+        if ShiftLockEnabled then
+            -- Ép bật Shift Lock
+            pcall(function()
+                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                UserInputService.MouseIconEnabled = false
+            end)
+        else
+            -- Tắt Shift Lock
+            pcall(function()
+                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                UserInputService.MouseIconEnabled = true
+            end)
+        end
+    end
+})
