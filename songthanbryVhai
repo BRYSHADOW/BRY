@@ -1,0 +1,598 @@
+--==================================================
+-- AUTO RELOAD WHEN SERVER HOP / REJOIN
+--==================================================
+if queue_on_teleport then
+    queue_on_teleport([[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/songthanbryVhai"))()
+    ]])
+end
+
+--==================================================
+-- SAVE SYSTEM
+--==================================================
+local HttpService = game:GetService("HttpService")
+local SaveFile = "BORY_SAVE.json"
+
+local SaveData = {
+    AutoTP = false,
+    AutoCoin = false,
+    AutoSpin = false,
+    LookLock = false,
+    InfJump = false,
+    Zoom = 70,
+    HitboxEnabled = false,
+    HitboxSize = 10
+}
+
+pcall(function()
+    if isfile(SaveFile) then
+        SaveData = HttpService:JSONDecode(readfile(SaveFile))
+    end
+end)
+
+local function Save()
+    writefile(SaveFile, HttpService:JSONEncode(SaveData))
+end
+
+--==================================================
+-- SERVICES
+--==================================================
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local PlaceId = game.PlaceId
+
+local function getHRP()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
+--==================================================
+-- TELEPORT FIXED
+--==================================================
+local function TeleportNow()
+    getHRP().CFrame = CFrame.new(911, -17, -530)
+end
+
+--==================================================
+-- SOUND FOR CLICK
+--==================================================
+local ClickSound = Instance.new("Sound")
+ClickSound.SoundId = "rbxassetid://160432334"  -- Âm thanh click tiêu chuẩn
+ClickSound.Volume = 0.5
+ClickSound.Parent = player:WaitForChild("PlayerGui")
+
+--==================================================
+-- CUSTOM GUI CREATION - SIÊU ĐẸP VÀ NGẦU, NHỎ, TRONG SUỐT, VIỀN CẦU VỒNG
+--==================================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "BorySuperNGUIGUI"
+ScreenGui.ResetOnSpawn = false
+
+local ToggleButton = Instance.new("ImageButton")
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)
+ToggleButton.Position = UDim2.new(0.95, -70, 0.05, 0)
+ToggleButton.BackgroundTransparency = 1
+ToggleButton.Image = "rbxassetid://93792227174261"
+ToggleButton.Parent = ScreenGui
+ToggleButton.ZIndex = 100
+ToggleButton.Draggable = true
+ToggleButton.Active = true
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+MainFrame.BackgroundTransparency = 0.5
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = true
+MainFrame.Visible = false
+
+local UICornerMain = Instance.new("UICorner")
+UICornerMain.CornerRadius = UDim.new(0, 15)
+UICornerMain.Parent = MainFrame
+
+local UIStrokeMain = Instance.new("UIStroke")
+UIStrokeMain.Thickness = 3
+UIStrokeMain.Transparency = 0
+UIStrokeMain.Parent = MainFrame
+
+local UIGradientStroke = Instance.new("UIGradient")
+UIGradientStroke.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+}
+UIGradientStroke.Parent = UIStrokeMain
+
+-- Animate rainbow border
+task.spawn(function()
+    while true do
+        for i = 0, 1, 0.01 do
+            UIGradientStroke.Offset = Vector2.new(i, 0)
+            task.wait(0.02)
+        end
+    end
+end)
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, -60, 0, 40)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "Script Bô Ry Đẹp Trai Nhất Thế Giới"
+TitleLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+TitleLabel.TextSize = 20
+TitleLabel.Font = Enum.Font.GothamBlack
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+TitleLabel.Parent = MainFrame
+
+local TabButtonsFrame = Instance.new("Frame")
+TabButtonsFrame.Size = UDim2.new(1, 0, 0, 40)
+TabButtonsFrame.Position = UDim2.new(0, 0, 0, 40)
+TabButtonsFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 15)
+TabButtonsFrame.BackgroundTransparency = 0.5
+TabButtonsFrame.BorderSizePixel = 0
+TabButtonsFrame.Parent = MainFrame
+
+local UICornerTabs = Instance.new("UICorner")
+UICornerTabs.CornerRadius = UDim.new(0, 10)
+UICornerTabs.Parent = TabButtonsFrame
+
+local MainTabButton = Instance.new("TextButton")
+MainTabButton.Size = UDim2.new(0.5, 0, 1, 0)
+MainTabButton.BackgroundTransparency = 1
+MainTabButton.Text = "Main"
+MainTabButton.TextColor3 = Color3.fromRGB(150, 200, 255)
+MainTabButton.Font = Enum.Font.GothamBold
+MainTabButton.TextSize = 16
+MainTabButton.Parent = TabButtonsFrame
+
+local PlayerTabButton = Instance.new("TextButton")
+PlayerTabButton.Size = UDim2.new(0.5, 0, 1, 0)
+PlayerTabButton.Position = UDim2.new(0.5, 0, 0, 0)
+PlayerTabButton.BackgroundTransparency = 1
+PlayerTabButton.Text = "Player"
+PlayerTabButton.TextColor3 = Color3.fromRGB(150, 200, 255)
+PlayerTabButton.Font = Enum.Font.GothamBold
+PlayerTabButton.TextSize = 16
+PlayerTabButton.Parent = TabButtonsFrame
+
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, 0, 1, -80)
+ContentFrame.Position = UDim2.new(0, 0, 0, 80)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
+
+local MainContent = Instance.new("ScrollingFrame")
+MainContent.Size = UDim2.new(1, 0, 1, 0)
+MainContent.BackgroundTransparency = 1
+MainContent.CanvasSize = UDim2.new(0, 0, 0, 600)
+MainContent.ScrollBarThickness = 5
+MainContent.ScrollBarImageColor3 = Color3.fromRGB(50, 100, 200)
+MainContent.Parent = ContentFrame
+MainContent.Visible = true
+
+local PlayerContent = Instance.new("ScrollingFrame")
+PlayerContent.Size = UDim2.new(1, 0, 1, 0)
+PlayerContent.BackgroundTransparency = 1
+PlayerContent.CanvasSize = UDim2.new(0, 0, 0, 300)
+PlayerContent.ScrollBarThickness = 5
+PlayerContent.ScrollBarImageColor3 = Color3.fromRGB(50, 100, 200)
+PlayerContent.Parent = ContentFrame
+PlayerContent.Visible = false
+
+local function switchTab(tab)
+    MainContent.Visible = tab == "Main"
+    PlayerContent.Visible = tab == "Player"
+    MainTabButton.TextColor3 = tab == "Main" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 200, 255)
+    PlayerTabButton.TextColor3 = tab == "Player" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 200, 255)
+end
+
+MainTabButton.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    switchTab("Main")
+end)
+
+PlayerTabButton.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    switchTab("Player")
+end)
+
+local UIListLayoutMain = Instance.new("UIListLayout")
+UIListLayoutMain.Padding = UDim.new(0, 10)
+UIListLayoutMain.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutMain.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayoutMain.Parent = MainContent
+
+local UIListLayoutPlayer = Instance.new("UIListLayout")
+UIListLayoutPlayer.Padding = UDim.new(0, 10)
+UIListLayoutPlayer.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayoutPlayer.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayoutPlayer.Parent = PlayerContent
+
+-- Toggle GUI visibility
+ToggleButton.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Helper function to create button
+local function CreateButton(parent, name, callback)
+    local btnFrame = Instance.new("Frame")
+    btnFrame.Size = UDim2.new(0.95, 0, 0, 40)
+    btnFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+    btnFrame.BackgroundTransparency = 0.6
+    btnFrame.Parent = parent
+
+    local UICornerBtn = Instance.new("UICorner")
+    UICornerBtn.CornerRadius = UDim.new(0, 8)
+    UICornerBtn.Parent = btnFrame
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(150, 200, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 16
+    btn.Parent = btnFrame
+    btn.MouseButton1Click:Connect(function()
+        ClickSound:Play()
+        callback()
+    end)
+
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 60)}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(20, 20, 40)}):Play()
+    end)
+
+    return btn
+end
+
+-- Helper function to create toggle
+local function CreateToggle(parent, name, default, callback)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Size = UDim2.new(0.95, 0, 0, 40)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+    toggleFrame.BackgroundTransparency = 0.6
+    toggleFrame.Parent = parent
+
+    local UICornerToggle = Instance.new("UICorner")
+    UICornerToggle.CornerRadius = UDim.new(0, 8)
+    UICornerToggle.Parent = toggleFrame
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.fromRGB(150, 200, 255)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = toggleFrame
+
+    local toggleBtnFrame = Instance.new("Frame")
+    toggleBtnFrame.Size = UDim2.new(0, 60, 0, 30)
+    toggleBtnFrame.Position = UDim2.new(1, -70, 0.5, -15)
+    toggleBtnFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+    toggleBtnFrame.Parent = toggleFrame
+
+    local UICornerToggleBtn = Instance.new("UICorner")
+    UICornerToggleBtn.CornerRadius = UDim.new(0, 15)
+    UICornerToggleBtn.Parent = toggleBtnFrame
+
+    local toggleCircle = Instance.new("Frame")
+    toggleCircle.Size = UDim2.new(0, 25, 0, 25)
+    toggleCircle.Position = UDim2.new(0, default and 35 or 0, 0.5, -12.5)
+    toggleCircle.BackgroundColor3 = default and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(200, 50, 50)
+    toggleCircle.Parent = toggleBtnFrame
+
+    local UICornerCircle = Instance.new("UICorner")
+    UICornerCircle.CornerRadius = UDim.new(0, 12.5)
+    UICornerCircle.Parent = toggleCircle
+
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(1, 0, 1, 0)
+    toggleBtn.BackgroundTransparency = 1
+    toggleBtn.Text = ""
+    toggleBtn.Parent = toggleFrame
+    toggleBtn.MouseButton1Click:Connect(function()
+        ClickSound:Play()
+        default = not default
+        TweenService:Create(toggleCircle, TweenInfo.new(0.3, Enum.EasingStyle.Bounce), {Position = UDim2.new(0, default and 35 or 0, 0.5, -12.5)}):Play()
+        toggleCircle.BackgroundColor3 = default and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(200, 50, 50)
+        callback(default)
+    end)
+
+    return toggleBtn, default
+end
+
+-- Helper function to create number input
+local function CreateNumberInput(parent, name, default, min, max, callback)
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Size = UDim2.new(0.95, 0, 0, 40)
+    inputFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+    inputFrame.BackgroundTransparency = 0.6
+    inputFrame.Parent = parent
+
+    local UICornerInput = Instance.new("UICorner")
+    UICornerInput.CornerRadius = UDim.new(0, 8)
+    UICornerInput.Parent = inputFrame
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.6, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = Color3.fromRGB(150, 200, 255)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 16
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = inputFrame
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.4, 0, 1, 0)
+    textBox.Position = UDim2.new(0.6, 0, 0, 0)
+    textBox.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.Text = tostring(default)
+    textBox.Font = Enum.Font.Gotham
+    textBox.TextSize = 16
+    textBox.Parent = inputFrame
+
+    local UICornerTextBox = Instance.new("UICorner")
+    UICornerTextBox.CornerRadius = UDim.new(0, 6)
+    UICornerTextBox.Parent = textBox
+
+    textBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local num = tonumber(textBox.Text)
+            if num then
+                num = math.clamp(num, min, max)
+                textBox.Text = tostring(num)
+                callback(num)
+            else
+                textBox.Text = tostring(default)
+            end
+        end
+    end)
+
+    return textBox
+end
+
+--==================================================
+-- MAIN TAB FEATURES
+--==================================================
+CreateButton(MainContent, "📍 Dịch chuyển ngay", TeleportNow)
+
+CreateToggle(MainContent, "⏰ Auto TP theo giờ", SaveData.AutoTP, function(v)
+    SaveData.AutoTP = v
+    Save()
+    if v then
+        task.spawn(function()
+            while SaveData.AutoTP do
+                local t = os.date("*t")
+                if t.min == 5 and t.sec <= 1 then
+                    task.wait(15)
+                    TeleportNow()
+                    task.wait(15)
+                    TeleportNow()
+                    task.wait(60)
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
+
+local function getCoins()
+    local t = {}
+    for _,v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name == "Radioactive Coin" then
+            table.insert(t,v)
+        end
+    end
+    return t
+end
+
+CreateToggle(MainContent, "🔥 Auto Coin", SaveData.AutoCoin, function(v)
+    SaveData.AutoCoin = v
+    Save()
+    if v then
+        task.spawn(function()
+            while SaveData.AutoCoin do
+                local hrp = getHRP()
+                for _,c in pairs(getCoins()) do
+                    pcall(function()
+                        c.CanCollide = false
+                        c.Anchored = false
+                        c.CFrame = hrp.CFrame
+                    end)
+                end
+                task.wait(0.2)
+            end
+        end)
+    end
+end)
+
+CreateToggle(MainContent, "🎡 Auto Spin", SaveData.AutoSpin, function(v)
+    SaveData.AutoSpin = v
+    Save()
+    if v then
+        task.spawn(function()
+            while SaveData.AutoSpin do
+                pcall(function()
+                    ReplicatedStorage.Packages.Net["RF/WheelSpin.Roll"]:InvokeServer()
+                end)
+                task.wait(0.35)
+            end
+        end)
+    end
+end)
+
+local LookConn
+
+local function EnableLookLock(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    humanoid.AutoRotate = false
+
+    LookConn = RunService.RenderStepped:Connect(function()
+        if not SaveData.LookLock then return end
+        local cam = workspace.CurrentCamera
+        local look = cam.CFrame.LookVector
+        local flat = Vector3.new(look.X, 0, look.Z)
+        if flat.Magnitude > 0 then
+            hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + flat)
+        end
+    end)
+end
+
+local function DisableLookLock()
+    if LookConn then LookConn:Disconnect() LookConn = nil end
+    local char = player.Character
+    if char and char:FindFirstChild("Humanoid") then
+        char.Humanoid.AutoRotate = true
+    end
+end
+
+CreateToggle(MainContent, "🔒 Look Lock", SaveData.LookLock, function(v)
+    SaveData.LookLock = v
+    Save()
+    if v and player.Character then
+        EnableLookLock(player.Character)
+    else
+        DisableLookLock()
+    end
+end)
+
+player.CharacterAdded:Connect(function(char)
+    if SaveData.LookLock then
+        task.wait(1)
+        EnableLookLock(char)
+    end
+end)
+
+CreateToggle(MainContent, "🦘 Infinite Jump", SaveData.InfJump, function(v)
+    SaveData.InfJump = v
+    Save()
+end)
+
+UIS.JumpRequest:Connect(function()
+    if SaveData.InfJump then
+        local hum = getHRP().Parent:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+-- CAMERA ZOOM INPUT
+player.CameraMinZoomDistance = 0.5
+player.CameraMaxZoomDistance = SaveData.Zoom
+
+CreateNumberInput(MainContent, "🔍 Camera Zoom", SaveData.Zoom, 70, 1000, function(v)
+    SaveData.Zoom = v
+    player.CameraMaxZoomDistance = v
+    Save()
+end)
+
+CreateButton(MainContent, "🌍 Đổi Server", function()
+    local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+    local servers = HttpService:JSONDecode(game:HttpGet(url))
+    for _,s in pairs(servers.data) do
+        if s.id ~= game.JobId and s.playing < s.maxPlayers then
+            TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+            break
+        end
+    end
+end)
+
+--==================================================
+-- PLAYER TAB FEATURES
+--==================================================
+local HitboxParts = {}
+
+local function ApplyHitbox(plr)
+    if plr == player then return end
+    if not plr.Character then return end
+    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.Size = Vector3.new(SaveData.HitboxSize, SaveData.HitboxSize, SaveData.HitboxSize)
+        hrp.Transparency = 1
+        hrp.CanCollide = false
+        HitboxParts[plr] = hrp
+    end
+end
+
+local function ResetHitbox(plr)
+    if HitboxParts[plr] then
+        pcall(function()
+            HitboxParts[plr].Size = Vector3.new(2,2,1)
+            HitboxParts[plr].Transparency = 1
+        end)
+        HitboxParts[plr] = nil
+    end
+end
+
+CreateToggle(PlayerContent, "🎯 Bật Hitbox Player", SaveData.HitboxEnabled, function(v)
+    SaveData.HitboxEnabled = v
+    Save()
+    if v then
+        for _,plr in pairs(Players:GetPlayers()) do
+            ApplyHitbox(plr)
+        end
+    else
+        for _,plr in pairs(Players:GetPlayers()) do
+            ResetHitbox(plr)
+        end
+    end
+end)
+
+-- HITBOX SIZE INPUT
+CreateNumberInput(PlayerContent, "📏 Size Hitbox", SaveData.HitboxSize, 10, 200, function(v)
+    SaveData.HitboxSize = v
+    Save()
+    if SaveData.HitboxEnabled then
+        for _,plr in pairs(Players:GetPlayers()) do
+            ApplyHitbox(plr)
+        end
+    end
+end)
+
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        task.wait(1)
+        if SaveData.HitboxEnabled then
+            ApplyHitbox(plr)
+        end
+    end)
+end)
+
+CreateButton(PlayerContent, "🕊️ Bật Fly", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+end)
+
+-- Adjust canvas sizes dynamically
+local function updateCanvas()
+    MainContent.CanvasSize = UDim2.new(0, 0, 0, UIListLayoutMain.AbsoluteContentSize.Y + 30)
+    PlayerContent.CanvasSize = UDim2.new(0, 0, 0, UIListLayoutPlayer.AbsoluteContentSize.Y + 30)
+end
+
+UIListLayoutMain:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+UIListLayoutPlayer:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+
+updateCanvas()
