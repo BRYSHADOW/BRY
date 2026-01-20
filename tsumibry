@@ -36,7 +36,7 @@ end
 -- LOAD REDZLIB
 --==================================================
 local Library = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/farehamhz/RedzLib/refs/heads/main/RedzLib"
+    "https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/Redbry"
 ))()
 
 local Window = Library:MakeWindow({
