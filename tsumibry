@@ -140,7 +140,7 @@ Tab:AddToggle({
                         c.CFrame = hrp.CFrame
                     end)
                 end
-                task.wait(0.01)
+                task.wait(0.15)
             end
         end)
     end
