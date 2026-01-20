@@ -1,0 +1,207 @@
+--==================================================
+-- SAVE VARS
+--==================================================
+getgenv().AUTO_SAVE = getgenv().AUTO_SAVE or {
+    AutoTP = false,
+    AutoCoin = false,
+    AutoSpin = false,
+    InfJump = false
+}
+
+--==================================================
+-- LOAD REDZLIB
+--==================================================
+local Library = loadstring(game:HttpGet(
+"https://raw.githubusercontent.com/farehamhz/RedzLib/refs/heads/main/RedzLib"
+))()
+
+--==================================================
+-- WINDOW
+--==================================================
+local Window = Library:MakeWindow({
+    Title = "Script Bô Ry Đẹp Trai Nhất Thế Giới",
+    SubTitle = "By Bô Ry",
+    SaveFolder = "BORRY_FINAL"
+})
+
+--==================================================
+-- AVATAR TOGGLE
+--==================================================
+Window:AddMinimizeButton({
+    Button = {
+        Image = "rbxassetid://93792227174261", -- ID bạn gửi
+        BackgroundTransparency = 0,
+        BackgroundColor3 = Color3.fromRGB(25,25,25),
+        Size = UDim2.fromOffset(60,60)
+    },
+    Corner = {
+        CornerRadius = UDim.new(0,4)
+    }
+})
+
+--==================================================
+-- TAB
+--==================================================
+local Tab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+--==================================================
+-- SERVICES
+--==================================================
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local UIS = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local player = Players.LocalPlayer
+local PlaceId = game.PlaceId
+
+--==================================================
+-- HRP
+--==================================================
+local function getHRP()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
+--==================================================
+-- TELEPORT FIXED
+--==================================================
+local function TeleportNow()
+    getHRP().CFrame = CFrame.new(911, -17, -530)
+end
+
+Tab:AddButton({
+    Name = "📍 Dịch chuyển ngay",
+    Callback = TeleportNow
+})
+
+--==================================================
+-- AUTO TP THEO GIỜ :05
+--==================================================
+Tab:AddToggle({
+    Name = "⏰ Auto TP theo giờ (:05)",
+    Default = getgenv().AUTO_SAVE.AutoTP,
+    Callback = function(state)
+        getgenv().AUTO_SAVE.AutoTP = state
+        task.spawn(function()
+            while getgenv().AUTO_SAVE.AutoTP do
+                local t = os.date("*t")
+                if t.min == 5 and t.sec <= 1 then
+                    task.wait(15)
+                    if not getgenv().AUTO_SAVE.AutoTP then break end
+                    TeleportNow()
+                    task.wait(15)
+                    if not getgenv().AUTO_SAVE.AutoTP then break end
+                    TeleportNow()
+                    task.wait(61)
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+--==================================================
+-- AUTO COIN
+--==================================================
+local function getCoins()
+    local coins = {}
+    for _,v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name == "Radioactive Coin" then
+            table.insert(coins, v)
+        end
+    end
+    return coins
+end
+
+Tab:AddToggle({
+    Name = "🔥 Auto Coin (Radioactive)",
+    Default = getgenv().AUTO_SAVE.AutoCoin,
+    Callback = function(state)
+        getgenv().AUTO_SAVE.AutoCoin = state
+        task.spawn(function()
+            while getgenv().AUTO_SAVE.AutoCoin do
+                local hrp = getHRP()
+                for _,coin in pairs(getCoins()) do
+                    if not getgenv().AUTO_SAVE.AutoCoin then break end
+                    pcall(function()
+                        coin.CanCollide = false
+                        coin.Anchored = false
+                        coin.CFrame = hrp.CFrame
+                    end)
+                end
+                task.wait(0)
+            end
+        end)
+    end
+})
+
+--==================================================
+-- AUTO SPIN
+--==================================================
+Tab:AddToggle({
+    Name = "🎡 Auto Spin",
+    Default = getgenv().AUTO_SAVE.AutoSpin,
+    Callback = function(state)
+        getgenv().AUTO_SAVE.AutoSpin = state
+        task.spawn(function()
+            while getgenv().AUTO_SAVE.AutoSpin do
+                pcall(function()
+                    RS.Packages.Net:FindFirstChild("RF/WheelSpin.Roll"):InvokeServer()
+                end)
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+--==================================================
+-- INFINITY JUMP
+--==================================================
+Tab:AddToggle({
+    Name = "🦘 Infinity Jump",
+    Default = getgenv().AUTO_SAVE.InfJump,
+    Callback = function(state)
+        getgenv().AUTO_SAVE.InfJump = state
+    end
+})
+
+UIS.JumpRequest:Connect(function()
+    if getgenv().AUTO_SAVE.InfJump then
+        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+--==================================================
+-- ANTI AFK
+--==================================================
+player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+end)
+
+--==================================================
+-- SERVER HOP
+--==================================================
+Tab:AddButton({
+    Name = "🌍 Đổi Server",
+    Callback = function()
+        local servers = HttpService:JSONDecode(
+            game:HttpGet("https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?limit=100")
+        )
+        for _,s in pairs(servers.data) do
+            if s.playing < s.maxPlayers then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+                break
+            end
+        end
+    end
+})
