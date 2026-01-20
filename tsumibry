@@ -1,5 +1,5 @@
 --==================================================
--- AUTO LOAD WHEN SERVER HOP / REJOIN
+-- AUTO RELOAD WHEN SERVER HOP / REJOIN
 --==================================================
 if queue_on_teleport then
     queue_on_teleport([[
@@ -17,6 +17,7 @@ local SaveData = {
     AutoTP = false,
     AutoCoin = false,
     AutoSpin = false,
+    LookLock = false,
     InfJump = false,
     Zoom = 70
 }
@@ -35,7 +36,7 @@ end
 -- LOAD REDZLIB
 --==================================================
 local Library = loadstring(game:HttpGet(
-"https://raw.githubusercontent.com/farehamhz/RedzLib/refs/heads/main/RedzLib"
+    "https://raw.githubusercontent.com/farehamhz/RedzLib/refs/heads/main/RedzLib"
 ))()
 
 local Window = Library:MakeWindow({
@@ -44,7 +45,6 @@ local Window = Library:MakeWindow({
     SaveFolder = "BORY"
 })
 
--- Avatar đóng / mở
 Window:AddMinimizeButton({
     Button = {
         Image = "rbxassetid://93792227174261",
@@ -63,8 +63,9 @@ local Tab = Window:MakeTab({
 --==================================================
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
-local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local PlaceId = game.PlaceId
@@ -140,7 +141,7 @@ Tab:AddToggle({
                         c.CFrame = hrp.CFrame
                     end)
                 end
-                task.wait(0.15)
+                task.wait(0.2050)
             end
         end)
     end
@@ -160,12 +161,63 @@ Tab:AddToggle({
                 pcall(function()
                     ReplicatedStorage.Packages.Net["RF/WheelSpin.Roll"]:InvokeServer()
                 end)
-                task.wait(0.5)
+                task.wait(0.35)
             end
         end)
     end
 })
 
+--==================================================
+-- LOOK LOCK (SHIFT LOCK THAY THẾ)
+--==================================================
+local LookConn
+
+local function EnableLookLock(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    humanoid.AutoRotate = false
+
+    LookConn = RunService.RenderStepped:Connect(function()
+        if not SaveData.LookLock then return end
+        local cam = workspace.CurrentCamera
+        local look = cam.CFrame.LookVector
+        local flat = Vector3.new(look.X, 0, look.Z)
+
+        if flat.Magnitude > 0 then
+            hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + flat)
+        end
+    end)
+end
+
+local function DisableLookLock()
+    if LookConn then LookConn:Disconnect() LookConn = nil end
+    local char = player.Character
+    if char and char:FindFirstChild("Humanoid") then
+        char.Humanoid.AutoRotate = true
+    end
+end
+
+Tab:AddToggle({
+    Name = "🔒 Look Lock (thay Shift Lock)",
+    Default = SaveData.LookLock,
+    Callback = function(v)
+        SaveData.LookLock = v
+        Save()
+        if v and player.Character then
+            EnableLookLock(player.Character)
+        else
+            DisableLookLock()
+        end
+    end
+})
+
+player.CharacterAdded:Connect(function(char)
+    if SaveData.LookLock then
+        task.wait(1)
+        EnableLookLock(char)
+    end
+end)
 
 --==================================================
 -- INFINITE JUMP
@@ -181,7 +233,10 @@ Tab:AddToggle({
 
 UIS.JumpRequest:Connect(function()
     if SaveData.InfJump then
-        getHRP().Parent:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+        local hum = getHRP().Parent:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
     end
 end)
 
@@ -204,7 +259,7 @@ Tab:AddSlider({
 })
 
 --==================================================
--- SERVER HOP (ĐỔI SERVER KHÁC – CÙNG PLACEID)
+-- SERVER HOP (KHÁC SERVER – CÙNG PLACEID)
 --==================================================
 Tab:AddButton({
     Name = "🌍 Đổi Server",
