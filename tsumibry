@@ -136,7 +136,7 @@ Tab:AddToggle({
                         coin.CFrame = hrp.CFrame
                     end)
                 end
-                task.wait(0)
+                task.wait(0.1)
             end
         end)
     end
