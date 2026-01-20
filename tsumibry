@@ -17,7 +17,6 @@ local SaveData = {
     AutoTP = false,
     AutoCoin = false,
     AutoSpin = false,
-    ShiftLock = false,
     InfJump = false,
     Zoom = 70
 }
@@ -141,7 +140,7 @@ Tab:AddToggle({
                         c.CFrame = hrp.CFrame
                     end)
                 end
-                task.wait(0.3)
+                task.wait(0.01)
             end
         end)
     end
@@ -161,30 +160,12 @@ Tab:AddToggle({
                 pcall(function()
                     ReplicatedStorage.Packages.Net["RF/WheelSpin.Roll"]:InvokeServer()
                 end)
-                task.wait(3)
+                task.wait(0.5)
             end
         end)
     end
 })
 
---==================================================
--- SHIFT LOCK (FORCE)
---==================================================
-Tab:AddToggle({
-    Name = "🔒 Shift Lock",
-    Default = SaveData.ShiftLock,
-    Callback = function(v)
-        SaveData.ShiftLock = v
-        Save()
-        if v then
-            UIS.MouseBehavior = Enum.MouseBehavior.LockCenter
-            UIS.MouseIconEnabled = false
-        else
-            UIS.MouseBehavior = Enum.MouseBehavior.Default
-            UIS.MouseIconEnabled = true
-        end
-    end
-})
 
 --==================================================
 -- INFINITE JUMP
