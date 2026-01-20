@@ -275,3 +275,102 @@ Tab:AddButton({
         end
     end
 })
+
+--==================================================
+-- PLAYER TAB (HITBOX + ANTI FLING)
+--==================================================
+local PlayerTab = Window:MakeTab({
+    Name = "Player",
+    Icon = "rbxassetid://4483345998"
+})
+
+-- SAVE DATA BỔ SUNG
+SaveData.Hitbox = SaveData.Hitbox or false
+SaveData.HitboxSize = SaveData.HitboxSize or 10
+SaveData.AntiFling = SaveData.AntiFling ~= false
+
+--==================================================
+-- HITBOX PLAYER KHÁC
+--==================================================
+local HitboxEnabled = SaveData.Hitbox
+local HitboxSize = SaveData.HitboxSize
+
+PlayerTab:AddToggle({
+    Name = "🔴 Hitbox Player khác",
+    Default = HitboxEnabled,
+    Callback = function(v)
+        HitboxEnabled = v
+        SaveData.Hitbox = v
+        Save()
+    end
+})
+
+PlayerTab:AddSlider({
+    Name = "📏 Size Hitbox",
+    Min = 5,
+    Max = 30,
+    Default = HitboxSize,
+    Callback = function(v)
+        HitboxSize = v
+        SaveData.HitboxSize = v
+        Save()
+    end
+})
+
+--==================================================
+-- ANTI FLING (BẢN THÂN)
+--==================================================
+local AntiFling = SaveData.AntiFling
+
+PlayerTab:AddToggle({
+    Name = "🛡️ Anti Fling (Không ai đánh được)",
+    Default = AntiFling,
+    Callback = function(v)
+        AntiFling = v
+        SaveData.AntiFling = v
+        Save()
+    end
+})
+
+--==================================================
+-- CORE LOOP
+--==================================================
+RunService.Heartbeat:Connect(function()
+    -- HITBOX PLAYER KHÁC
+    if HitboxEnabled then
+        for _,plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                local char = plr.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    pcall(function()
+                        hrp.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                        hrp.Transparency = 1
+                        hrp.CanCollide = false
+                        hrp.Massless = true
+                    end)
+                end
+            end
+        end
+    end
+
+    -- ANTI FLING BẢN THÂN
+    if AntiFling then
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.AssemblyLinearVelocity = Vector3.zero
+            hrp.AssemblyAngularVelocity = Vector3.zero
+            hrp.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
+        end
+    end
+end)
+
+--==================================================
+-- RESET AN TOÀN KHI CHẾT
+--==================================================
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    HitboxEnabled = SaveData.Hitbox
+    AntiFling = SaveData.AntiFling
+end)
