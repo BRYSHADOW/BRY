@@ -205,3 +205,23 @@ Tab:AddButton({
         end
     end
 })
+--==================================================
+-- CAMERA ZOOM SLIDER
+--==================================================
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Mở khóa zoom
+player.CameraMinZoomDistance = 0.5
+player.CameraMaxZoomDistance = 10000
+
+Tab:AddSlider({
+    Name = "🔍 Camera Zoom",
+    Min = 70,
+    Max = 10000,
+    Default = player.CameraMaxZoomDistance,
+    Increment = 10,
+    Callback = function(value)
+        player.CameraMaxZoomDistance = value
+    end
+})
