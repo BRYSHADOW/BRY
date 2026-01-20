@@ -1,12 +1,36 @@
 --==================================================
--- SAVE VARS
+-- AUTO LOAD WHEN SERVER HOP / REJOIN
 --==================================================
-getgenv().AUTO_SAVE = getgenv().AUTO_SAVE or {
+if queue_on_teleport then
+    queue_on_teleport([[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/tsumibry"))()
+    ]])
+end
+
+--==================================================
+-- SAVE SYSTEM
+--==================================================
+local HttpService = game:GetService("HttpService")
+local SaveFile = "BORY_SAVE.json"
+
+local SaveData = {
     AutoTP = false,
     AutoCoin = false,
     AutoSpin = false,
-    InfJump = false
+    ShiftLock = false,
+    InfJump = false,
+    Zoom = 70
 }
+
+pcall(function()
+    if isfile(SaveFile) then
+        SaveData = HttpService:JSONDecode(readfile(SaveFile))
+    end
+end)
+
+local function Save()
+    writefile(SaveFile, HttpService:JSONEncode(SaveData))
+end
 
 --==================================================
 -- LOAD REDZLIB
@@ -15,55 +39,37 @@ local Library = loadstring(game:HttpGet(
 "https://raw.githubusercontent.com/farehamhz/RedzLib/refs/heads/main/RedzLib"
 ))()
 
---==================================================
--- WINDOW
---==================================================
 local Window = Library:MakeWindow({
     Title = "Script Bô Ry Đẹp Trai Nhất Thế Giới",
     SubTitle = "By Bô Ry",
-    SaveFolder = "BORRY_FINAL"
+    SaveFolder = "BORY"
 })
 
---==================================================
--- AVATAR TOGGLE
---==================================================
+-- Avatar đóng / mở
 Window:AddMinimizeButton({
     Button = {
-        Image = "rbxassetid://93792227174261", -- ID bạn gửi
-        BackgroundTransparency = 0,
-        BackgroundColor3 = Color3.fromRGB(25,25,25),
-        Size = UDim2.fromOffset(60,60)
-    },
-    Corner = {
-        CornerRadius = UDim.new(0,4)
+        Image = "rbxassetid://93792227174261",
+        Size = UDim2.fromOffset(60,60),
+        BackgroundColor3 = Color3.fromRGB(30,30,30)
     }
 })
 
---==================================================
--- TAB
---==================================================
 local Tab = Window:MakeTab({
     Name = "Main",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
+    Icon = "rbxassetid://4483345998"
 })
 
 --==================================================
 -- SERVICES
 --==================================================
 local Players = game:GetService("Players")
-local RS = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local UIS = game:GetService("UserInputService")
-local VirtualUser = game:GetService("VirtualUser")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 local PlaceId = game.PlaceId
 
---==================================================
--- HRP
---==================================================
 local function getHRP()
     local char = player.Character or player.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
@@ -82,24 +88,23 @@ Tab:AddButton({
 })
 
 --==================================================
--- AUTO TP THEO GIỜ :05
+-- AUTO TELEPORT THEO GIỜ (:05)
 --==================================================
 Tab:AddToggle({
-    Name = "⏰ Auto TP theo giờ (:05)",
-    Default = getgenv().AUTO_SAVE.AutoTP,
-    Callback = function(state)
-        getgenv().AUTO_SAVE.AutoTP = state
+    Name = "⏰ Auto TP theo giờ",
+    Default = SaveData.AutoTP,
+    Callback = function(v)
+        SaveData.AutoTP = v
+        Save()
         task.spawn(function()
-            while getgenv().AUTO_SAVE.AutoTP do
+            while SaveData.AutoTP do
                 local t = os.date("*t")
                 if t.min == 5 and t.sec <= 1 then
                     task.wait(15)
-                    if not getgenv().AUTO_SAVE.AutoTP then break end
                     TeleportNow()
                     task.wait(15)
-                    if not getgenv().AUTO_SAVE.AutoTP then break end
                     TeleportNow()
-                    task.wait(61)
+                    task.wait(60)
                 end
                 task.wait(0.5)
             end
@@ -111,32 +116,32 @@ Tab:AddToggle({
 -- AUTO COIN
 --==================================================
 local function getCoins()
-    local coins = {}
+    local t = {}
     for _,v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") and v.Name == "Radioactive Coin" then
-            table.insert(coins, v)
+            table.insert(t,v)
         end
     end
-    return coins
+    return t
 end
 
 Tab:AddToggle({
-    Name = "🔥 Auto Coin (Radioactive)",
-    Default = getgenv().AUTO_SAVE.AutoCoin,
-    Callback = function(state)
-        getgenv().AUTO_SAVE.AutoCoin = state
+    Name = "🔥 Auto Coin",
+    Default = SaveData.AutoCoin,
+    Callback = function(v)
+        SaveData.AutoCoin = v
+        Save()
         task.spawn(function()
-            while getgenv().AUTO_SAVE.AutoCoin do
+            while SaveData.AutoCoin do
                 local hrp = getHRP()
-                for _,coin in pairs(getCoins()) do
-                    if not getgenv().AUTO_SAVE.AutoCoin then break end
+                for _,c in pairs(getCoins()) do
                     pcall(function()
-                        coin.CanCollide = false
-                        coin.Anchored = false
-                        coin.CFrame = hrp.CFrame
+                        c.CanCollide = false
+                        c.Anchored = false
+                        c.CFrame = hrp.CFrame
                     end)
                 end
-                task.wait(0.1)
+                task.wait(0.3)
             end
         end)
     end
@@ -147,117 +152,90 @@ Tab:AddToggle({
 --==================================================
 Tab:AddToggle({
     Name = "🎡 Auto Spin",
-    Default = getgenv().AUTO_SAVE.AutoSpin,
-    Callback = function(state)
-        getgenv().AUTO_SAVE.AutoSpin = state
+    Default = SaveData.AutoSpin,
+    Callback = function(v)
+        SaveData.AutoSpin = v
+        Save()
         task.spawn(function()
-            while getgenv().AUTO_SAVE.AutoSpin do
+            while SaveData.AutoSpin do
                 pcall(function()
-                    RS.Packages.Net:FindFirstChild("RF/WheelSpin.Roll"):InvokeServer()
+                    ReplicatedStorage.Packages.Net["RF/WheelSpin.Roll"]:InvokeServer()
                 end)
-                task.wait(0.5)
+                task.wait(3)
             end
         end)
     end
 })
 
 --==================================================
--- INFINITY JUMP
+-- SHIFT LOCK (FORCE)
 --==================================================
 Tab:AddToggle({
-    Name = "🦘 Infinity Jump",
-    Default = getgenv().AUTO_SAVE.InfJump,
-    Callback = function(state)
-        getgenv().AUTO_SAVE.InfJump = state
+    Name = "🔒 Shift Lock",
+    Default = SaveData.ShiftLock,
+    Callback = function(v)
+        SaveData.ShiftLock = v
+        Save()
+        if v then
+            UIS.MouseBehavior = Enum.MouseBehavior.LockCenter
+            UIS.MouseIconEnabled = false
+        else
+            UIS.MouseBehavior = Enum.MouseBehavior.Default
+            UIS.MouseIconEnabled = true
+        end
+    end
+})
+
+--==================================================
+-- INFINITE JUMP
+--==================================================
+Tab:AddToggle({
+    Name = "🦘 Infinite Jump",
+    Default = SaveData.InfJump,
+    Callback = function(v)
+        SaveData.InfJump = v
+        Save()
     end
 })
 
 UIS.JumpRequest:Connect(function()
-    if getgenv().AUTO_SAVE.InfJump then
-        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    if SaveData.InfJump then
+        getHRP().Parent:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
 --==================================================
--- ANTI AFK
+-- CAMERA ZOOM (70 → 1000)
 --==================================================
-player.Idled:Connect(function()
-    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-end)
-
---==================================================
--- SERVER HOP
---==================================================
-Tab:AddButton({
-    Name = "🌍 Đổi Server",
-    Callback = function()
-        local servers = HttpService:JSONDecode(
-            game:HttpGet("https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?limit=100")
-        )
-        for _,s in pairs(servers.data) do
-            if s.playing < s.maxPlayers then
-                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
-                break
-            end
-        end
-    end
-})
---==================================================
--- CAMERA ZOOM SLIDER
---==================================================
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
--- Mở khóa zoom
 player.CameraMinZoomDistance = 0.5
-player.CameraMaxZoomDistance = 10000
+player.CameraMaxZoomDistance = SaveData.Zoom
 
 Tab:AddSlider({
     Name = "🔍 Camera Zoom",
     Min = 70,
-    Max = 10000,
-    Default = player.CameraMaxZoomDistance,
-    Increment = 10,
-    Callback = function(value)
-        player.CameraMaxZoomDistance = value
+    Max = 1000,
+    Default = SaveData.Zoom,
+    Callback = function(v)
+        SaveData.Zoom = v
+        player.CameraMaxZoomDistance = v
+        Save()
     end
 })
 
 --==================================================
--- SHIFT LOCK TOGGLE
+-- SERVER HOP (ĐỔI SERVER KHÁC – CÙNG PLACEID)
 --==================================================
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
+Tab:AddButton({
+    Name = "🌍 Đổi Server",
+    Callback = function()
+        local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+        local servers = HttpService:JSONDecode(game:HttpGet(url))
 
-local player = Players.LocalPlayer
-local ShiftLockEnabled = false
-
--- Bật cho phép Shift Lock
-pcall(function()
-    player.DevEnableMouseLock = true
-end)
-
-Tab:AddToggle({
-    Name = "🔒 Shift Lock",
-    Default = false,
-    Callback = function(state)
-        ShiftLockEnabled = state
-
-        if ShiftLockEnabled then
-            -- Ép bật Shift Lock
-            pcall(function()
-                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-                UserInputService.MouseIconEnabled = false
-            end)
-        else
-            -- Tắt Shift Lock
-            pcall(function()
-                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-                UserInputService.MouseIconEnabled = true
-            end)
+        for _,s in pairs(servers.data) do
+            if s.id ~= game.JobId and s.playing < s.maxPlayers then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+                break
+            end
         end
     end
 })
