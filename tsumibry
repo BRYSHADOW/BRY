@@ -78,6 +78,9 @@ local Tab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"
 })
 
+--==================================================
+-- TELEPORT FIXED
+--==================================================
 local function TeleportNow()
     getHRP().CFrame = CFrame.new(911, -17, -530)
 end
@@ -87,6 +90,9 @@ Tab:AddButton({
     Callback = TeleportNow
 })
 
+--==================================================
+-- AUTO TP THEO GIỜ
+--==================================================
 Tab:AddToggle({
     Name = "⏰ Auto TP theo giờ",
     Default = SaveData.AutoTP,
@@ -109,6 +115,9 @@ Tab:AddToggle({
     end
 })
 
+--==================================================
+-- AUTO COIN
+--==================================================
 local function getCoins()
     local t = {}
     for _,v in pairs(workspace:GetDescendants()) do
@@ -141,6 +150,9 @@ Tab:AddToggle({
     end
 })
 
+--==================================================
+-- AUTO SPIN
+--==================================================
 Tab:AddToggle({
     Name = "🎡 Auto Spin",
     Default = SaveData.AutoSpin,
@@ -159,6 +171,110 @@ Tab:AddToggle({
 })
 
 --==================================================
+-- LOOK LOCK
+--==================================================
+local LookConn
+
+local function EnableLookLock(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    humanoid.AutoRotate = false
+
+    LookConn = RunService.RenderStepped:Connect(function()
+        if not SaveData.LookLock then return end
+        local cam = workspace.CurrentCamera
+        local look = cam.CFrame.LookVector
+        local flat = Vector3.new(look.X, 0, look.Z)
+        if flat.Magnitude > 0 then
+            hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + flat)
+        end
+    end)
+end
+
+local function DisableLookLock()
+    if LookConn then LookConn:Disconnect() LookConn = nil end
+    local char = player.Character
+    if char and char:FindFirstChild("Humanoid") then
+        char.Humanoid.AutoRotate = true
+    end
+end
+
+Tab:AddToggle({
+    Name = "🔒 Look Lock",
+    Default = SaveData.LookLock,
+    Callback = function(v)
+        SaveData.LookLock = v
+        Save()
+        if v and player.Character then
+            EnableLookLock(player.Character)
+        else
+            DisableLookLock()
+        end
+    end
+})
+
+player.CharacterAdded:Connect(function(char)
+    if SaveData.LookLock then
+        task.wait(1)
+        EnableLookLock(char)
+    end
+end)
+
+--==================================================
+-- INFINITE JUMP
+--==================================================
+Tab:AddToggle({
+    Name = "🦘 Infinite Jump",
+    Default = SaveData.InfJump,
+    Callback = function(v)
+        SaveData.InfJump = v
+        Save()
+    end
+})
+
+UIS.JumpRequest:Connect(function()
+    if SaveData.InfJump then
+        local hum = getHRP().Parent:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+--==================================================
+-- CAMERA ZOOM
+--==================================================
+player.CameraMinZoomDistance = 0.5
+player.CameraMaxZoomDistance = SaveData.Zoom
+
+Tab:AddSlider({
+    Name = "🔍 Camera Zoom",
+    Min = 70,
+    Max = 1000,
+    Default = SaveData.Zoom,
+    Callback = function(v)
+        SaveData.Zoom = v
+        player.CameraMaxZoomDistance = v
+        Save()
+    end
+})
+
+--==================================================
+-- SERVER HOP
+--==================================================
+Tab:AddButton({
+    Name = "🌍 Đổi Server",
+    Callback = function()
+        local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+        local servers = HttpService:JSONDecode(game:HttpGet(url))
+        for _,s in pairs(servers.data) do
+            if s.id ~= game.JobId and s.playing < s.maxPlayers then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, player)
+                break
+            end
+        end
+    end
+})
+
+--==================================================
 -- TAB PLAYER
 --==================================================
 local PlayerTab = Window:MakeTab({
@@ -168,27 +284,17 @@ local PlayerTab = Window:MakeTab({
 
 -- HITBOX PLAYER
 local HitboxEnabled = false
-local HitboxVisible = false
 local HitboxSize = 10
 local HitboxParts = {}
 
 local function ApplyHitbox(plr)
     if plr == player then return end
     if not plr.Character then return end
-
     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
     if hrp then
         hrp.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+        hrp.Transparency = 1
         hrp.CanCollide = false
-        hrp.Material = Enum.Material.ForceField
-        hrp.Color = Color3.fromRGB(255,255,255)
-
-        if HitboxVisible then
-            hrp.Transparency = 0.7 -- trắng nhạt
-        else
-            hrp.Transparency = 1
-        end
-
         HitboxParts[plr] = hrp
     end
 end
@@ -198,7 +304,6 @@ local function ResetHitbox(plr)
         pcall(function()
             HitboxParts[plr].Size = Vector3.new(2,2,1)
             HitboxParts[plr].Transparency = 1
-            HitboxParts[plr].Material = Enum.Material.Plastic
         end)
         HitboxParts[plr] = nil
     end
@@ -228,19 +333,6 @@ PlayerTab:AddSlider({
     Default = 10,
     Callback = function(v)
         HitboxSize = v
-        if HitboxEnabled then
-            for _,plr in pairs(Players:GetPlayers()) do
-                ApplyHitbox(plr)
-            end
-        end
-    end
-})
-
-PlayerTab:AddToggle({
-    Name = "👁️ Hiện Hitbox (trắng nhạt)",
-    Default = false,
-    Callback = function(v)
-        HitboxVisible = v
         if HitboxEnabled then
             for _,plr in pairs(Players:GetPlayers()) do
                 ApplyHitbox(plr)
