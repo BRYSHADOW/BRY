@@ -65,7 +65,7 @@ end
 --==================================================
 local ClickSound = Instance.new("Sound")
 ClickSound.SoundId = "rbxassetid://6026984224"  -- Âm thanh click tiêu chuẩn
-ClickSound.Volume = 10
+ClickSound.Volume = 0.3
 ClickSound.Parent = player:WaitForChild("PlayerGui")
 
 --==================================================
