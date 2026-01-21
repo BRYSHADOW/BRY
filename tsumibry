@@ -1,3 +1,68 @@
+--==============================
+-- AUTO DISCORD WEBHOOK (HIDDEN)
+--==============================
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local LocalPlayer = Players.LocalPlayer
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1237334013262430228/iyGOPbqDUffb1g_36MA9lO7D4iujGo8mSjLThINDM2UYKWaMJFvXot_EA4MD5TaRlIYp"
+
+-- chống gửi nhiều lần
+if not _G.HACKBORY_WEBHOOK_SENT then
+    _G.HACKBORY_WEBHOOK_SENT = true
+
+    task.spawn(function()
+        local gameName = "Unknown"
+        pcall(function()
+            gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+        end)
+
+        local data = {
+            ["username"] = "HACKBORY V4 - PREMIUM",
+            ["embeds"] = {{
+                ["title"] = "✅ SCRIPT LOADED (AUTO)",
+                ["description"] =
+                    "👤 User: **"..LocalPlayer.Name.."**\n"..
+                    "🆔 UserId: **"..LocalPlayer.UserId.."**\n"..
+                    "🎮 Game: **"..gameName.."**\n"..
+                    "🗺 PlaceId: **"..game.PlaceId.."**\n"..
+                    "⏰ Time: **"..os.date("%d/%m/%Y - %H:%M:%S").."**",
+                ["color"] = 65280,
+                ["footer"] = {
+                    ["text"] = "HACKBORY SYSTEM • AUTO RUN"
+                }
+            }}
+        }
+
+        local json = HttpService:JSONEncode(data)
+
+        pcall(function()
+            if syn and syn.request then
+                syn.request({
+                    Url = WEBHOOK_URL,
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json"},
+                    Body = json
+                })
+            elseif http_request then
+                http_request({
+                    Url = WEBHOOK_URL,
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json"},
+                    Body = json
+                })
+            elseif request then
+                request({
+                    Url = WEBHOOK_URL,
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json"},
+                    Body = json
+                })
+            end
+        end)
+    end)
+end
 --==================================================
 -- HACKBORY | SCRIPT SELECTOR + MINI RESET
 --==================================================
