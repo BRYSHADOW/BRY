@@ -1,5 +1,5 @@
 --==================================================
--- HACKBORY | SCRIPT SELECTOR (SAVE CHOICE)
+-- HACKBORY | SCRIPT SELECTOR + MINI RESET
 --==================================================
 
 local SaveFile = "HACKBORY_SCRIPT_SELECT.txt"
@@ -10,7 +10,43 @@ local Scripts = {
 }
 
 --==================================================
--- LOAD SAVED SCRIPT IF EXISTS
+-- MINI RESET GUI (ALWAYS SHOW)
+--==================================================
+local function CreateMiniReset()
+    if game.CoreGui:FindFirstChild("MiniResetGUI") then
+        game.CoreGui.MiniResetGUI:Destroy()
+    end
+
+    local gui = Instance.new("ScreenGui", game.CoreGui)
+    gui.Name = "MiniResetGUI"
+
+    local btn = Instance.new("TextButton", gui)
+    btn.Size = UDim2.new(0, 60, 0, 22)
+    btn.Position = UDim2.new(0, 5, 0, 5)
+    btn.Text = "RESET"
+    btn.BackgroundColor3 = Color3.fromRGB(120, 30, 30)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 11
+    btn.BorderSizePixel = 0
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
+
+    btn.MouseButton1Click:Connect(function()
+        if isfile(SaveFile) then
+            delfile(SaveFile)
+        end
+        gui:Destroy()
+        task.wait(0.2)
+        loadstring(game:HttpGet(game:GetService("HttpService"):JSONEncode({})))() -- dummy
+        -- Reload selector
+        loadstring(game:HttpGet("https://pastebin.com/raw/RELOAD_SELECTOR"))()
+    end)
+end
+
+CreateMiniReset()
+
+--==================================================
+-- AUTO LOAD SAVED SCRIPT
 --==================================================
 if isfile(SaveFile) then
     local saved = readfile(SaveFile)
@@ -21,10 +57,10 @@ if isfile(SaveFile) then
 end
 
 --==================================================
--- GUI SELECT
+-- SELECT GUI
 --==================================================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "SelectorGUI"
 
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 300, 0, 180)
@@ -32,9 +68,7 @@ Frame.Position = UDim2.new(0.5, -150, 0.5, -90)
 Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Frame.Active = true
 Frame.Draggable = true
-
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
 
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1,0,0,40)
@@ -44,9 +78,6 @@ Title.TextColor3 = Color3.fromRGB(255,0,0)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
 
---==================================================
--- BUTTON FUNCTION
---==================================================
 local function CreateButton(text, posY, key)
     local btn = Instance.new("TextButton", Frame)
     btn.Size = UDim2.new(0.85,0,0,40)
@@ -56,9 +87,7 @@ local function CreateButton(text, posY, key)
     btn.TextColor3 = Color3.fromRGB(255,255,255)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 14
-
-    local c = Instance.new("UICorner", btn)
-    c.CornerRadius = UDim.new(0,10)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
 
     btn.MouseButton1Click:Connect(function()
         writefile(SaveFile, key)
@@ -67,8 +96,5 @@ local function CreateButton(text, posY, key)
     end)
 end
 
---==================================================
--- BUTTONS
---==================================================
 CreateButton("▶ BTH (Miễn Phí)", 60, "bth")
 CreateButton("★ PREMIUM (VIP)", 110, "premium")
