@@ -535,13 +535,28 @@ end)
 CreateButton(MainContent, "🔄 Rejoin Server", function()
     local TeleportService = game:GetService("TeleportService")
     local Players = game:GetService("Players")
+    local StarterGui = game:GetService("StarterGui")
     local player = Players.LocalPlayer
 
     if game.PrivateServerId ~= "" then
-        -- VIP Server (Roblox không cho rejoin bằng JobId)
+        -- VIP SERVER
+        StarterGui:SetCore("SendNotification", {
+            Title = "VIP Server",
+            Text = "Roblox không hỗ trợ rejoin VIP bằng script.\nBạn sẽ được đưa vào VIP mới (nếu có quyền).",
+            Duration = 5
+        })
+
+        -- Cách DUY NHẤT Roblox cho phép
         TeleportService:Teleport(game.PlaceId, player)
+
     else
-        -- Server thường (rejoin đúng server cũ)
+        -- PUBLIC SERVER
+        StarterGui:SetCore("SendNotification", {
+            Title = "Public Server",
+            Text = "Đang rejoin lại server hiện tại...",
+            Duration = 3
+        })
+
         TeleportService:TeleportToPlaceInstance(
             game.PlaceId,
             game.JobId,
