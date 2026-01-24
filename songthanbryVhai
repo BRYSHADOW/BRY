@@ -532,6 +532,23 @@ CreateButton(MainContent, "🌍 Đổi Server", function()
     end
 end)
 
+CreateButton(MainContent, "🔄 Rejoin Server", function()
+    local TeleportService = game:GetService("TeleportService")
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+
+    if game.PrivateServerId ~= "" then
+        -- VIP Server (Roblox không cho rejoin bằng JobId)
+        TeleportService:Teleport(game.PlaceId, player)
+    else
+        -- Server thường (rejoin đúng server cũ)
+        TeleportService:TeleportToPlaceInstance(
+            game.PlaceId,
+            game.JobId,
+            player
+        )
+    end
+end)
 --==================================================
 -- PLAYER TAB FEATURES
 --==================================================
