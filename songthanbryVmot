@@ -113,7 +113,7 @@ Tab:AddToggle({
         task.spawn(function()
             while SaveData.AutoTP do
                 local t = os.date("*t")
-                if t.min == 5 and t.sec <= 1 then
+                if t.min == 0 and t.sec <= 1 then
                     task.wait(15)
                     TeleportNow()
                     task.wait(15)
@@ -126,6 +126,56 @@ Tab:AddToggle({
     end
 })
 
+Tab:AddToggle({
+    Name = "⏰ Auto TP theo giờ V2 vip",
+    Default = SaveData.AutoTP,
+    Callback = function(v)
+        SaveData.AutoTP = v
+        Save()
+
+        task.spawn(function()
+            local running = false
+
+            while SaveData.AutoTP do
+                local t = os.date("*t")
+
+                -- Bắt đầu khi đúng :00
+                if t.min == 0 and not running then
+                    running = true
+                    warn("▶ Auto TP bắt đầu lúc " .. t.hour .. ":00")
+                end
+
+                -- Đang chạy từ :00 -> :04
+                if running and t.min < 5 then
+                    -- TP 2 lần
+                    TeleportNow()
+                    task.wait(0.2)
+                    TeleportNow()
+
+                    -- Rejoin server
+                    task.wait(1)
+                    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+
+                    -- Đợi load lại
+                    task.wait(2)
+
+                    -- TP 2 lần sau rejoin
+                    TeleportNow()
+                    task.wait(0.2)
+                    TeleportNow()
+                end
+
+                -- Dừng khi tới :05
+                if running and t.min >= 5 then
+                    running = false
+                    warn("⛔ Auto TP dừng tại " .. t.hour .. ":05")
+                end
+
+                task.wait(1)
+            end
+        end)
+    end
+})
 --==================================================
 -- AUTO COIN
 --==================================================
