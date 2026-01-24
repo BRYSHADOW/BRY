@@ -1,23 +1,32 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
+--// HACKBORY SINGLE GUI + AUTO ON
 
-local head = char:WaitForChild("Head")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local guiName = "HACKBORY_STATUS_GUI"
 
--- Tăng kích thước đầu
-head.Size = Vector3.new(25, 25, 25) -- chỉnh số này càng lớn càng to
-
--- Giữ đầu không bị văng
-local weld = Instance.new("WeldConstraint")
-weld.Part0 = head
-weld.Part1 = char:WaitForChild("HumanoidRootPart")
-weld.Parent = head
-
--- Tắt va chạm cho đỡ lag
-head.CanCollide = false
-
--- Scale mặt cho đúng
-for _, v in pairs(head:GetChildren()) do
-	if v:IsA("Decal") then
-		v.Face = Enum.NormalId.Front
+-- ❌ XÓA GUI CŨ NẾU ĐÃ TỒN TẠI
+pcall(function()
+	if player.PlayerGui:FindFirstChild(guiName) then
+		player.PlayerGui[guiName]:Destroy()
 	end
-end
+end)
+
+-- ✅ TẠO GUI MỚI
+local gui = Instance.new("ScreenGui")
+gui.Name = guiName
+gui.ResetOnSpawn = false
+gui.Parent = player.PlayerGui
+
+local label = Instance.new("TextLabel", gui)
+label.Size = UDim2.new(0, 180, 0, 26)
+label.Position = UDim2.new(0.5, -100, 0, 6) -- trên giữa
+label.BackgroundColor3 = Color3.fromRGB(20,20,20)
+label.BackgroundTransparency = 0.15
+label.BorderSizePixel = 0
+label.Text = "✅Trạng thái:Hoạt Động"
+label.TextColor3 = Color3.fromRGB(0,255,120)
+label.TextScaled = true
+label.Font = Enum.Font.GothamBold
+label.ZIndex = 999
+
+Instance.new("UICorner", label).CornerRadius = UDim.new(0, 10)
