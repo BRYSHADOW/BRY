@@ -411,31 +411,44 @@ CreateToggle(MainContent, "⏰ Auto TP theo giờ", SaveData.AutoTP, function(v)
     end
 end)
 
+-- Danh sách coin cần hút
+local CoinNames = {
+    ["Radioactive Coin"] = true,
+    ["UFO Coin"] = true
+}
+
 local function getCoins()
     local t = {}
-    for _,v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and v.Name == "Radioactive Coin" then
-            table.insert(t,v)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and CoinNames[v.Name] then
+            table.insert(t, v)
         end
     end
     return t
 end
 
-CreateToggle(MainContent, "🔥 Auto Coin", SaveData.AutoCoin, function(v)
+CreateToggle(MainContent, "🔥 Auto Coin New (Mới)", SaveData.AutoCoin, function(v)
     SaveData.AutoCoin = v
     Save()
+
     if v then
         task.spawn(function()
             while SaveData.AutoCoin do
                 local hrp = getHRP()
-                for _,c in pairs(getCoins()) do
-                    pcall(function()
-                        c.CanCollide = false
-                        c.Anchored = false
-                        c.CFrame = hrp.CFrame
-                    end)
+                if hrp then
+                    local coins = getCoins()
+                    if #coins > 0 then
+                        for _, c in pairs(coins) do
+                            pcall(function()
+                                c.CanCollide = false
+                                c.Anchored = false
+                                c.CFrame = hrp.CFrame
+                            end)
+                        end
+                    end
                 end
-                task.wait(0.2)
+                -- 0.5 giây / lần
+                task.wait(0.5)
             end
         end)
     end
