@@ -128,10 +128,10 @@ Tab:AddToggle({
 
 
 --==================================================
--- AUTO COIN
 --==================================================
-local function getCoins()
--- Danh sách coin cần hút
+-- AUTO COIN (FIX CHUẨN)
+--==================================================
+
 local CoinNames = {
     ["Radioactive Coin"] = true,
     ["UFO Coin"] = true
@@ -154,15 +154,12 @@ Tab:AddToggle({
         SaveData.AutoCoin = v
         Save()
 
-        task.spawn(function()
-            while SaveData.AutoCoin do
-                local hrp = getHRP()
-                if hrp then
-                    local coins = getCoins()
-
-                    -- Nếu còn coin → hút
-                    if #coins > 0 then
-                        for _, c in pairs(coins) do
+        if v then
+            task.spawn(function()
+                while SaveData.AutoCoin do
+                    local hrp = getHRP()
+                    if hrp then
+                        for _, c in pairs(getCoins()) do
                             pcall(function()
                                 c.CanCollide = false
                                 c.Anchored = false
@@ -170,14 +167,14 @@ Tab:AddToggle({
                             end)
                         end
                     end
+                    task.wait(0.3)
                 end
-
-                -- 0.5 giây / lần
-                task.wait(0.3)
-            end
-        end)
+            end)
+        end
     end
 })
+
+
 --==================================================
 -- AUTO SPIN
 --==================================================
