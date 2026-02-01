@@ -5,7 +5,7 @@ local head = char:WaitForChild("Head")
 local humanoid = char:WaitForChild("Humanoid")
 
 -- Size đầu (to nhưng không che)
-local HEAD_SIZE = 25
+local HEAD_SIZE = 7
 
 head.Size = Vector3.new(HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
 head.CanCollide = false
