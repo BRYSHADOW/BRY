@@ -1,0 +1,194 @@
+-- ================= HACKBORY GUI FINAL FIX =================
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local UseBoost = RS:WaitForChild("UseBoost")
+
+-- GUI
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "HACKBORY_GUI"
+gui.ResetOnSpawn = false
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,320,0,440)
+main.Position = UDim2.new(0.05,0,0.2,0)
+main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main)
+
+-- 🌈 Rainbow border
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 2
+task.spawn(function()
+	local h = 0
+	while true do
+		h = (h + 1) % 360
+		stroke.Color = Color3.fromHSV(h/360,1,1)
+		task.wait(0.02)
+	end
+end)
+
+-- Title
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,40)
+title.Text = "🌈 HACKBORY PREMIUM"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.BackgroundTransparency = 1
+
+-- Toggle GUI
+local toggle = Instance.new("TextButton", gui)
+toggle.Size = UDim2.new(0,120,0,35)
+toggle.Position = UDim2.new(0,10,0.5,0)
+toggle.Text = "HACKBORY"
+toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+toggle.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", toggle)
+toggle.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+end)
+
+-- Tab bar
+local tabBar = Instance.new("Frame", main)
+tabBar.Size = UDim2.new(1,0,0,35)
+tabBar.Position = UDim2.new(0,0,0,40)
+tabBar.BackgroundTransparency = 1
+
+local function tabBtn(text,x)
+	local b = Instance.new("TextButton", tabBar)
+	b.Size = UDim2.new(0.33,0,1,0)
+	b.Position = UDim2.new(x,0,0,0)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(35,35,35)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 14
+	Instance.new("UICorner", b)
+	return b
+end
+
+local eventBtn  = tabBtn("Event",0)
+local playerBtn = tabBtn("Player",0.33)
+local camBtn    = tabBtn("Camera",0.66)
+
+-- Tabs
+local function newTab()
+	local f = Instance.new("Frame", main)
+	f.Size = UDim2.new(1,0,1,-80)
+	f.Position = UDim2.new(0,0,0,80)
+	f.BackgroundTransparency = 1
+	f.Visible = false
+	return f
+end
+
+local EventTab  = newTab()
+local PlayerTab = newTab()
+local CamTab    = newTab()
+EventTab.Visible = true
+
+local function show(tab)
+	EventTab.Visible = false
+	PlayerTab.Visible = false
+	CamTab.Visible = false
+	tab.Visible = true
+end
+
+eventBtn.MouseButton1Click:Connect(function() show(EventTab) end)
+playerBtn.MouseButton1Click:Connect(function() show(PlayerTab) end)
+camBtn.MouseButton1Click:Connect(function() show(CamTab) end)
+
+-- Button creator
+local function btn(parent,text,y)
+	local b = Instance.new("TextButton", parent)
+	b.Size = UDim2.new(0.9,0,0,34)
+	b.Position = UDim2.new(0.05,0,y,0)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(45,45,45)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.Gotham
+	b.TextSize = 14
+	Instance.new("UICorner", b)
+	return b
+end
+
+-- ===== EVENT TAB =====
+btn(EventTab,"😱 Hù người",0.05).MouseButton1Click:Connect(function()
+	UseBoost:FireServer("ScreamPlayer")
+end)
+
+btn(EventTab,"🔥 Triệu hồi 1 sự kiện bí ẩn",0.17).MouseButton1Click:Connect(function()
+	UseBoost:FireServer("SummonAnomaly")
+end)
+
+btn(EventTab,"💀 Triệu hồi 100 sự kiện bí ẩn",0.29).MouseButton1Click:Connect(function()
+	task.spawn(function()
+		for i=1,100 do
+			UseBoost:FireServer("SummonAnomaly")
+			task.wait(0.1)
+		end
+	end)
+end)
+
+btn(EventTab,"👻 Triệu hồi ma múa",0.41).MouseButton1Click:Connect(function()
+	UseBoost:FireServer("Scream")
+end)
+
+-- ===== PLAYER TAB =====
+local speedBox = Instance.new("TextBox", PlayerTab)
+speedBox.Size = UDim2.new(0.5,0,0,32)
+speedBox.Position = UDim2.new(0.25,0,0.1,0)
+speedBox.Text = "16"
+speedBox.PlaceholderText = "Speed 10 - 35"
+speedBox.TextColor3 = Color3.new(1,1,1)
+speedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+speedBox.ClearTextOnFocus = false
+Instance.new("UICorner", speedBox)
+
+local function applySpeed()
+	local h = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if h then
+		h.WalkSpeed = math.clamp(tonumber(speedBox.Text) or 16,10,35)
+	end
+end
+
+speedBox.FocusLost:Connect(applySpeed)
+player.CharacterAdded:Connect(function()
+	task.wait(0.2)
+	applySpeed()
+end)
+
+-- ===== CAMERA TAB =====
+local thirdOn = false
+local thirdBtn = btn(CamTab,"🎥 Góc nhìn thứ 3: OFF",0.1)
+
+thirdBtn.MouseButton1Click:Connect(function()
+	thirdOn = not thirdOn
+	if thirdOn then
+		Camera.FieldOfView = 70
+		thirdBtn.Text = "🎥 Góc nhìn thứ 3: ON"
+	else
+		Camera.FieldOfView = 70
+		thirdBtn.Text = "🎥 Góc nhìn thứ 3: OFF"
+	end
+end)
+
+btn(CamTab,"☀️ FullBright + Xoá sương mù",0.25).MouseButton1Click:Connect(function()
+	Lighting.FogStart = 0
+	Lighting.FogEnd = math.huge
+	for _,v in pairs(Lighting:GetChildren()) do
+		if v:IsA("Atmosphere") then
+			v:Destroy()
+		end
+	end
+	Lighting.Brightness = 4
+	Lighting.ClockTime = 14
+	Lighting.GlobalShadows = false
+	Lighting.OutdoorAmbient = Color3.new(1,1,1)
+end)
+
+-- =========================================================
