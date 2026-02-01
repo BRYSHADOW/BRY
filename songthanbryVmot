@@ -89,97 +89,13 @@ local Tab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"
 })
 
---==================================================
--- TELEPORT FIXED
---==================================================
-local function TeleportNow()
-    getHRP().CFrame = CFrame.new(911, -17, -530)
-end
-
-Tab:AddButton({
-    Name = "📍 Dịch chuyển ngay",
-    Callback = TeleportNow
-})
-
---==================================================
--- AUTO TP THEO GIỜ
---==================================================
-Tab:AddToggle({
-    Name = "⏰ Auto TP theo giờ",
-    Default = SaveData.AutoTP,
-    Callback = function(v)
-        SaveData.AutoTP = v
-        Save()
-        task.spawn(function()
-            while SaveData.AutoTP do
-                local t = os.date("*t")
-                if t.min == 5 and t.sec <= 1 then
-                    task.wait(15)
-                    TeleportNow()
-                    task.wait(15)
-                    TeleportNow()
-                    task.wait(60)
-                end
-                task.wait(0.5)
-            end
-        end)
-    end
-})
-
-
---==================================================
---==================================================
--- AUTO COIN (FIX CHUẨN)
---==================================================
-
-local CoinNames = {
-    ["Radioactive Coin"] = true,
-    ["UFO Coin"] = true
-}
-
-local function getCoins()
-    local t = {}
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and CoinNames[v.Name] then
-            table.insert(t, v)
-        end
-    end
-    return t
-end
-
-Tab:AddToggle({
-    Name = "🔥 Auto Coin New (Mới)",
-    Default = SaveData.AutoCoin,
-    Callback = function(v)
-        SaveData.AutoCoin = v
-        Save()
-
-        if v then
-            task.spawn(function()
-                while SaveData.AutoCoin do
-                    local hrp = getHRP()
-                    if hrp then
-                        for _, c in pairs(getCoins()) do
-                            pcall(function()
-                                c.CanCollide = false
-                                c.Anchored = false
-                                c.CFrame = hrp.CFrame
-                            end)
-                        end
-                    end
-                    task.wait(0.3)
-                end
-            end)
-        end
-    end
-})
 
 
 --==================================================
 -- AUTO SPIN
 --==================================================
 Tab:AddToggle({
-    Name = "🎡 Auto Spin",
+    Name = "🎡 Auto Spin Radioactive",
     Default = SaveData.AutoSpin,
     Callback = function(v)
         SaveData.AutoSpin = v
@@ -279,6 +195,15 @@ Tab:AddSlider({
         SaveData.Zoom = v
         player.CameraMaxZoomDistance = v
         Save()
+    end
+})
+
+Tab:AddButton({
+    Name = "🤑Dịch chuyển🤑",
+    Callback = function()
+        loadstring(game:HttpGet(
+         "https://pastefy.app/j6DHcS0b/raw"
+        ))()
     end
 })
 
