@@ -138,6 +138,10 @@ btn(EventTab,"👻 Triệu hồi ma múa",0.41).MouseButton1Click:Connect(functi
 	UseBoost:FireServer("Scream")
 end)
 
+btn(EventTab,"❌Xoá sai lầm của mình",0.45).MouseButton1Click:Connect(function()
+	game:GetService("ReplicatedStorage"):WaitForChild("UseBoost"):FireServer("InternalC")
+end)
+
 -- ===== PLAYER TAB =====
 local speedBox = Instance.new("TextBox", PlayerTab)
 speedBox.Size = UDim2.new(0.5,0,0,32)
