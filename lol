@@ -1,27 +1,32 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
+--// HACKBORY SINGLE GUI + AUTO ON
 
-local head = char:WaitForChild("Head")
-local humanoid = char:WaitForChild("Humanoid")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local guiName = "HACKBORY_STATUS_GUI"
 
--- Size đầu (to nhưng không che)
-local HEAD_SIZE = 7
+-- ❌ XÓA GUI CŨ NẾU ĐÃ TỒN TẠI
+pcall(function()
+	if player.PlayerGui:FindFirstChild(guiName) then
+		player.PlayerGui[guiName]:Destroy()
+	end
+end)
 
-head.Size = Vector3.new(HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
-head.CanCollide = false
+-- ✅ TẠO GUI MỚI
+local gui = Instance.new("ScreenGui")
+gui.Name = guiName
+gui.ResetOnSpawn = false
+gui.Parent = player.PlayerGui
 
--- Xóa Motor cũ nối cổ
-local neck = head:FindFirstChild("Neck")
-if neck then
-	neck:Destroy()
-end
+local label = Instance.new("TextLabel", gui)
+label.Size = UDim2.new(0, 180, 0, 26)
+label.Position = UDim2.new(0.5, -100, 0, 6) -- trên giữa
+label.BackgroundColor3 = Color3.fromRGB(20,20,20)
+label.BackgroundTransparency = 0.15
+label.BorderSizePixel = 0
+label.Text = "✅Trạng thái:Hoạt Động"
+label.TextColor3 = Color3.fromRGB(0,255,120)
+label.TextScaled = true
+label.Font = Enum.Font.GothamBold
+label.ZIndex = 999
 
--- Tạo Weld mới và đẩy đầu lên cao
-local weld = Instance.new("Weld")
-weld.Part0 = char:WaitForChild("UpperTorso") or char:WaitForChild("Torso")
-weld.Part1 = head
-
--- Đẩy đầu lên trên (số càng lớn càng cao)
-weld.C0 = CFrame.new(0, 3 + (HEAD_SIZE / 2), 0)
-
-weld.Parent = head
+Instance.new("UICorner", label).CornerRadius = UDim.new(0, 10)
