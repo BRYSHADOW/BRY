@@ -173,10 +173,10 @@ local thirdBtn = btn(CamTab,"🎥 Góc nhìn thứ 3: OFF",0.1)
 thirdBtn.MouseButton1Click:Connect(function()
 	thirdOn = not thirdOn
 	if thirdOn then
-		Camera.FieldOfView = 70
+		Camera.FieldOfView = 170
 		thirdBtn.Text = "🎥 Góc nhìn thứ 3: ON"
 	else
-		Camera.FieldOfView = 70
+		Camera.FieldOfView = 170
 		thirdBtn.Text = "🎥 Góc nhìn thứ 3: OFF"
 	end
 end)
