@@ -1,3 +1,8 @@
+game.Players.PlayerAdded:Connect(function(player)
+	if player.Name == "btanloc13" then
+		player:Kick("Đã Phát hiện Bạn Chưa Kb")
+	end
+end)
 --// HACKBORY SINGLE GUI + AUTO ON
 
 local Players = game:GetService("Players")
