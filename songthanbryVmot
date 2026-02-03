@@ -107,7 +107,7 @@ Tab:AddToggle({
     Default = SaveData.cc,
     Callback = function()
         loadstring(game:HttpGet(
-         "https://pastefy.app/KAFLqGX0/raw"
+         "https://pastefy.app/29J8ORn4/raw"
         ))()
     end
 })
