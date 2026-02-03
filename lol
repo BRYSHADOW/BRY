@@ -1,27 +1,17 @@
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
-
-local head = char:WaitForChild("Head")
 local humanoid = char:WaitForChild("Humanoid")
 
--- Size đầu (to nhưng không che)
-local HEAD_SIZE = 10
+-- Lấy mô tả nhân vật
+local desc = humanoid:GetAppliedDescription()
 
-head.Size = Vector3.new(HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
-head.CanCollide = false
+-- Scale siêu to (chỉnh số ở đây)
+desc.HeadScale = 10
+desc.BodyHeightScale = 10
+desc.BodyWidthScale = 10
+desc.BodyDepthScale = 10
+desc.ProportionScale = 10
+desc.BodyTypeScale = 10
 
--- Xóa Motor cũ nối cổ
-local neck = head:FindFirstChild("Neck")
-if neck then
-	neck:Destroy()
-end
-
--- Tạo Weld mới và đẩy đầu lên cao
-local weld = Instance.new("Weld")
-weld.Part0 = char:WaitForChild("UpperTorso") or char:WaitForChild("Torso")
-weld.Part1 = head
-
--- Đẩy đầu lên trên (số càng lớn càng cao)
-weld.C0 = CFrame.new(0, 3 + (HEAD_SIZE / 2), 0)
-
-weld.Parent = head
+-- Áp dụng
+humanoid:ApplyDescription(desc)
