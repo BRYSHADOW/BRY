@@ -1,48 +1,27 @@
-local Players = game:GetService("Players")
-local targetName = ""
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
 
--- Kick ngay khi script được bật
-for _, player in ipairs(Players:GetPlayers()) do
-	if player.Name == targetName then
-		player:Kick("Anh Na Ăn Cức Kick CC Nè Ahaha")
-	end
+local head = char:WaitForChild("Head")
+local humanoid = char:WaitForChild("Humanoid")
+
+-- Size đầu (to nhưng không che)
+local HEAD_SIZE = 10
+
+head.Size = Vector3.new(HEAD_SIZE, HEAD_SIZE, HEAD_SIZE)
+head.CanCollide = false
+
+-- Xóa Motor cũ nối cổ
+local neck = head:FindFirstChild("Neck")
+if neck then
+	neck:Destroy()
 end
 
--- Kick nếu người đó vào lại sau
-Players.PlayerAdded:Connect(function(player)
-	if player.Name == targetName then
-		player:Kick("Anh Na Ăn Cức Kick CC Nè Ahaha")
-	end
-end)
---// HACKBORY SINGLE GUI + AUTO ON
+-- Tạo Weld mới và đẩy đầu lên cao
+local weld = Instance.new("Weld")
+weld.Part0 = char:WaitForChild("UpperTorso") or char:WaitForChild("Torso")
+weld.Part1 = head
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local guiName = "HACKBORY_STATUS_GUI"
+-- Đẩy đầu lên trên (số càng lớn càng cao)
+weld.C0 = CFrame.new(0, 3 + (HEAD_SIZE / 2), 0)
 
--- ❌ XÓA GUI CŨ NẾU ĐÃ TỒN TẠI
-pcall(function()
-	if player.PlayerGui:FindFirstChild(guiName) then
-		player.PlayerGui[guiName]:Destroy()
-	end
-end)
-
--- ✅ TẠO GUI MỚI
-local gui = Instance.new("ScreenGui")
-gui.Name = guiName
-gui.ResetOnSpawn = false
-gui.Parent = player.PlayerGui
-
-local label = Instance.new("TextLabel", gui)
-label.Size = UDim2.new(0, 120, 0, 26)
-label.Position = UDim2.new(0.5, -110, 0, 6) -- trên giữa
-label.BackgroundColor3 = Color3.fromRGB(20,20,20)
-label.BackgroundTransparency = 0.15
-label.BorderSizePixel = 0
-label.Text = ""
-label.TextColor3 = Color3.fromRGB(0,255,120)
-label.TextScaled = true
-label.Font = Enum.Font.GothamBold
-label.ZIndex = 999
-
-Instance.new("UICorner", label).CornerRadius = UDim.new(0, 10)
+weld.Parent = head
