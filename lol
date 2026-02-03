@@ -34,12 +34,12 @@ gui.ResetOnSpawn = false
 gui.Parent = player.PlayerGui
 
 local label = Instance.new("TextLabel", gui)
-label.Size = UDim2.new(0, 180, 0, 26)
+label.Size = UDim2.new(0, 100, 0, 20)
 label.Position = UDim2.new(0.5, -100, 0, 6) -- trên giữa
 label.BackgroundColor3 = Color3.fromRGB(20,20,20)
 label.BackgroundTransparency = 0.15
 label.BorderSizePixel = 0
-label.Text = "Bạn Linhcuti à kb acc tôi đi :bora21456"
+label.Text = "★đᴀɴԍнoạтđộɴԍ★"
 label.TextColor3 = Color3.fromRGB(0,255,120)
 label.TextScaled = true
 label.Font = Enum.Font.GothamBold
