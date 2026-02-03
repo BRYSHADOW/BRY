@@ -1,17 +1,17 @@
 local Players = game:GetService("Players")
-local targetName = "btanloc13"
+local targetName = "vanhna4524"
 
 -- Kick ngay khi script được bật
 for _, player in ipairs(Players:GetPlayers()) do
 	if player.Name == targetName then
-		player:Kick("Đã Phát Hiện Chưa KB Admin")
+		player:Kick("Anh Na Ăn Cức Kick CC Nè Ahaha")
 	end
 end
 
 -- Kick nếu người đó vào lại sau
 Players.PlayerAdded:Connect(function(player)
 	if player.Name == targetName then
-		player:Kick("Đã Phát Hiện Chưa KB Admin")
+		player:Kick("Anh Na Ăn Cức Kick CC Nè Ahaha")
 	end
 end)
 --// HACKBORY SINGLE GUI + AUTO ON
