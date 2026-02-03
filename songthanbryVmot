@@ -30,7 +30,8 @@ local SaveData = {
     AutoSpin = false,
     LookLock = false,
     InfJump = false,
-    Zoom = 70
+    Zoom = 70,
+    cc = false
 }
 
 pcall(function()
@@ -97,6 +98,17 @@ Tab:AddButton({
         local hrp = char:WaitForChild("HumanoidRootPart")
 
         hrp.CFrame = CFrame.new(896.75, -19.36 + 3, -586.70)
+    end
+})
+
+
+Tab:AddToggle({
+    Name = "🤑Dịch chuyển Theo Giờ (Thử Nghiệm)🤑",
+    Default = SaveData.cc,
+    Callback = function()
+        loadstring(game:HttpGet(
+         "https://pastefy.app/KAFLqGX0/raw"
+        ))()
     end
 })
 
