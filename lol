@@ -1,5 +1,5 @@
 local Players = game:GetService("Players")
-local targetName = "vanhna4524"
+local targetName = ""
 
 -- Kick ngay khi script được bật
 for _, player in ipairs(Players:GetPlayers()) do
