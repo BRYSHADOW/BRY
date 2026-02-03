@@ -1,13 +1,15 @@
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
--- ====== CHỈNH SIZE Ở ĐÂY ======
-local HEAD_SIZE = Vector3.new(0.1,0.1,0.1)
-local TORSO_SCALE = 0.1
-local LIMB_SCALE = 0.1
--- ==============================
+-- ================== TUỲ CHỈNH ==================
+local HEAD_SIZE = Vector3.new(1,1,1)
+local LIMB_SCALE = 1
+local TORSO_SCALE = 1
+local ACCESSORY_SCALE = 1
+local CAMERA_FOV = 20 mặc định | tăng = nhìn xa hơn
+-- ===============================================
 
--- HÀM SCALE PART
+-- ===== HÀM SCALE PART =====
 local function scalePart(part, scale)
 	if part and part:IsA("BasePart") then
 		part.Size = part.Size * scale
@@ -15,17 +17,15 @@ local function scalePart(part, scale)
 	end
 end
 
--- ====== ĐẦU ======
+-- ===== ĐẦU =====
 local head = char:FindFirstChild("Head")
 if head then
 	head.Size = HEAD_SIZE
 	head.CanCollide = false
 
-	-- Xóa cổ cũ
 	local neck = head:FindFirstChild("Neck")
 	if neck then neck:Destroy() end
 
-	-- Gắn lại đầu cho không che thân
 	local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
 	if torso then
 		local weld = Instance.new("Weld")
@@ -36,27 +36,42 @@ if head then
 	end
 end
 
--- ====== THÂN ======
+-- ===== THÂN =====
 scalePart(char:FindFirstChild("UpperTorso"), TORSO_SCALE)
 scalePart(char:FindFirstChild("LowerTorso"), TORSO_SCALE)
-scalePart(char:FindFirstChild("Torso"), TORSO_SCALE) -- R6
+scalePart(char:FindFirstChild("Torso"), TORSO_SCALE)
 
--- ====== TAY ======
-scalePart(char:FindFirstChild("LeftUpperArm"), LIMB_SCALE)
-scalePart(char:FindFirstChild("LeftLowerArm"), LIMB_SCALE)
-scalePart(char:FindFirstChild("LeftHand"), LIMB_SCALE)
+-- ===== TAY =====
+local arms = {
+	"LeftUpperArm","LeftLowerArm","LeftHand",
+	"RightUpperArm","RightLowerArm","RightHand"
+}
+for _, name in pairs(arms) do
+	scalePart(char:FindFirstChild(name), LIMB_SCALE)
+end
 
-scalePart(char:FindFirstChild("RightUpperArm"), LIMB_SCALE)
-scalePart(char:FindFirstChild("RightLowerArm"), LIMB_SCALE)
-scalePart(char:FindFirstChild("RightHand"), LIMB_SCALE)
+-- ===== CHÂN =====
+local legs = {
+	"LeftUpperLeg","LeftLowerLeg","LeftFoot",
+	"RightUpperLeg","RightLowerLeg","RightFoot"
+}
+for _, name in pairs(legs) do
+	scalePart(char:FindFirstChild(name), LIMB_SCALE)
+end
 
--- ====== CHÂN ======
-scalePart(char:FindFirstChild("LeftUpperLeg"), LIMB_SCALE)
-scalePart(char:FindFirstChild("LeftLowerLeg"), LIMB_SCALE)
-scalePart(char:FindFirstChild("LeftFoot"), LIMB_SCALE)
+-- ===== PHỤ KIỆN (HATS / ACCESSORIES) =====
+for _, acc in pairs(char:GetChildren()) do
+	if acc:IsA("Accessory") then
+		local handle = acc:FindFirstChild("Handle")
+		if handle then
+			handle.Size = handle.Size * ACCESSORY_SCALE
+			handle.CanCollide = false
+		end
+	end
+end
 
-scalePart(char:FindFirstChild("RightUpperLeg"), LIMB_SCALE)
-scalePart(char:FindFirstChild("RightLowerLeg"), LIMB_SCALE)
-scalePart(char:FindFirstChild("RightFoot"), LIMB_SCALE)
+-- ===== CAMERA =====
+local cam = workspace.CurrentCamera
+cam.FieldOfView = CAMERA_FOV
 
-print("DONE: Đã scale từng phần nhân vật")
+print("DONE: Đã scale từng phần + phụ kiện + camera")
