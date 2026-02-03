@@ -89,7 +89,16 @@ local Tab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"
 })
 
+Tab:AddButton({
+    Name = "🚀 Teleport Điểm Radioactive",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
 
+        hrp.CFrame = CFrame.new(896.75, -19.36 + 3, -586.70)
+    end
+})
 
 --==================================================
 -- AUTO SPIN
