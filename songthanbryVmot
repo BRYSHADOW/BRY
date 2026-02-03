@@ -105,7 +105,9 @@ Tab:AddButton({
 Tab:AddToggle({
     Name = "🤑Dịch chuyển Theo Giờ (Thử Nghiệm)🤑",
     Default = SaveData.cc,
-    Callback = function()
+    Callback = function(v)
+        SaveData.cc = v
+        Save()
         loadstring(game:HttpGet(
          "https://pastefy.app/29J8ORn4/raw"
         ))()
