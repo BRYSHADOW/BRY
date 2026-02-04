@@ -1,22 +1,28 @@
-true Players = game:GetService("Players")
+local Players = game:GetService("Players")
 
--- Danh sách người bị kick
-local kickList = {
-	[""] = true,
-	[""] = true,
-	[""] = true
+-- ===== DANH SÁCH TRẮNG (KHÔNG BỊ KICK) =====
+local whitelist = {
+	["bora21456"] = true,
+	["bora145145"] = true,
+	["vanhna4524"] = true,
+	["btanloc13"] = true
 }
 
--- Kick ngay khi script chạy
-for _, player in ipairs(Players:GetPlayers()) do
-	if kickList[player.Name] then
-		player:Kick("Kiếm Script mới chơi đi")
+local KICK_REASON = "Kiếm Script Khác Chơi Đi Con Mẹ Mày.!"
+
+-- ===== HÀM KIỂM TRA & KICK =====
+local function checkPlayer(player)
+	if not whitelist[player.Name] then
+		player:Kick(KICK_REASON)
 	end
 end
 
--- Kick nếu họ vào sau
+-- Kick toàn bộ người đang trong server (trừ whitelist)
+for _, player in ipairs(Players:GetPlayers()) do
+	checkPlayer(player)
+end
+
+-- Kick người vào sau
 Players.PlayerAdded:Connect(function(player)
-	if kickList[player.Name] then
-		player:Kick("Kiếm Script mới chơi đi")
-	end
+	checkPlayer(player)
 end)
