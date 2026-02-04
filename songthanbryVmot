@@ -103,13 +103,13 @@ Tab:AddButton({
 
 
 Tab:AddToggle({
-    Name = "🤑Dịch chuyển Theo Giờ (Thử Nghiệm)🤑",
+    Name = "ESP Divine🥀",
     Default = SaveData.cc,
     Callback = function(v)
         SaveData.cc = v
         Save()
         loadstring(game:HttpGet(
-         "https://pastefy.app/29J8ORn4/raw"
+         "https://pastefy.app/eJuEDUfb/raw"
         ))()
     end
 })
