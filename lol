@@ -1,9 +1,9 @@
-local Players = game:GetService("Players")
+true Players = game:GetService("Players")
 
 -- Danh sách người bị kick
 local kickList = {
-	["1wvh6yh"] = true,
-	["btanloc13"] = true,
+	[""] = true,
+	[""] = true,
 	[""] = true
 }
 
