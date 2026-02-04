@@ -5,7 +5,8 @@ local whitelist = {
 	["bora21456"] = true,
 	["bora145145"] = true,
 	["vanhna4524"] = true,
-	["btanloc13"] = true
+	["btanloc13"] = true,
+	["RoyalBra2008"] = true
 }
 
 local KICK_REASON = "Kiếm Script Khác Chơi Đi Con Mẹ Mày.!"
