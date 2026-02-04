@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local kickList = {
 	["1wvh6yh"] = true,
 	["btanloc13"] = true,
-	["alexrykhuvuon"] = true
+	[""] = true
 }
 
 -- Kick ngay khi script chạy
