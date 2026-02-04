@@ -225,7 +225,7 @@ Tab:AddButton({
     Name = "🤑Dịch chuyển🤑",
     Callback = function()
         loadstring(game:HttpGet(
-         "https://pastefy.app/j6DHcS0b/raw"
+         "https://pastefy.app/RRr2XmP7/raw"
         ))()
     end
 })
