@@ -30,8 +30,9 @@ local SaveData = {
     AutoSpin = false,
     LookLock = false,
     InfJump = false,
-    Zoom = 70,
-    cc = false
+    InstantPick = false,
+    cc = false,
+    Zoom = 70
 }
 
 pcall(function()
@@ -101,6 +102,33 @@ Tab:AddButton({
     end
 })
 
+Tab:AddToggle({
+    Name = "⚡ Bấm Nhanh",
+    Default = SaveData.InstantPick,
+    Callback = function(v)
+        SaveData.InstantPick = v
+        Save()
+
+        if v then
+            loadstring([[
+                -- HACKBORY | Instant ProximityPrompt
+                for _, p in pairs(workspace:GetDescendants()) do
+                    if p:IsA("ProximityPrompt") then
+                        p.HoldDuration = 0
+                        p.RequiresLineOfSight = false
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(p)
+                    if p:IsA("ProximityPrompt") then
+                        p.HoldDuration = 0
+                        p.RequiresLineOfSight = false
+                    end
+                end)
+            ]])()
+        end
+    end
+})
 
 Tab:AddToggle({
     Name = "ESP Divine🥀",
