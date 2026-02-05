@@ -130,6 +130,34 @@ Tab:AddToggle({
     end
 })
 
+Tab:AddButton({
+    Name = "🚀 Teleport Lên (Mở Khoá Vip)",
+    Callback = function()
+        local plr = game:GetService("Players").LocalPlayer
+        local char = plr.Character or plr.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        -- DANH SÁCH ĐIỂM TELEPORT TỪNG ĐOẠN
+        local points = {
+            Vector3.new(152.51, 3.26, -137.38),
+            Vector3.new(256.00, 3.31, -139.50),
+            Vector3.new(360.00, 3.31, -139.50),
+            Vector3.new(499.00, 3.31, -139.50),
+            Vector3.new(678.01, 3.31, -139.50),
+            Vector3.new(951.92, 3.31, -139.33),
+            Vector3.new(1363.89, 3.31, -139.13),
+            Vector3.new(1989.01, 3.31, -139.50),
+            Vector3.new(2436.35, 3.31, -139.46)
+        }
+
+        -- DỊCH CHUYỂN TỪNG ĐOẠN (NHANH - KHÔNG DELAY)
+        for _, pos in ipairs(points) do
+            hrp.CFrame = CFrame.new(pos)
+            task.wait(0.05) -- chỉnh 0 = instant, 0.05 = an toàn hơn
+        end
+    end
+})
+
 Tab:AddToggle({
     Name = "ESP Divine🥀",
     Default = SaveData.cc,
