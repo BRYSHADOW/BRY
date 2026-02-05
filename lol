@@ -28,17 +28,3 @@ end
 Players.PlayerAdded:Connect(function(player)
 	checkPlayer(player)
 end)
-
-
-task.spawn(function()
-    while task.wait(0.1) do
-        local shared = workspace:FindFirstChild("DefaultMap_SharedInstances")
-        if shared then
-            local vip = shared:FindFirstChild("VIPWalls")
-            if vip then
-                vip:Destroy()
-                warn("🔥 VIPWalls vừa spawn lại → xoá ngay")
-            end
-        end
-    end
-end)
