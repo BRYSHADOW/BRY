@@ -118,17 +118,33 @@ Tab:AddToggle({
 -- AUTO SPIN
 --==================================================
 Tab:AddToggle({
-    Name = "🎡 Auto Spin Radioactive",
+    Name = "🎡 Auto Spin All Event",
     Default = SaveData.AutoSpin,
     Callback = function(v)
         SaveData.AutoSpin = v
         Save()
+
         task.spawn(function()
             while SaveData.AutoSpin do
                 pcall(function()
-                    ReplicatedStorage.Packages.Net["RF/WheelSpin.Roll"]:InvokeServer()
+                    local RF = game:GetService("ReplicatedStorage")
+                        :WaitForChild("Packages")
+                        :WaitForChild("Net")
+                        :WaitForChild("RF/WheelSpin.Roll")
+
+                    -- Spin Money
+                    RF:InvokeServer("Money", false)
+                    task.wait(0.1)
+
+                    -- Spin UFO
+                    RF:InvokeServer("UFO", false)
+                    task.wait(0.1)
+
+                    -- Spin Radioactive
+                    RF:InvokeServer("Radioactive", false)
                 end)
-                task.wait(0.35)
+
+                task.wait(0.1)
             end
         end)
     end
