@@ -519,8 +519,8 @@ clickSound.Parent = SoundService
 
 -- Hàm gắn sound cho toàn bộ GUI
 local function addClickSound(gui)
-	for _, v in pairs(gui:GetDescendants()) do
-		if v:IsA("TextButton") or v:IsA("ImageButton") then
+	for _, v in pairs(gui:GetDescendants()) end
+		if v:IsA("AddButton") or v:IsA("AddToggle") then
 			v.MouseButton1Click:Connect(function()
 				clickSound:Play()
 			end)
