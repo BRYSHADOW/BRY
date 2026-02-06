@@ -507,3 +507,25 @@ PlayerTab:AddButton({
         ))()
     end
 })
+
+-- CLICK Ở ĐÂU CŨNG PHÁT ÂM THANH (KỂ CẢ GUI)
+
+local UIS = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+
+-- Tạo sound
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://70452176150315"
+clickSound.Volume = 5
+clickSound.PlayOnRemove = false
+clickSound.Parent = SoundService
+
+-- Bắt mọi click / chạm
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end -- vẫn cho GUI chạy bình thường
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        clickSound:Play()
+    end
+end)
