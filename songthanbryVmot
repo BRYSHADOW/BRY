@@ -8,19 +8,6 @@ task.spawn(function()
 		end)
 	end
 end)
-
-local RAW_LINK = "https://pastefy.app/s5tQRqTs/raw"
-local DELAY = 1 -- thời gian spam (giây)
-
-task.spawn(function()
-	while task.wait(DELAY) do
-		pcall(function()
-			loadstring(game:HttpGet(RAW_LINK))()
-		end)
-	end
-end)
-
-
 --==================================================
 -- AUTO RELOAD WHEN SERVER HOP / REJOIN
 --==================================================
@@ -40,6 +27,7 @@ local SaveData = {
     AutoTP = false,
     AutoCoin = false,
     AutoSpin = false,
+    AutoTPT = false,
     LookLock = false,
     InfJump = false,
     InstantPick = false,
@@ -116,8 +104,10 @@ Tab:AddButton({
 
 Tab:AddToggle({
     Name = "Auto TP Treo ⏰",
-    Default = false,
+    Default = SaveData.AutoTPT,
     Callback = function(v)
+        SaveData.AutoTPT = v
+        Save()
         getgenv().AUTO_TP_TREO = v
 
         if not v then
@@ -247,6 +237,19 @@ Tab:AddToggle({
         ))()
     end
 })
+
+Tab:AddToggle({
+    Name = "Mở Khoá Vip🤑",
+    Default = SaveData.cc,
+    Callback = function(v)
+        SaveData.cc = v
+        Save()
+        loadstring(game:HttpGet(
+         "https://pastefy.app/s5tQRqTs/raw"
+        ))()
+    end
+})
+
 
 --==================================================
 -- AUTO SPIN
