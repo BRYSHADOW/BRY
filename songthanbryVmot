@@ -508,24 +508,34 @@ PlayerTab:AddButton({
     end
 })
 
--- CLICK Ở ĐÂU CŨNG PHÁT ÂM THANH (KỂ CẢ GUI)
+--- ÂM THANH CLICK CHỈ DÙNG TRONG GUI
 
-local UIS = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
 
--- Tạo sound
 local clickSound = Instance.new("Sound")
 clickSound.SoundId = "rbxassetid://70452176150315"
 clickSound.Volume = 5
-clickSound.PlayOnRemove = false
 clickSound.Parent = SoundService
 
--- Bắt mọi click / chạm
-UIS.InputBegan:Connect(function(input, gpe)
-    if gpe then return end -- vẫn cho GUI chạy bình thường
+-- Hàm gắn sound cho toàn bộ GUI
+local function addClickSound(gui)
+	for _, v in pairs(gui:GetDescendants()) do
+		if v:IsA("TextButton") or v:IsA("ImageButton") then
+			v.MouseButton1Click:Connect(function()
+				clickSound:Play()
+			end)
+		end
+	end
+end
 
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-    or input.UserInputType == Enum.UserInputType.Touch then
-        clickSound:Play()
-    end
+-- Tự động áp dụng cho tất cả GUI của người chơi
+local player = game.Players.LocalPlayer
+player.PlayerGui.ChildAdded:Connect(function(gui)
+	task.wait(0.1)
+	addClickSound(gui)
 end)
+
+-- Áp dụng cho GUI đã tồn tại
+for _, gui in pairs(player.PlayerGui:GetChildren()) do
+	addClickSound(gui)
+end
