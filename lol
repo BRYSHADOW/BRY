@@ -16,7 +16,7 @@ local whitelist = {
 local KICK_REASON = "Vui Lòng Liên Hệ Admin AlexRyVipPro để Mở khoá (yk:10base và 10 voi dâu)"
 
 -- ===== AUTO CHAT NẾU LÀ btanloc13 =====
-if LocalPlayer and LocalPlayer.Name == "btanloc13" then
+if LocalPlayer and LocalPlayer.Name == "" then
 	task.spawn(function()
 		for i = 1, 5 do
 			ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(
