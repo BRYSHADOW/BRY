@@ -10,7 +10,7 @@ local whitelist = {
 	["RoyalBra2008"] = true
 }
 
-local KICK_REASON = "Vui Lòng Liên Hệ Admin AlexRyVipPro để Mở khoá (10base và 10 voi dâu)"
+local KICK_REASON = "Vui Lòng Liên Hệ Admin AlexRyVipPro để Mở khoá (yk:10base và 10 voi dâu)"
 
 -- ===== HÀM KIỂM TRA & KICK =====
 local function checkPlayer(player)
