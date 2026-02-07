@@ -6,11 +6,11 @@ local whitelist = {
 	["bora145145"] = true,
 	["alexrykhuvuon"] = true,
 	["vanhna4524"] = true,
-	["btanloc13"] = true,
+	[""] = true,
 	["RoyalBra2008"] = true
 }
 
-local KICK_REASON = "Kiếm Script Khác Chơi Đi Con Mẹ Mày.!"
+local KICK_REASON = "Vui Lòng Liên Hệ Admin AlexRyVipPro để Mở khoá (10base và 10 voi dâu)"
 
 -- ===== HÀM KIỂM TRA & KICK =====
 local function checkPlayer(player)
