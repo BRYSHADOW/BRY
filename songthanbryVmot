@@ -119,7 +119,7 @@ Tab:AddToggle({
         local TeleportService = game:GetService("TeleportService")
         local lp = Players.LocalPlayer
 
-        local TIMES = 15
+        local TIMES = 10
         local DELAY = 0.5
 
         local POS1 = Vector3.new(425.26, -14.16, -340.05)
