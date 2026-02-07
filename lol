@@ -1,4 +1,4 @@
-local Players = game:GetService("Players")
+alexy Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = Players.LocalPlayer
@@ -33,7 +33,7 @@ local function checkPlayer(player)
 	local nameLower = string.lower(player.Name)
 
 	-- Nếu tên có chữ "alexry" thì bỏ qua (không kick)
-	if string.find(nameLower, "alexy") then
+	if string.find(nameLower, "alexry") then
 		return
 	end
 
