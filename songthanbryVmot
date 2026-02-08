@@ -239,6 +239,35 @@ Tab:AddButton({
     end
 })
 
+Tab:AddButton({
+    Name = "🔽 Teleport Xuống (Quay Lại)",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local plr = Players.LocalPlayer
+        local char = plr.Character or plr.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        local startPos = Vector3.new(2421.22, 3.31, -138.93)
+        local endPos   = Vector3.new(152.34, 3.26, -137.72)
+        local speed = 350
+
+        hrp.CFrame = CFrame.new(startPos)
+
+        local distance = (endPos - startPos).Magnitude
+        local time = distance / speed
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(time, Enum.EasingStyle.Linear),
+            {CFrame = CFrame.new(endPos)}
+        )
+
+        tween:Play()
+    end
+})
+
 Tab:AddToggle({
     Name = "ESP Divine🥀",
     Default = SaveData.cc,
