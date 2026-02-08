@@ -210,7 +210,7 @@ Tab:AddButton({
 
         -- ĐIỂM BẮT ĐẦU & KẾT THÚC
         local startPos = Vector3.new(152.34, 3.26, -137.72)
-        local endPos   = Vector3.new(2421.22, 3.31, -138.93)
+        local endPos   = Vector3.new(1814.02, 3.39, -135.68)
 
         -- TỐC ĐỘ
         local speed = 350
@@ -249,7 +249,7 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(2421.22, 3.31, -138.93)
+        local startPos = Vector3.new(1814.02, 3.39, -135.68)
         local endPos   = Vector3.new(152.34, 3.26, -137.72)
         local speed = 350
 
