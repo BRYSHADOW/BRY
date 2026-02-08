@@ -201,28 +201,41 @@ Tab:AddToggle({
 Tab:AddButton({
     Name = "🚀 Teleport Lên (Mở Khoá Vip)",
     Callback = function()
-        local plr = game:GetService("Players").LocalPlayer
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local plr = Players.LocalPlayer
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        -- DANH SÁCH ĐIỂM TELEPORT TỪNG ĐOẠN
-        local points = {
-            Vector3.new(152.51, 3.26, -137.38),
-            Vector3.new(256.00, 3.31, -139.50),
-            Vector3.new(360.00, 3.31, -139.50),
-            Vector3.new(499.00, 3.31, -139.50),
-            Vector3.new(678.01, 3.31, -139.50),
-            Vector3.new(951.92, 3.31, -139.33),
-            Vector3.new(1363.89, 3.31, -139.13),
-            Vector3.new(1989.01, 3.31, -139.50),
-            Vector3.new(2436.35, 3.31, -139.46)
-        }
+        -- ĐIỂM BẮT ĐẦU & KẾT THÚC
+        local startPos = Vector3.new(152.34, 3.26, -137.72)
+        local endPos   = Vector3.new(2421.22, 3.31, -138.93)
 
-        -- DỊCH CHUYỂN TỪNG ĐOẠN (NHANH - KHÔNG DELAY)
-        for _, pos in ipairs(points) do
-            hrp.CFrame = CFrame.new(pos)
-            task.wait(0.05) -- chỉnh 0 = instant, 0.05 = an toàn hơn
-        end
+        -- TỐC ĐỘ
+        local speed = 350
+
+        -- ĐƯA NHÂN VẬT VỀ ĐIỂM BẮT ĐẦU
+        hrp.CFrame = CFrame.new(startPos)
+
+        -- TÍNH THỜI GIAN THEO KHOẢNG CÁCH
+        local distance = (endPos - startPos).Magnitude
+        local time = distance / speed
+
+        -- TWEEN DỊCH CHUYỂN
+        local tweenInfo = TweenInfo.new(
+            time,
+            Enum.EasingStyle.Linear,
+            Enum.EasingDirection.Out
+        )
+
+        local tween = TweenService:Create(
+            hrp,
+            tweenInfo,
+            {CFrame = CFrame.new(endPos)}
+        )
+
+        tween:Play()
     end
 })
 
