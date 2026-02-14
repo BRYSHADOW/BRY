@@ -201,8 +201,9 @@ Tab:AddToggle({
 })
 
 Tab:AddButton({
-    Name = "🚀 Teleport Lên (YKSpeed:400)",
+    Name = "🚀 Teleport Lên (Yêu cầu Speed:400)",
     Callback = function()
+
         local TweenService = game:GetService("TweenService")
         local Players = game:GetService("Players")
 
@@ -210,48 +211,12 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        -- ĐIỂM BẮT ĐẦU & KẾT THÚC
-        local startPos = Vector3.new(122.54, 135, 44.19)
-        local endPos   = Vector3.new(4032.78, 135, -6.35)
-        -- TỐC ĐỘ
-        local speed = 400
+        local startPos = Vector3.new(122.54, 140, 44.19)
+        local endPos   = Vector3.new(4032.78, 140, -6.35)
 
-        -- ĐƯA NHÂN VẬT VỀ ĐIỂM BẮT ĐẦU
-        hrp.CFrame = CFrame.new(startPos)
+        -- TELEPORT SAU KHI BAY XONG
+        local finalPos = Vector3.new(4027.84, -2.86, -10.90)
 
-        -- TÍNH THỜI GIAN THEO KHOẢNG CÁCH
-        local distance = (endPos - startPos).Magnitude
-        local time = distance / speed
-
-        -- TWEEN DỊCH CHUYỂN
-        local tweenInfo = TweenInfo.new(
-            time,
-            Enum.EasingStyle.Linear,
-            Enum.EasingDirection.Out
-        )
-
-        local tween = TweenService:Create(
-            hrp,
-            tweenInfo,
-            {CFrame = CFrame.new(endPos)}
-        )
-
-        tween:Play()
-    end
-})
-
-Tab:AddButton({
-    Name = "🔽 Teleport Xuống (YKSpeed:400)",
-    Callback = function()
-        local TweenService = game:GetService("TweenService")
-        local Players = game:GetService("Players")
-
-        local plr = Players.LocalPlayer
-        local char = plr.Character or plr.CharacterAdded:Wait()
-        local hrp = char:WaitForChild("HumanoidRootPart")
-
-        local startPos = Vector3.new(4032.78, 135, -6.35)
-        local endPos   = Vector3.new(122.54, 135, 44.19)
         local speed = 400
 
         hrp.CFrame = CFrame.new(startPos)
@@ -266,9 +231,56 @@ Tab:AddButton({
         )
 
         tween:Play()
+
+        tween.Completed:Connect(function(state)
+            if state == Enum.PlaybackState.Completed then
+                hrp.CFrame = CFrame.new(finalPos)
+            end
+        end)
+
     end
 })
 
+Tab:AddButton({
+    Name = "🔙 Teleport Xuống Lại (Yêu cầu Speed:400)",
+    Callback = function()
+
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local plr = Players.LocalPlayer
+        local char = plr.Character or plr.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        local startPos = Vector3.new(4032.78, 140, -6.35)
+        local endPos   = Vector3.new(122.54, 140, 44.19)
+
+        -- TELEPORT SAU KHI BAY XONG
+        local finalPos = Vector3.new(114.56, 3.14, -4.19)
+
+        local speed = 400
+
+        hrp.CFrame = CFrame.new(startPos)
+
+        local distance = (endPos - startPos).Magnitude
+        local time = distance / speed
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(time, Enum.EasingStyle.Linear),
+            {CFrame = CFrame.new(endPos)}
+        )
+
+        tween:Play()
+
+        tween.Completed:Connect(function(state)
+            if state == Enum.PlaybackState.Completed then
+                hrp.CFrame = CFrame.new(finalPos)
+            end
+        end)
+
+    end
+})
 
 Tab:AddToggle({
     Name = "🤑 Mở Khoá Vip 🤑",
