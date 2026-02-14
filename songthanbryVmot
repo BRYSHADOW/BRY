@@ -201,7 +201,7 @@ Tab:AddToggle({
 })
 
 Tab:AddButton({
-    Name = "🚀 Teleport Lên ",
+    Name = "🚀 Teleport Lên (YKSpeed:400)",
     Callback = function()
         local TweenService = game:GetService("TweenService")
         local Players = game:GetService("Players")
@@ -211,10 +211,10 @@ Tab:AddButton({
         local hrp = char:WaitForChild("HumanoidRootPart")
 
         -- ĐIỂM BẮT ĐẦU & KẾT THÚC
-        local startPos = Vector3.new(152.34, 3.26, -137.72)
-        local endPos   = Vector3.new(3873.80, 3.39, -139.36)
+        local startPos = Vector3.new(151.93, 3.14, 136.70)
+        local endPos   = Vector3.new(3882.58, 3.39, 139.34)
         -- TỐC ĐỘ
-        local speed = 350
+        local speed = 400
 
         -- ĐƯA NHÂN VẬT VỀ ĐIỂM BẮT ĐẦU
         hrp.CFrame = CFrame.new(startPos)
@@ -241,7 +241,7 @@ Tab:AddButton({
 })
 
 Tab:AddButton({
-    Name = "🔽 Teleport Xuống (Quay Lại)",
+    Name = "🔽 Teleport Xuống (YKSpeed:400)",
     Callback = function()
         local TweenService = game:GetService("TweenService")
         local Players = game:GetService("Players")
@@ -250,9 +250,9 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(3873.80, 3.39, -139.36)
-        local endPos   = Vector3.new(152.34, 3.26, -137.72)
-        local speed = 350
+        local startPos = Vector3.new(3882.58, 3.39, 139.34)
+        local endPos   = Vector3.new(151.93, 3.14, 136.70)
+        local speed = 400
 
         hrp.CFrame = CFrame.new(startPos)
 
