@@ -435,25 +435,16 @@ Tab:AddButton({
 })
 
 Tab:AddButton({
-    Name = "🔄 Vô Lại Server",
+    Name = "🔄 Vô Lại Game",
     Callback = function()
         local TeleportService = game:GetService("TeleportService")
         local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
+        local lp = Players.LocalPlayer
 
-        if game.PrivateServerId ~= "" then
-            -- VIP Server
-            TeleportService:Teleport(game.PlaceId, player)
-        else
-            -- Server thường
-            TeleportService:TeleportToPlaceInstance(
-                game.PlaceId,
-                game.JobId,
-                player
-            )
-        end
+        TeleportService:Teleport(game.PlaceId, lp)
     end
 })
+
 --==================================================
 -- TAB PLAYER
 --==================================================
