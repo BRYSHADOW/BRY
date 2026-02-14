@@ -211,8 +211,8 @@ Tab:AddButton({
         local hrp = char:WaitForChild("HumanoidRootPart")
 
         -- ĐIỂM BẮT ĐẦU & KẾT THÚC
-        local startPos = Vector3.new(151.93, 20.14, 136.70)
-        local endPos   = Vector3.new(3882.58, 20.39, 139.34)
+        local startPos = Vector3.new(122.54, 135, 44.19)
+        local endPos   = Vector3.new(4032.78, 135, -6.35)
         -- TỐC ĐỘ
         local speed = 400
 
@@ -250,8 +250,8 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(3882.58, 20.39, 139.34)
-        local endPos   = Vector3.new(151.93, 20.14, 136.70)
+        local startPos = Vector3.new(4032.78, 135, -6.35)
+        local endPos   = Vector3.new(122.54, 135, 44.19)
         local speed = 400
 
         hrp.CFrame = CFrame.new(startPos)
