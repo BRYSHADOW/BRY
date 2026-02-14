@@ -103,70 +103,9 @@ Tab:AddButton({
     end
 })
 
-Tab:AddToggle({
-    Name = "Auto TP Ticket 🎟️",
-    Default = SaveData.AutoTPTT,
-    Callback = function(v)
-        SaveData.AutoTPTT = v
-        Save()
-        getgenv().AUTO_TP_TREO = v
-
-        if not v then
-            return
-        end
-
-        -- ===== SERVICE =====
-        local Players = game:GetService("Players")
-        local lp = Players.LocalPlayer
-
-        -- ===== CONFIG =====
-        local SCAN_DELAY = 0.25 -- 0.25s quét 1 lần
-        local KEYWORD = "ticket"
-
-        -- ===== FUNC =====
-        local function getHRP()
-            local char = lp.Character or lp.CharacterAdded:Wait()
-            return char:WaitForChild("HumanoidRootPart")
-        end
-
-        -- Quét Ticket trong TOÀN BỘ CODE
-        local function scanTicket()
-            for _, v in ipairs(game:GetDescendants()) do
-                if string.find(string.lower(v.Name), KEYWORD) then
-                    if v:IsA("BasePart") then
-                        return v
-                    elseif v:IsA("Model") and v.PrimaryPart then
-                        return v.PrimaryPart
-                    end
-                end
-            end
-            return nil
-        end
-
-        -- ===== LOOP =====
-        task.spawn(function()
-            local target = nil
-
-            while getgenv().AUTO_TP_TREO do
-                if not target then
-                    target = scanTicket()
-                end
-
-                if target and target.Parent then
-                    getHRP().CFrame = target.CFrame + Vector3.new(0, 2, 0)
-                else
-                    target = nil
-                end
-
-                task.wait(SCAN_DELAY)
-            end
-        end)
-    end
-})
-
 
 Tab:AddToggle({
-    Name = "Auto TP Treo ⏰",
+    Name = "Auto TP Treo Money ⏰",
     Default = SaveData.AutoTPT,
     Callback = function(v)
         SaveData.AutoTPT = v
@@ -331,16 +270,20 @@ Tab:AddButton({
 })
 
 
+Tab:AddToggle({
+    Name = "🤑 Mở Khoá Vip 🤑",
     Default = SaveData.cc,
     Callback = function(v)
         SaveData.cc = v
         Save()
-        loadstring(game:HttpGet(
-         "https://pastefy.app/s5tQRqTs/raw"
-        ))()
+
+        if v then
+            loadstring(game:HttpGet(
+                "https://pastefy.app/s5tQRqTs/raw"
+            ))()
+        end
     end
 })
-
 
 --==================================================
 -- AUTO SPIN
