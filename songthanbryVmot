@@ -262,7 +262,7 @@ Tab:AddToggle({
 })
 
 Tab:AddButton({
-    Name = "🚀 Teleport Lên (Mở Khoá Vip)",
+    Name = "🚀 Teleport Lên ",
     Callback = function()
         local TweenService = game:GetService("TweenService")
         local Players = game:GetService("Players")
@@ -273,8 +273,7 @@ Tab:AddButton({
 
         -- ĐIỂM BẮT ĐẦU & KẾT THÚC
         local startPos = Vector3.new(152.34, 3.26, -137.72)
-        local endPos   = Vector3.new(1814.02, 3.39, -135.68)
-
+        local endPos   = Vector3.new(3873.80, 3.39, -139.36)
         -- TỐC ĐỘ
         local speed = 350
 
@@ -312,7 +311,7 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(1814.02, 3.39, -135.68)
+        local startPos = Vector3.new(3873.80, 3.39, -139.36)
         local endPos   = Vector3.new(152.34, 3.26, -137.72)
         local speed = 350
 
@@ -331,20 +330,7 @@ Tab:AddButton({
     end
 })
 
-Tab:AddToggle({
-    Name = "ESP Divine🥀",
-    Default = SaveData.cc,
-    Callback = function(v)
-        SaveData.cc = v
-        Save()
-        loadstring(game:HttpGet(
-         "https://pastefy.app/eJuEDUfb/raw"
-        ))()
-    end
-})
 
-Tab:AddToggle({
-    Name = "Mở Khoá Vip🤑",
     Default = SaveData.cc,
     Callback = function(v)
         SaveData.cc = v
