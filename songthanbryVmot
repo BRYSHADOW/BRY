@@ -214,7 +214,7 @@ Tab:AddButton({
         local startPos = Vector3.new(151.93, 3.14, 136.70)
         local endPos   = Vector3.new(3882.58, 3.39, 139.34)
         -- TỐC ĐỘ
-        local speed = 400
+        local speed = 300
 
         -- ĐƯA NHÂN VẬT VỀ ĐIỂM BẮT ĐẦU
         hrp.CFrame = CFrame.new(startPos)
@@ -252,7 +252,7 @@ Tab:AddButton({
 
         local startPos = Vector3.new(3882.58, 3.39, 139.34)
         local endPos   = Vector3.new(151.93, 3.14, 136.70)
-        local speed = 400
+        local speed = 300
 
         hrp.CFrame = CFrame.new(startPos)
 
