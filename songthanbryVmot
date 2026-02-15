@@ -268,14 +268,14 @@ Tab:AddButton({
                     if dropState == Enum.PlaybackState.Completed then
 
                         local glass = Instance.new("Part")
-                        glass.Size = Vector3.new(100, 5, 100)
+                        glass.Size = Vector3.new(300, 5, 300)
                         glass.Anchored = true
                         glass.Material = Enum.Material.Glass
                         glass.Transparency = 0.5
                         glass.Color = Color3.fromRGB(255, 0, 0)
                         glass.CanCollide = false
 
-                        glass.CFrame = hrp.CFrame * CFrame.new(0, 5, 0)
+                        glass.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
                         glass.Parent = workspace
 
                         task.delay(3, function()
@@ -340,14 +340,14 @@ Tab:AddButton({
                     if dropState == Enum.PlaybackState.Completed then
 
                         local glass = Instance.new("Part")
-                        glass.Size = Vector3.new(100, 5, 100)
+                        glass.Size = Vector3.new(300, 5, 300)
                         glass.Anchored = true
                         glass.Material = Enum.Material.Glass
                         glass.Transparency = 0.5
                         glass.Color = Color3.fromRGB(255, 0, 0)
                         glass.CanCollide = false
 
-                        glass.CFrame = hrp.CFrame * CFrame.new(0, 5, 0)
+                        glass.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
                         glass.Parent = workspace
 
                         task.delay(3, function()
