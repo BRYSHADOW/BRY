@@ -172,6 +172,25 @@ Tab:AddToggle({
     end
 })
 
+Tab:AddButton({
+    Name = "Anti Sống Làm Văng (Fling)🥀",
+    Callback = function()
+        task.spawn(function()
+            while true do
+                local rs = game:GetService("ReplicatedStorage")
+                local re = rs:FindFirstChild("RemoteEvents")
+                if re then
+                    local fling = re:FindFirstChild("FlingSelf")
+                    if fling then
+                        fling:Destroy()
+                    end
+                end
+                task.wait(0.25)
+            end
+        end)
+    end
+})
+
 Tab:AddToggle({
     Name = "⚡ Bấm Nhanh",
     Default = SaveData.InstantPick,
