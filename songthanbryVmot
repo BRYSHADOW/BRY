@@ -288,7 +288,7 @@ Tab:AddButton({
         local finalPos = Vector3.new(114.56, 3.14, -4.19)
 
         local speed = 400
-        local dropSpeed = 300
+        local dropSpeed = 200
 
         hrp.CFrame = CFrame.new(startPos)
 
