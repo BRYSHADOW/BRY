@@ -583,3 +583,12 @@ PlayerTab:AddButton({
         ))()
     end
 })
+
+PlayerTab:AddButton({
+    Name = "Fix Lag☠️",
+    Callback = function()
+        loadstring(game:HttpGet(
+            "https://raw.githubusercontent.com/TurboLite/Script/main/FixLag.lua"
+        ))()
+    end
+})
