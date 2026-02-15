@@ -173,7 +173,7 @@ Tab:AddToggle({
 })
 
 Tab:AddButton({
-    Name = "Anti Sống Làm Văng (Fling)🥀",
+    Name = "Anti Sống Làm Văng Và Người Đánh (Fling)🥀",
     Callback = function()
         task.spawn(function()
             while true do
@@ -232,7 +232,6 @@ Tab:AddButton({
 
         local startPos = Vector3.new(122.54, 140, 44.19)
         local endPos   = Vector3.new(4032.78, 140, -6.35)
-
         local finalPos = Vector3.new(4027.84, -2.86, -10.90)
 
         local speed = 400
@@ -264,12 +263,33 @@ Tab:AddButton({
                 )
 
                 dropTween:Play()
+
+                dropTween.Completed:Connect(function(dropState)
+                    if dropState == Enum.PlaybackState.Completed then
+
+                        local glass = Instance.new("Part")
+                        glass.Size = Vector3.new(100, 5, 100)
+                        glass.Anchored = true
+                        glass.Material = Enum.Material.Glass
+                        glass.Transparency = 0.5
+                        glass.Color = Color3.fromRGB(255, 0, 0)
+                        glass.CanCollide = false
+
+                        glass.CFrame = hrp.CFrame * CFrame.new(0, 5, 0)
+                        glass.Parent = workspace
+
+                        task.delay(3, function()
+                            if glass then
+                                glass:Destroy()
+                            end
+                        end)
+                    end
+                end)
             end
         end)
 
     end
 })
-
 
 Tab:AddButton({
     Name = "⬇️ Teleport Xuống Lại (Yêu cầu Speed:400)",
@@ -284,11 +304,10 @@ Tab:AddButton({
 
         local startPos = Vector3.new(4032.78, 140, -6.35)
         local endPos   = Vector3.new(122.54, 140, 44.19)
-
         local finalPos = Vector3.new(114.56, 3.14, -4.19)
 
         local speed = 400
-        local dropSpeed = 200
+        local dropSpeed = 300
 
         hrp.CFrame = CFrame.new(startPos)
 
@@ -316,11 +335,34 @@ Tab:AddButton({
                 )
 
                 dropTween:Play()
+
+                dropTween.Completed:Connect(function(dropState)
+                    if dropState == Enum.PlaybackState.Completed then
+
+                        local glass = Instance.new("Part")
+                        glass.Size = Vector3.new(100, 5, 100)
+                        glass.Anchored = true
+                        glass.Material = Enum.Material.Glass
+                        glass.Transparency = 0.5
+                        glass.Color = Color3.fromRGB(255, 0, 0)
+                        glass.CanCollide = false
+
+                        glass.CFrame = hrp.CFrame * CFrame.new(0, 5, 0)
+                        glass.Parent = workspace
+
+                        task.delay(3, function()
+                            if glass then
+                                glass:Destroy()
+                            end
+                        end)
+                    end
+                end)
             end
         end)
 
     end
 })
+
 Tab:AddToggle({
     Name = "🤑 Mở Khoá Vip 🤑",
     Default = SaveData.cc,
