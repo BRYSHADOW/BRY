@@ -233,10 +233,10 @@ Tab:AddButton({
         local startPos = Vector3.new(122.54, 140, 44.19)
         local endPos   = Vector3.new(4032.78, 140, -6.35)
 
-        -- TELEPORT SAU KHI BAY XONG
         local finalPos = Vector3.new(4027.84, -2.86, -10.90)
 
         local speed = 400
+        local dropSpeed = 300
 
         hrp.CFrame = CFrame.new(startPos)
 
@@ -253,15 +253,26 @@ Tab:AddButton({
 
         tween.Completed:Connect(function(state)
             if state == Enum.PlaybackState.Completed then
-                hrp.CFrame = CFrame.new(finalPos)
+
+                local dropDistance = (finalPos - endPos).Magnitude
+                local dropTime = dropDistance / dropSpeed
+
+                local dropTween = TweenService:Create(
+                    hrp,
+                    TweenInfo.new(dropTime, Enum.EasingStyle.Linear),
+                    {CFrame = CFrame.new(finalPos)}
+                )
+
+                dropTween:Play()
             end
         end)
 
     end
 })
 
+
 Tab:AddButton({
-    Name = "🔙 Teleport Xuống Lại (Yêu cầu Speed:400)",
+    Name = "⬇️ Teleport Xuống Lại (Yêu cầu Speed:400)",
     Callback = function()
 
         local TweenService = game:GetService("TweenService")
@@ -274,10 +285,10 @@ Tab:AddButton({
         local startPos = Vector3.new(4032.78, 140, -6.35)
         local endPos   = Vector3.new(122.54, 140, 44.19)
 
-        -- TELEPORT SAU KHI BAY XONG
         local finalPos = Vector3.new(114.56, 3.14, -4.19)
 
         local speed = 400
+        local dropSpeed = 300
 
         hrp.CFrame = CFrame.new(startPos)
 
@@ -294,13 +305,22 @@ Tab:AddButton({
 
         tween.Completed:Connect(function(state)
             if state == Enum.PlaybackState.Completed then
-                hrp.CFrame = CFrame.new(finalPos)
+
+                local dropDistance = (finalPos - endPos).Magnitude
+                local dropTime = dropDistance / dropSpeed
+
+                local dropTween = TweenService:Create(
+                    hrp,
+                    TweenInfo.new(dropTime, Enum.EasingStyle.Linear),
+                    {CFrame = CFrame.new(finalPos)}
+                )
+
+                dropTween:Play()
             end
         end)
 
     end
 })
-
 Tab:AddToggle({
     Name = "🤑 Mở Khoá Vip 🤑",
     Default = SaveData.cc,
