@@ -359,8 +359,8 @@ Tab:AddButton({
         local endPos   = Vector3.new(4032.78, -12, -6.35)
         local finalPos = Vector3.new(4027.84, -2.86, -10.90)
 
-        local speed = 800
-        local dropSpeed = 300
+        local speed = 830
+        local dropSpeed = 150
 
         hrp.CFrame = CFrame.new(startPos)
 
@@ -431,8 +431,8 @@ Tab:AddButton({
         local endPos   = Vector3.new(122.54, -12, 44.19)
         local finalPos = Vector3.new(114.56, 3.14, -4.19)
 
-        local speed = 700
-        local dropSpeed = 300
+        local speed = 830
+        local dropSpeed = 150
 
         hrp.CFrame = CFrame.new(startPos)
 
