@@ -33,6 +33,7 @@ local SaveData = {
     InfJump = false,
     InstantPick = false,
     cc = false,
+    LuckyESP = false,
     Zoom = 70
 }
 
@@ -190,6 +191,130 @@ Tab:AddButton({
         end)
     end
 })
+
+Tab:AddToggle({
+    Name = "✨ Lucky ESP (Divine / Celestial)",
+    Default = SaveData.LuckyESP,
+    Callback = function(v)
+        SaveData.LuckyESP = v
+        Save()
+
+        if v then
+            loadstring([[
+                if _G.HACKBORY_LUCKY_RUNNING then return end
+                _G.HACKBORY_LUCKY_RUNNING = true
+
+                local StarterGui = game:GetService("StarterGui")
+                local RunService = game:GetService("RunService")
+
+                local function rainbow()
+                    return Color3.fromHSV((tick() % 5) / 5, 1, 1)
+                end
+
+                local function detectRarity(name)
+                    name = name:lower()
+                    if name:find("celestial") then
+                        return "Celestial"
+                    elseif name:find("divine") then
+                        return "Divine"
+                    end
+                end
+
+                local function getColor(rarity)
+                    if rarity == "Divine" then
+                        return Color3.fromRGB(255, 215, 0)
+                    else
+                        return Color3.fromRGB(255, 105, 180)
+                    end
+                end
+
+                local notified = {}
+
+                local function notifyDivine(blockName)
+                    if notified[blockName] then return end
+                    notified[blockName] = true
+
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "✨ Divine Spawned!",
+                        Text = blockName,
+                        Duration = 4
+                    })
+                end
+
+                local function createESP(block, rarity)
+                    if block:FindFirstChild("LuckyESP") then return end
+
+                    local mainPart = block:FindFirstChildWhichIsA("BasePart")
+                    if not mainPart then return end
+
+                    local gui = Instance.new("BillboardGui")
+                    gui.Name = "LuckyESP"
+                    gui.Size = UDim2.new(0, 180, 0, 30)
+                    gui.AlwaysOnTop = true
+                    gui.StudsOffset = Vector3.new(0, 3, 0)
+                    gui.MaxDistance = 99999
+                    gui.Parent = mainPart
+
+                    local label = Instance.new("TextLabel")
+                    label.BackgroundTransparency = 1
+                    label.Size = UDim2.new(1, 0, 1, 0)
+                    label.TextSize = 13
+                    label.Font = Enum.Font.SourceSansBold
+                    label.TextStrokeTransparency = 0.5
+                    label.TextColor3 = getColor(rarity)
+                    label.Text = "Lucky: " .. rarity
+                    label.Parent = gui
+                end
+
+                local function createHighlight(model)
+                    if model:FindFirstChild("LuckyHL") then return end
+
+                    local hl = Instance.new("Highlight")
+                    hl.Name = "LuckyHL"
+                    hl.FillTransparency = 1
+                    hl.OutlineTransparency = 0
+                    hl.Parent = model
+
+                    RunService.RenderStepped:Connect(function()
+                        if hl.Parent then
+                            hl.OutlineColor = rainbow()
+                        end
+                    end)
+                end
+
+                while _G.HACKBORY_LUCKY_RUNNING do
+                    local folder = workspace:FindFirstChild("ActiveLuckyBlocks")
+
+                    if folder then
+                        for _, block in pairs(folder:GetChildren()) do
+                            local rarity = detectRarity(block.Name)
+
+                            if rarity then
+                                createHighlight(block)
+                                createESP(block, rarity)
+
+                                if rarity == "Divine" then
+                                    notifyDivine(block.Name)
+                                end
+                            end
+                        end
+                    end
+
+                    task.wait(1)
+                end
+            ]])()
+        else
+            _G.HACKBORY_LUCKY_RUNNING = false
+
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "LuckyESP" or v.Name == "LuckyHL" then
+                    v:Destroy()
+                end
+            end
+        end
+    end
+})
+
 
 Tab:AddToggle({
     Name = "⚡ Bấm Nhanh",
