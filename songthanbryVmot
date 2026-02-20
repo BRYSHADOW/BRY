@@ -344,12 +344,63 @@ Tab:AddToggle({
     end
 })
 
-Tab:AddButton({
-    Name = "🚀 Teleport Lên (Yêu cầu Speed:400)",
-    Callback = function()
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
-        local TweenService = game:GetService("TweenService")
-        local Players = game:GetService("Players")
+-- ===== SAFE MOVE (KHÔNG XUYÊN VẬT THỂ) =====
+local function safeMove(hrp, targetPos, speed)
+    local direction = (targetPos - hrp.Position)
+    local distance = direction.Magnitude
+    direction = direction.Unit
+
+    local step = speed * 0.03
+    local moved = 0
+
+    while moved < distance do
+        local moveDist = math.min(step, distance - moved)
+        local nextPos = hrp.Position + direction * moveDist
+
+        local rayParams = RaycastParams.new()
+        rayParams.FilterDescendantsInstances = {hrp.Parent}
+        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+        local result = Workspace:Raycast(hrp.Position, direction * moveDist, rayParams)
+
+        if result then
+            break -- Đụng vật cản → dừng (không xuyên kính)
+        end
+
+        hrp.CFrame = CFrame.new(nextPos)
+        moved += moveDist
+
+        RunService.Heartbeat:Wait()
+    end
+end
+
+-- ===== HIỆU ỨNG KÍNH =====
+local function createGlass(hrp)
+    local glass = Instance.new("Part")
+    glass.Size = Vector3.new(500, 5, 500)
+    glass.Anchored = true
+    glass.Material = Enum.Material.Glass
+    glass.Transparency = 0.5
+    glass.Color = Color3.fromRGB(255, 0, 0)
+    glass.CanCollide = false
+    glass.CFrame = hrp.CFrame * CFrame.new(0, 7, 0)
+    glass.Parent = workspace
+
+    task.delay(3, function()
+        if glass then
+            glass:Destroy()
+        end
+    end)
+end
+
+-- ================= BUTTON 1 =================
+Tab:AddButton({
+    Name = "🚀 Teleport Lên (Fix Không Xuyên)",
+    Callback = function()
 
         local plr = Players.LocalPlayer
         local char = plr.Character or plr.CharacterAdded:Wait()
@@ -364,64 +415,17 @@ Tab:AddButton({
 
         hrp.CFrame = CFrame.new(startPos)
 
-        local distance = (endPos - startPos).Magnitude
-        local time = distance / speed
+        safeMove(hrp, endPos, speed)
+        safeMove(hrp, finalPos, dropSpeed)
 
-        local tween = TweenService:Create(
-            hrp,
-            TweenInfo.new(time, Enum.EasingStyle.Linear),
-            {CFrame = CFrame.new(endPos)}
-        )
-
-        tween:Play()
-
-        tween.Completed:Connect(function(state)
-            if state == Enum.PlaybackState.Completed then
-
-                local dropDistance = (finalPos - endPos).Magnitude
-                local dropTime = dropDistance / dropSpeed
-
-                local dropTween = TweenService:Create(
-                    hrp,
-                    TweenInfo.new(dropTime, Enum.EasingStyle.Linear),
-                    {CFrame = CFrame.new(finalPos)}
-                )
-
-                dropTween:Play()
-
-                dropTween.Completed:Connect(function(dropState)
-                    if dropState == Enum.PlaybackState.Completed then
-
-                        local glass = Instance.new("Part")
-                        glass.Size = Vector3.new(500, 5, 500)
-                        glass.Anchored = true
-                        glass.Material = Enum.Material.Glass
-                        glass.Transparency = 0.5
-                        glass.Color = Color3.fromRGB(255, 0, 0)
-                        glass.CanCollide = false
-
-                        glass.CFrame = hrp.CFrame * CFrame.new(0, 7, 0)
-                        glass.Parent = workspace
-
-                        task.delay(3, function()
-                            if glass then
-                                glass:Destroy()
-                            end
-                        end)
-                    end
-                end)
-            end
-        end)
-
+        createGlass(hrp)
     end
 })
 
+-- ================= BUTTON 2 =================
 Tab:AddButton({
-    Name = "⬇️ Teleport Xuống Lại (Yêu cầu Speed:400)",
+    Name = "⬇️ Teleport Xuống (Fix Không Xuyên)",
     Callback = function()
-
-        local TweenService = game:GetService("TweenService")
-        local Players = game:GetService("Players")
 
         local plr = Players.LocalPlayer
         local char = plr.Character or plr.CharacterAdded:Wait()
@@ -436,55 +440,10 @@ Tab:AddButton({
 
         hrp.CFrame = CFrame.new(startPos)
 
-        local distance = (endPos - startPos).Magnitude
-        local time = distance / speed
+        safeMove(hrp, endPos, speed)
+        safeMove(hrp, finalPos, dropSpeed)
 
-        local tween = TweenService:Create(
-            hrp,
-            TweenInfo.new(time, Enum.EasingStyle.Linear),
-            {CFrame = CFrame.new(endPos)}
-        )
-
-        tween:Play()
-
-        tween.Completed:Connect(function(state)
-            if state == Enum.PlaybackState.Completed then
-
-                local dropDistance = (finalPos - endPos).Magnitude
-                local dropTime = dropDistance / dropSpeed
-
-                local dropTween = TweenService:Create(
-                    hrp,
-                    TweenInfo.new(dropTime, Enum.EasingStyle.Linear),
-                    {CFrame = CFrame.new(finalPos)}
-                )
-
-                dropTween:Play()
-
-                dropTween.Completed:Connect(function(dropState)
-                    if dropState == Enum.PlaybackState.Completed then
-
-                        local glass = Instance.new("Part")
-                        glass.Size = Vector3.new(500, 5, 500)
-                        glass.Anchored = true
-                        glass.Material = Enum.Material.Glass
-                        glass.Transparency = 0.5
-                        glass.Color = Color3.fromRGB(255, 0, 0)
-                        glass.CanCollide = false
-
-                        glass.CFrame = hrp.CFrame * CFrame.new(0, 7, 0)
-                        glass.Parent = workspace
-
-                        task.delay(3, function()
-                            if glass then
-                                glass:Destroy()
-                            end
-                        end)
-                    end
-                end)
-            end
-        end)
-
+        createGlass(hrp)
     end
 })
 
