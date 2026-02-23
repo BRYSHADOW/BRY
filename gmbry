@@ -1,101 +1,236 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local workspace = game:GetService("Workspace")
+
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SuperHumanGUI_Pro"
 screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
 
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 160, 0, 110)
-mainFrame.Position = UDim2.new(0.5, -80, 0.5, -55)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-mainFrame.BackgroundTransparency = 0.3
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 260, 0, 180)
+mainFrame.Position = UDim2.new(0.5, -130, 0.5, -90)
+mainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+mainFrame.BackgroundTransparency = 0.22
 mainFrame.BorderSizePixel = 0
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+mainFrame.Parent = screenGui
 
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 20)
+
+-- Viền Cầu Vồng Xoay
+local rainbowStroke = Instance.new("UIStroke", mainFrame)
+rainbowStroke.Thickness = 7
+rainbowStroke.Transparency = 0.1
+rainbowStroke.LineJoinMode = Enum.LineJoinMode.Round
+
+local function rainbow(obj, speed)
+    local hue = 0
+    RunService.Heartbeat:Connect(function(dt)
+        if not obj or not obj.Parent then return end
+        hue = (hue + dt * speed) % 1
+        obj.Color = Color3.fromHSV(hue, 1, 1)
+    end)
+end
+rainbow(rainbowStroke, 1.3)
+
+-- Title Bar
 local titleBar = Instance.new("Frame", mainFrame)
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-titleBar.BackgroundTransparency = 0.2
+titleBar.Size = UDim2.new(1, 0, 0, 50)
+titleBar.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+titleBar.BackgroundTransparency = 0.3
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 20)
+
 local titleText = Instance.new("TextLabel", titleBar)
-titleText.Size = UDim2.new(1, 0, 1, 0)
-titleText.Text = "Biến Siêu Nhân Do AhRyĐzVL Tạo Ra"
-titleText.TextColor3 = Color3.new(1, 1, 1)
-titleText.Font = Enum.Font.GothamBold
-titleText.TextSize = 9
+titleText.Size = UDim2.new(1, -80, 1, 0)
+titleText.Position = UDim2.new(0, 20, 0, 0)
 titleText.BackgroundTransparency = 1
+titleText.Text = "⚡ BIẾN SIÊU NHÂN By AnhRyĐzVL"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.Font = Enum.Font.GothamBlack
+titleText.TextSize = 13
+titleText.TextXAlignment = Enum.TextXAlignment.Left
 
-local godmodeBtn = Instance.new("TextButton", mainFrame)
-godmodeBtn.Size = UDim2.new(0.85, 0, 0, 45)
-godmodeBtn.Position = UDim2.new(0.075, 0, 0.45, 0)
-godmodeBtn.Text = "Biến Siêu Nhân :Tắt"
-godmodeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-godmodeBtn.TextColor3 = Color3.new(1, 1, 1)
-godmodeBtn.Font = Enum.Font.GothamSemibold
-godmodeBtn.TextSize = 14
-Instance.new("UICorner", godmodeBtn).CornerRadius = UDim.new(0, 8)
+local titleRainbow = Instance.new("UIStroke", titleText)
+titleRainbow.Thickness = 2
+rainbow(titleRainbow, 1.6)
 
-local dragging, dragStart, startPos, dragInput
+-- Close Button
+local closeBtn = Instance.new("TextButton", titleBar)
+closeBtn.Size = UDim2.new(0, 36, 0, 36)
+closeBtn.Position = UDim2.new(1, -48, 0.5, -18)
+closeBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+
+-- Toggle Frame
+local toggleFrame = Instance.new("Frame", mainFrame)
+toggleFrame.Size = UDim2.new(0.92, 0, 0, 78)
+toggleFrame.Position = UDim2.new(0.04, 0, 0.36, 0)
+toggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 35)
+toggleFrame.BackgroundTransparency = 0.25
+Instance.new("UICorner", toggleFrame).CornerRadius = UDim.new(0, 18)
+
+local toggleRainbow = Instance.new("UIStroke", toggleFrame)
+toggleRainbow.Thickness = 4
+rainbow(toggleRainbow, 1)
+
+local toggleLabel = Instance.new("TextLabel", toggleFrame)
+toggleLabel.Size = UDim2.new(0.58, 0, 1, 0)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "Biến Siêu Nhân"
+toggleLabel.TextColor3 = Color3.new(1,1,1)
+toggleLabel.Font = Enum.Font.GothamSemibold
+toggleLabel.TextSize = 18
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Position = UDim2.new(0.06, 0, 0, 0)
+
+-- Switch
+local switch = Instance.new("Frame", toggleFrame)
+switch.Size = UDim2.new(0, 62, 0, 32)
+switch.Position = UDim2.new(1, -78, 0.5, -16)
+switch.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+
+local switchInner = Instance.new("Frame", switch)
+switchInner.Size = UDim2.new(0, 28, 0, 28)
+switchInner.Position = UDim2.new(0, 2, 0.5, -14)
+switchInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", switchInner).CornerRadius = UDim.new(1, 0)
+
+-- Status
+local statusLabel = Instance.new("TextLabel", mainFrame)
+statusLabel.Size = UDim2.new(0.9, 0, 0, 24)
+statusLabel.Position = UDim2.new(0.05, 0, 0.82, 0)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "● TẮT"
+statusLabel.TextColor3 = Color3.fromRGB(255, 70, 70)
+statusLabel.Font = Enum.Font.GothamBold
+statusLabel.TextSize = 15
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Dragging
+local dragging, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-        dragging = true dragStart = input.Position startPos = mainFrame.Position dragInput = input
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
     end
 end)
 UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-UserInputService.InputEnded:Connect(function(input) if input == dragInput then dragging = false end end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+end)
 
-local isGodmode, ghostClone, connection, noclipConn, deathConn = false, nil, nil, nil, nil
+closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+-- ==================== TOGGLE + LOGIC ====================
+local clickArea = Instance.new("TextButton", toggleFrame)
+clickArea.Size = UDim2.new(1,0,1,0)
+clickArea.BackgroundTransparency = 1
+clickArea.Text = ""
+clickArea.ZIndex = 20
+
+local isGodmode = false
+local ghostClone, connection, noclipConn, deathConn, promptConn = nil, nil, nil, nil, nil
 local originalDistances = {}
 
+local tweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+local function updateUI()
+    if isGodmode then
+        TweenService:Create(switch, tweenInfo, {BackgroundColor3 = Color3.fromRGB(0, 255, 140)}):Play()
+        TweenService:Create(switchInner, tweenInfo, {Position = UDim2.new(1, -30, 0.5, -14)}):Play()
+        statusLabel.Text = "● BẬT"
+        statusLabel.TextColor3 = Color3.fromRGB(0, 255, 140)
+    else
+        TweenService:Create(switch, tweenInfo, {BackgroundColor3 = Color3.fromRGB(60, 60, 70)}):Play()
+        TweenService:Create(switchInner, tweenInfo, {Position = UDim2.new(0, 2, 0.5, -14)}):Play()
+        statusLabel.Text = "● TẮT"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 70, 70)
+    end
+end
+
+local function expandPrompts()
+    for _, p in pairs(workspace:GetDescendants()) do
+        if p:IsA("ProximityPrompt") then
+            if not originalDistances[p] then originalDistances[p] = p.MaxActivationDistance end
+            p.MaxActivationDistance = 16
+            p.RequiresLineOfSight = false
+        end
+    end
+end
+
+-- ==================== HÀM CLEANUP ĐÃ FIX LỖI CHUI ĐẤT ====================
 local function cleanup()
     isGodmode = false
-    godmodeBtn.Text = "Biến Siêu Nhân :Tắt"
-    godmodeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    updateUI()
     
     if connection then connection:Disconnect() connection = nil end
     if noclipConn then noclipConn:Disconnect() noclipConn = nil end
     if deathConn then deathConn:Disconnect() deathConn = nil end
+    if promptConn then promptConn:Disconnect() promptConn = nil end
     
-    -- Restore original ProximityPrompt distances
     for prompt, dist in pairs(originalDistances) do
-        if prompt and prompt.Parent then
-            prompt.MaxActivationDistance = dist
+        if prompt and prompt.Parent then 
+            prompt.MaxActivationDistance = dist 
         end
     end
     originalDistances = {}
 
     local char = player.Character
     if char then
-        for _, v in pairs(char:GetDescendants()) do
-            if v:IsA("BasePart") then v.CanCollide = true end
-        end
         local root = char:FindFirstChild("HumanoidRootPart")
-        if root and ghostClone then root.CFrame = ghostClone.HumanoidRootPart.CFrame end
-        if char:FindFirstChild("Humanoid") then 
-            char.Humanoid.PlatformStand = false 
-            camera.CameraSubject = char.Humanoid 
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        
+        -- ===== FIX CHÍNH Ở ĐÂY =====
+        if root and ghostClone and ghostClone:FindFirstChild("HumanoidRootPart") then
+            local safeCFrame = ghostClone.HumanoidRootPart.CFrame * CFrame.new(0, 6, 0)  -- nhấc lên 6 studs
+            root.CFrame = safeCFrame
+            root.Velocity = Vector3.new(0, 12, 0)              -- đẩy lên nhẹ
+            root.AssemblyLinearVelocity = Vector3.new(0, 12, 0)
+        end
+        
+        -- Bật lại va chạm
+        for _, v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then 
+                v.CanCollide = true 
+            end
+        end
+        
+        if hum then 
+            hum.PlatformStand = false 
+            camera.CameraSubject = hum 
         end
     end
-    if ghostClone then ghostClone:Destroy() ghostClone = nil end
+    
+    if ghostClone then 
+        ghostClone:Destroy() 
+        ghostClone = nil 
+    end
 end
 
-godmodeBtn.MouseButton1Click:Connect(function()
+clickArea.MouseButton1Click:Connect(function()
     isGodmode = not isGodmode
+    updateUI()
+    
     local char = player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     
     if isGodmode then
-        godmodeBtn.Text = "Biến Siêu Nhân :Bật"
-        godmodeBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
-        
         char.Archivable = true
         ghostClone = char:Clone()
         ghostClone.Name = "GhostDecoy"
@@ -108,17 +243,26 @@ godmodeBtn.MouseButton1Click:Connect(function()
                 v.CanCollide = true
             end
         end
-
         if char:FindFirstChild("Animate") then char.Animate:Clone().Parent = ghostClone end
+        
         char.Humanoid.PlatformStand = true
         camera.CameraSubject = ghostClone.Humanoid
-        
+
+        expandPrompts()
+        promptConn = workspace.DescendantAdded:Connect(function(desc)
+            if desc:IsA("ProximityPrompt") then
+                if not originalDistances[desc] then originalDistances[desc] = desc.MaxActivationDistance end
+                desc.MaxActivationDistance = 16
+                desc.RequiresLineOfSight = false
+            end
+        end)
+
         noclipConn = RunService.Stepped:Connect(function()
             if char then 
                 for _, v in pairs(char:GetDescendants()) do 
                     if v:IsA("BasePart") then v.CanCollide = false end 
                 end 
-            end
+            end 
         end)
 
         connection = RunService.Heartbeat:Connect(function()
@@ -132,21 +276,17 @@ godmodeBtn.MouseButton1Click:Connect(function()
                     ghostClone.HumanoidRootPart.CFrame = ghostClone.HumanoidRootPart.CFrame:Lerp(targetRot, 0.25)
                 end
                 
-                -- Dynamic Expander (Only while Godmode is ON)
-                for _, p in pairs(workspace:GetDescendants()) do
-                    if p:IsA("ProximityPrompt") then
-                        if not originalDistances[p] then
-                            originalDistances[p] = p.MaxActivationDistance
-                        end
-                        p.MaxActivationDistance = 16 -- Perfect for 15 stud depth
-                        p.RequiresLineOfSight = false
-                    end
-                end
-                
                 char.HumanoidRootPart.CFrame = ghostClone.HumanoidRootPart.CFrame * CFrame.new(0, -15, 0)
                 char.HumanoidRootPart.Velocity = Vector3.zero
-            else cleanup() end
+            else
+                cleanup()
+            end
         end)
+        
         deathConn = char.Humanoid.Died:Connect(cleanup)
-    else cleanup() end
+    else
+        cleanup()
+    end
 end)
+
+print("✅ GUI SIÊU CẤP PRO + By AnhRyĐzVL - ĐÃ FIX LỖI CHUI ĐẤT KHI TẮT!")
