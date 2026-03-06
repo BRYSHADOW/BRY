@@ -72,7 +72,7 @@ Window:AddMinimizeButton({
 -- SERVICES
 --==================================================
 local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportSglasse")
+local TeleportService = game:GetService("TeleportService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
@@ -406,8 +406,8 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(122.54, 155, 44.19)
-        local endPos   = Vector3.new(4032.78, 155, -6.35)
+        local startPos = Vector3.new(122.54, 173, 44.19)
+        local endPos   = Vector3.new(4032.78, 173, -6.35)
         local finalPos = Vector3.new(4027.84, -2.86, -10.90)
 
         local speed = 850
@@ -431,8 +431,8 @@ Tab:AddButton({
         local char = plr.Character or plr.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        local startPos = Vector3.new(4032.78, 155, -6.35)
-        local endPos   = Vector3.new(122.54, 155, 44.19)
+        local startPos = Vector3.new(4032.78, 173, -6.35)
+        local endPos   = Vector3.new(122.54, 173, 44.19)
         local finalPos = Vector3.new(114.56, 3.14, -4.19)
 
         local speed = 850
