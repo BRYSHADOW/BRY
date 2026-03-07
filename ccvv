@@ -1,222 +1,591 @@
--- Auto Farm Titan Fishing
--- BY BRYDZVL (Fixed)
+-- =============================================
+-- AUTO FARM TITAN FISHING HUB
+-- BY BRYDZVL
+-- =============================================
 
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local UIS = game:GetService("UserInputService")
-local VIM = game:GetService("VirtualInputManager")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
-------------------------------------------------
--- GUI
-------------------------------------------------
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
 
-local gui = Instance.new("ScreenGui", game.CoreGui)
+-- =============================================
+-- VARIABLES
+-- =============================================
+local isRunning = false
+local farmConnection = nil
+local startTime = tick()
+local phase = "phase_45" -- phase_45 = chức năng 4,5 | phase_all = tất cả
 
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,230,0,150)
-frame.Position = UDim2.new(0.4,0,0.3,0)
-frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
-frame.Active = true
-frame.Draggable = true
+-- =============================================
+-- GUI SETUP
+-- =============================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TitanFishingHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game.CoreGui
 
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1,0,0,40)
-title.Text = "Auto Farm Titan Fishing\nBY BRYDZVL"
-title.TextColor3 = Color3.new(1,1,1)
-title.BackgroundTransparency = 1
-title.TextScaled = true
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 340, 0, 420)
+MainFrame.Position = UDim2.new(0.5, -170, 0.5, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 12, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-local toggle = Instance.new("TextButton", frame)
-toggle.Size = UDim2.new(0.8,0,0,40)
-toggle.Position = UDim2.new(0.1,0,0.6,0)
-toggle.Text = "OFF"
-toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
-toggle.TextColor3 = Color3.new(1,1,1)
+-- Corner rounding
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
 
-------------------------------------------------
--- BIẾN
-------------------------------------------------
+-- Outer glow / border
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(0, 200, 255)
+MainStroke.Thickness = 1.5
+MainStroke.Transparency = 0.3
+MainStroke.Parent = MainFrame
 
-local autofarm = false
+-- Top gradient bar
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Size = UDim2.new(1, 0, 0, 50)
+TopBar.Position = UDim2.new(0, 0, 0, 0)
+TopBar.BackgroundColor3 = Color3.fromRGB(0, 150, 220)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
 
-------------------------------------------------
--- CLICK TOA DO
-------------------------------------------------
+local TopBarCorner = Instance.new("UICorner")
+TopBarCorner.CornerRadius = UDim.new(0, 12)
+TopBarCorner.Parent = TopBar
 
-local function clickXY(x,y)
+-- Fix bottom corners of TopBar
+local TopBarFix = Instance.new("Frame")
+TopBarFix.Size = UDim2.new(1, 0, 0, 12)
+TopBarFix.Position = UDim2.new(0, 0, 1, -12)
+TopBarFix.BackgroundColor3 = Color3.fromRGB(0, 150, 220)
+TopBarFix.BorderSizePixel = 0
+TopBarFix.Parent = TopBar
 
-VIM:SendMouseButtonEvent(x,y,0,true,game,0)
-VIM:SendMouseButtonEvent(x,y,0,false,game,0)
+local TopGradient = Instance.new("UIGradient")
+TopGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 180, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 80, 180))
+})
+TopGradient.Rotation = 90
+TopGradient.Parent = TopBar
 
-end
+-- Hub title
+local HubTitle = Instance.new("TextLabel")
+HubTitle.Size = UDim2.new(1, -80, 1, 0)
+HubTitle.Position = UDim2.new(0, 12, 0, 0)
+HubTitle.BackgroundTransparency = 1
+HubTitle.Text = "🎣 Auto Farm Titan Fishing"
+HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+HubTitle.TextSize = 15
+HubTitle.Font = Enum.Font.GothamBold
+HubTitle.TextXAlignment = Enum.TextXAlignment.Left
+HubTitle.Parent = TopBar
 
-------------------------------------------------
--- FUNCTION 1 (Instant Prompt)
-------------------------------------------------
+-- By label
+local ByLabel = Instance.new("TextLabel")
+ByLabel.Size = UDim2.new(1, -80, 0, 16)
+ByLabel.Position = UDim2.new(0, 14, 0, 32)
+ByLabel.BackgroundTransparency = 1
+ByLabel.Text = "BY BRYDZVL"
+ByLabel.TextColor3 = Color3.fromRGB(180, 240, 255)
+ByLabel.TextSize = 10
+ByLabel.Font = Enum.Font.Gotham
+ByLabel.TextXAlignment = Enum.TextXAlignment.Left
+ByLabel.Parent = MainFrame
 
-local function instantPrompt()
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -40, 0, 10)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Parent = TopBar
 
-for _,p in pairs(workspace:GetDescendants()) do
-if p:IsA("ProximityPrompt") then
-p.HoldDuration = 0
-p.RequiresLineOfSight = false
-end
-end
+local CloseBtnCorner = Instance.new("UICorner")
+CloseBtnCorner.CornerRadius = UDim.new(0, 6)
+CloseBtnCorner.Parent = CloseBtn
 
-workspace.DescendantAdded:Connect(function(p)
-if p:IsA("ProximityPrompt") then
-p.HoldDuration = 0
-p.RequiresLineOfSight = false
-end
-end)
+-- Minimize Button
+local MinBtn = Instance.new("TextButton")
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -76, 0, 10)
+MinBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+MinBtn.Text = "—"
+MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinBtn.TextSize = 14
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.BorderSizePixel = 0
+MinBtn.Parent = TopBar
 
-end
+local MinBtnCorner = Instance.new("UICorner")
+MinBtnCorner.CornerRadius = UDim.new(0, 6)
+MinBtnCorner.Parent = MinBtn
 
-------------------------------------------------
--- FUNCTION 2 (TP NPC)
-------------------------------------------------
+-- Content Frame
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Size = UDim2.new(1, -20, 1, -60)
+ContentFrame.Position = UDim2.new(0, 10, 0, 55)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
 
-local function teleportNPC()
+-- Status Label
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, 0, 0, 28)
+StatusLabel.Position = UDim2.new(0, 0, 0, 0)
+StatusLabel.BackgroundColor3 = Color3.fromRGB(15, 20, 35)
+StatusLabel.Text = "⏸ Chờ bật..."
+StatusLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+StatusLabel.TextSize = 12
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.BorderSizePixel = 0
+StatusLabel.Parent = ContentFrame
 
-for _,v in pairs(workspace:GetDescendants()) do
+local StatusCorner = Instance.new("UICorner")
+StatusCorner.CornerRadius = UDim.new(0, 6)
+StatusCorner.Parent = StatusLabel
 
-if string.find(v.Name,"bluewaterrobux") then
+-- Phase Label
+local PhaseLabel = Instance.new("TextLabel")
+PhaseLabel.Size = UDim2.new(1, 0, 0, 22)
+PhaseLabel.Position = UDim2.new(0, 0, 0, 33)
+PhaseLabel.BackgroundTransparency = 1
+PhaseLabel.Text = "⏱ Giai đoạn: --"
+PhaseLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+PhaseLabel.TextSize = 11
+PhaseLabel.Font = Enum.Font.Gotham
+PhaseLabel.Parent = ContentFrame
 
-if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+-- Timer Label
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Size = UDim2.new(1, 0, 0, 22)
+TimerLabel.Position = UDim2.new(0, 0, 0, 52)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.Text = "⏰ Thời gian: 0s"
+TimerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+TimerLabel.TextSize = 11
+TimerLabel.Font = Enum.Font.Gotham
+TimerLabel.Parent = ContentFrame
 
-char.HumanoidRootPart.CFrame =
-v.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+-- Divider
+local Divider = Instance.new("Frame")
+Divider.Size = UDim2.new(1, 0, 0, 1)
+Divider.Position = UDim2.new(0, 0, 0, 79)
+Divider.BackgroundColor3 = Color3.fromRGB(0, 150, 220)
+Divider.BackgroundTransparency = 0.5
+Divider.BorderSizePixel = 0
+Divider.Parent = ContentFrame
 
-return
-
-end
-end
-end
-
-end
-
-------------------------------------------------
--- FUNCTION 3 (Click menu)
-------------------------------------------------
-
-local function clickMenu()
-
-clickXY(327,126)
-task.wait(0.2)
-
-clickXY(252,179)
-task.wait(0.2)
-
-clickXY(490,83)
-task.wait(0.2)
-
-clickXY(497,89)
-
-end
-
-------------------------------------------------
--- FUNCTION 4 (TP đảo gần nhất)
-------------------------------------------------
-
-local islands = {
-
-Vector3.new(196.21,15.09,184.43),
-Vector3.new(1516.50,17.62,-500.17),
-Vector3.new(1012.33,10.98,1289.31),
-Vector3.new(743.41,14.48,-916.51),
-Vector3.new(-320.39,10.89,775.44)
-
+-- Function list
+local functions = {
+    {name = "1. Instant ProximityPrompt", desc = "Luôn bật - HoldDuration = 0"},
+    {name = "2. Auto Sell (Full detect)", desc = "Scan 0.05s → TP đến NPC bán"},
+    {name = "3. Auto Click Sell UI", desc = "Click tọa độ bán hàng"},
+    {name = "4. TP Đảo gần nhất", desc = "Dịch chuyển đến đảo gần nhất"},
+    {name = "5. Spam Click + Phím Z,X,C,V", desc = "Spam click và phím tắt"},
 }
 
-local function teleportNearestIsland()
+local funcLabels = {}
+for i, f in ipairs(functions) do
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 0, 36)
+    bg.Position = UDim2.new(0, 0, 0, 84 + (i-1)*40)
+    bg.BackgroundColor3 = Color3.fromRGB(15, 20, 35)
+    bg.BorderSizePixel = 0
+    bg.Parent = ContentFrame
 
-local root = char.HumanoidRootPart
-local closest
-local dist = math.huge
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 6)
+    bgCorner.Parent = bg
 
-for _,pos in pairs(islands) do
+    local nameL = Instance.new("TextLabel")
+    nameL.Size = UDim2.new(1, -10, 0, 18)
+    nameL.Position = UDim2.new(0, 8, 0, 2)
+    nameL.BackgroundTransparency = 1
+    nameL.Text = f.name
+    nameL.TextColor3 = Color3.fromRGB(0, 210, 255)
+    nameL.TextSize = 11
+    nameL.Font = Enum.Font.GothamBold
+    nameL.TextXAlignment = Enum.TextXAlignment.Left
+    nameL.Parent = bg
 
-local d = (root.Position - pos).Magnitude
+    local descL = Instance.new("TextLabel")
+    descL.Size = UDim2.new(1, -10, 0, 14)
+    descL.Position = UDim2.new(0, 8, 0, 20)
+    descL.BackgroundTransparency = 1
+    descL.Text = f.desc
+    descL.TextColor3 = Color3.fromRGB(140, 160, 180)
+    descL.TextSize = 9
+    descL.Font = Enum.Font.Gotham
+    descL.TextXAlignment = Enum.TextXAlignment.Left
+    descL.Parent = bg
 
-if d < dist then
-dist = d
-closest = pos
+    funcLabels[i] = {bg = bg, name = nameL}
 end
 
+-- ON/OFF Button
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(1, 0, 0, 40)
+ToggleBtn.Position = UDim2.new(0, 0, 1, -45)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 80)
+ToggleBtn.Text = "▶  BẬT AUTO FARM"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextSize = 14
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.BorderSizePixel = 0
+ToggleBtn.Parent = ContentFrame
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleBtn
+
+-- =============================================
+-- ISLAND POSITIONS
+-- =============================================
+local islands = {
+    {name = "Đảo 1", pos = Vector3.new(196.21, 15.09, 184.43)},
+    {name = "Đảo 2", pos = Vector3.new(1516.50, 17.62, -500.17)},
+    {name = "Đảo 3", pos = Vector3.new(1012.33, 10.98, 1289.31)},
+    {name = "Đảo 4", pos = Vector3.new(743.41, 14.48, -916.51)},
+    {name = "Đảo 5", pos = Vector3.new(-320.39, 10.89, 775.44)},
+}
+
+-- =============================================
+-- HELPER FUNCTIONS
+-- =============================================
+
+local function getNearest(positions)
+    character = player.Character
+    if not character then return nil end
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return nil end
+
+    local nearest = nil
+    local minDist = math.huge
+    for _, data in ipairs(positions) do
+        local dist = (rootPart.Position - data.pos).Magnitude
+        if dist < minDist then
+            minDist = dist
+            nearest = data
+        end
+    end
+    return nearest
 end
 
-root.CFrame = CFrame.new(closest)
-
+local function teleportTo(pos)
+    character = player.Character
+    if not character then return end
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        rootPart.CFrame = CFrame.new(pos)
+    end
 end
 
-------------------------------------------------
--- FUNCTION 5 (Spam skill + click)
-------------------------------------------------
-
-local function spamCombat()
-
--- spam click toạ độ
-clickXY(475,215)
-
--- spam skill
-keypress(0x5A)
-keyrelease(0x5A)
-
-keypress(0x58)
-keyrelease(0x58)
-
-keypress(0x43)
-keyrelease(0x43)
-
-keypress(0x56)
-keyrelease(0x56)
-
+local function clickScreen(x, y)
+    VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 1)
+    task.wait(0.05)
+    VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 1)
+    task.wait(0.05)
 end
 
-------------------------------------------------
--- LOOP
-------------------------------------------------
-
-toggle.MouseButton1Click:Connect(function()
-
-autofarm = not autofarm
-toggle.Text = autofarm and "ON" or "OFF"
-
-if autofarm then
-
-spawn(function()
-
-while autofarm do
-
--- 6 phút farm
-for i=1,360 do
-
-teleportNearestIsland()
-spamCombat()
-
-task.wait(0.25)
-
-if not autofarm then break end
-
+local function pressKey(keyCode)
+    VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
+    task.wait(0.05)
+    VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
 end
 
--- hết 6 phút
-
-instantPrompt()
-teleportNPC()
-
-task.wait(1)
-
-clickMenu()
-
-task.wait(1)
-
-teleportNearestIsland()
-
+local function isScreenFull()
+    -- Quét text "Full" trên màn hình (dùng GUI detect nếu có)
+    -- Tìm trong PlayerGui/CoreGui các TextLabel có text "Full"
+    local function scanGui(parent)
+        for _, obj in ipairs(parent:GetDescendants()) do
+            if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                if string.find(string.upper(obj.Text), "FULL") then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+    if scanGui(player.PlayerGui) then return true end
+    return false
 end
 
+local function findNPCSeller()
+    -- Tìm NPC bán trong workspace.NPCs với tên có "bluewaterrobux"
+    local npcsFolder = workspace:FindFirstChild("NPCs")
+    if not npcsFolder then return nil end
+    
+    local nearest = nil
+    local minDist = math.huge
+    character = player.Character
+    if not character then return nil end
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return nil end
+
+    for _, npc in ipairs(npcsFolder:GetDescendants()) do
+        if string.find(string.lower(npc.Name), "bluewaterrobux") then
+            local pos = npc.Position or (npc:IsA("Model") and npc:GetPivot().Position)
+            if pos then
+                local dist = (rootPart.Position - pos).Magnitude
+                if dist < minDist then
+                    minDist = dist
+                    nearest = npc
+                end
+            end
+        end
+    end
+    return nearest
+end
+
+-- =============================================
+-- CHỨC NĂNG 1: Instant ProximityPrompt
+-- =============================================
+local function func1_ProximityPrompt()
+    for _, p in pairs(workspace:GetDescendants()) do
+        if p:IsA("ProximityPrompt") then
+            p.HoldDuration = 0
+            p.RequiresLineOfSight = false
+        end
+    end
+    workspace.DescendantAdded:Connect(function(p)
+        if p:IsA("ProximityPrompt") then
+            p.HoldDuration = 0
+            p.RequiresLineOfSight = false
+        end
+    end)
+end
+
+-- =============================================
+-- CHỨC NĂNG 2: Auto Sell khi Full
+-- =============================================
+local lastSellCheck = 0
+local function func2_AutoSell()
+    if tick() - lastSellCheck < 0.05 then return end
+    lastSellCheck = tick()
+
+    if isScreenFull() then
+        StatusLabel.Text = "🐟 Full! Đang đến NPC bán..."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 220, 0)
+        
+        local npc = findNPCSeller()
+        if npc then
+            local pos = npc.Position or npc:GetPivot().Position
+            teleportTo(pos + Vector3.new(0, 3, 0))
+            task.wait(0.3)
+            -- Sau khi TP đến NPC, thực hiện chức năng 3
+            func3_ClickSellUI()
+        end
+    end
+end
+
+-- =============================================
+-- CHỨC NĂNG 3: Click UI bán hàng
+-- =============================================
+function func3_ClickSellUI()
+    StatusLabel.Text = "🖱 Đang click bán hàng..."
+    StatusLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
+
+    local coords = {
+        {x = 327, y = 126},
+        {x = 252, y = 179},
+        {x = 490, y = 83},
+        {x = 497, y = 89},
+    }
+    for _, c in ipairs(coords) do
+        clickScreen(c.x, c.y)
+        task.wait(0.1)
+    end
+end
+
+-- =============================================
+-- CHỨC NĂNG 4: TP đến đảo gần nhất
+-- =============================================
+local function func4_TeleportNearestIsland()
+    StatusLabel.Text = "🗺 Đang TP đến đảo gần nhất..."
+    StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 150)
+
+    local nearest = getNearest(islands)
+    if nearest then
+        teleportTo(nearest.pos)
+        StatusLabel.Text = "✅ Đã TP: " .. nearest.name
+        task.wait(0.5)
+    end
+end
+
+-- =============================================
+-- CHỨC NĂNG 5: Spam click + phím Z,X,C,V
+-- =============================================
+local function func5_SpamClickKeys()
+    StatusLabel.Text = "⚡ Spam click + phím..."
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 150, 0)
+
+    for i = 1, 3 do
+        clickScreen(475, 215)
+        pressKey(Enum.KeyCode.Z)
+        pressKey(Enum.KeyCode.X)
+        pressKey(Enum.KeyCode.C)
+        pressKey(Enum.KeyCode.V)
+        task.wait(0.1)
+    end
+end
+
+-- =============================================
+-- MAIN FARM LOOP
+-- =============================================
+local function mainLoop()
+    while isRunning do
+        local elapsed = tick() - startTime
+        TimerLabel.Text = string.format("⏰ Thời gian: %ds", math.floor(elapsed))
+
+        if elapsed < 360 then
+            -- 6 phút đầu: chỉ làm chức năng 4 và 5
+            phase = "phase_45"
+            PhaseLabel.Text = "⏱ Giai đoạn: 4-5 (còn " .. math.floor(360 - elapsed) .. "s)"
+            PhaseLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
+
+            func4_TeleportNearestIsland()
+            task.wait(0.3)
+            func5_SpamClickKeys()
+            task.wait(0.5)
+        else
+            -- Sau 6 phút: làm đủ 1 → 5
+            phase = "phase_all"
+            PhaseLabel.Text = "⏱ Giai đoạn: Đầy đủ (1→5)"
+            PhaseLabel.TextColor3 = Color3.fromRGB(100, 255, 150)
+
+            -- Func 1 luôn bật (gọi một lần để đảm bảo)
+            func1_ProximityPrompt()
+            task.wait(0.1)
+
+            -- Func 2: kiểm tra Full → TP NPC → bán (đã bao gồm func 3)
+            func2_AutoSell()
+            task.wait(0.1)
+
+            -- Func 4: TP đảo
+            func4_TeleportNearestIsland()
+            task.wait(0.3)
+
+            -- Func 5: Spam
+            func5_SpamClickKeys()
+            task.wait(0.5)
+        end
+    end
+end
+
+-- =============================================
+-- TOGGLE BUTTON
+-- =============================================
+local isMinimized = false
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    isRunning = not isRunning
+
+    if isRunning then
+        startTime = tick()
+        ToggleBtn.Text = "⏹  TẮT AUTO FARM"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+        StatusLabel.Text = "▶ Đang chạy..."
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 150)
+
+        -- Bật func 1 ngay lập tức
+        func1_ProximityPrompt()
+
+        task.spawn(mainLoop)
+    else
+        ToggleBtn.Text = "▶  BẬT AUTO FARM"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 80)
+        StatusLabel.Text = "⏸ Đã dừng"
+        StatusLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+        PhaseLabel.Text = "⏱ Giai đoạn: --"
+    end
 end)
 
-end
-
+-- =============================================
+-- CLOSE / MINIMIZE
+-- =============================================
+CloseBtn.MouseButton1Click:Connect(function()
+    isRunning = false
+    ScreenGui:Destroy()
 end)
+
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    ContentFrame.Visible = not isMinimized
+    if isMinimized then
+        MainFrame.Size = UDim2.new(0, 340, 0, 55)
+        MinBtn.Text = "+"
+    else
+        MainFrame.Size = UDim2.new(0, 340, 0, 420)
+        MinBtn.Text = "—"
+    end
+end)
+
+-- =============================================
+-- HOVER EFFECTS
+-- =============================================
+ToggleBtn.MouseEnter:Connect(function()
+    if isRunning then
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(230, 60, 60)}):Play()
+    else
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 210, 100)}):Play()
+    end
+end)
+ToggleBtn.MouseLeave:Connect(function()
+    if isRunning then
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(200, 40, 40)}):Play()
+    else
+        TweenService:Create(ToggleBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
+    end
+end)
+
+-- =============================================
+-- HIGHLIGHT ACTIVE FUNCTION
+-- =============================================
+RunService.Heartbeat:Connect(function()
+    if not isRunning then
+        for i, f in ipairs(funcLabels) do
+            f.bg.BackgroundColor3 = Color3.fromRGB(15, 20, 35)
+            f.name.TextColor3 = Color3.fromRGB(0, 210, 255)
+        end
+        return
+    end
+
+    local elapsed = tick() - startTime
+    for i, f in ipairs(funcLabels) do
+        local active = false
+        if elapsed < 360 then
+            active = (i == 4 or i == 5)
+        else
+            active = true
+        end
+
+        if active then
+            f.bg.BackgroundColor3 = Color3.fromRGB(0, 50, 80)
+            f.name.TextColor3 = Color3.fromRGB(0, 255, 180)
+        else
+            f.bg.BackgroundColor3 = Color3.fromRGB(15, 20, 35)
+            f.name.TextColor3 = Color3.fromRGB(0, 210, 255)
+        end
+    end
+end)
+
+print("[TitanFishing] GUI Loaded - BY BRYDZVL")
