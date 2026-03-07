@@ -1,0 +1,222 @@
+-- Auto Farm Titan Fishing
+-- BY BRYDZVL (Fixed)
+
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
+
+------------------------------------------------
+-- GUI
+------------------------------------------------
+
+local gui = Instance.new("ScreenGui", game.CoreGui)
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0,230,0,150)
+frame.Position = UDim2.new(0.4,0,0.3,0)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.Active = true
+frame.Draggable = true
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,40)
+title.Text = "Auto Farm Titan Fishing\nBY BRYDZVL"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.TextScaled = true
+
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0.8,0,0,40)
+toggle.Position = UDim2.new(0.1,0,0.6,0)
+toggle.Text = "OFF"
+toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+toggle.TextColor3 = Color3.new(1,1,1)
+
+------------------------------------------------
+-- BIẾN
+------------------------------------------------
+
+local autofarm = false
+
+------------------------------------------------
+-- CLICK TOA DO
+------------------------------------------------
+
+local function clickXY(x,y)
+
+VIM:SendMouseButtonEvent(x,y,0,true,game,0)
+VIM:SendMouseButtonEvent(x,y,0,false,game,0)
+
+end
+
+------------------------------------------------
+-- FUNCTION 1 (Instant Prompt)
+------------------------------------------------
+
+local function instantPrompt()
+
+for _,p in pairs(workspace:GetDescendants()) do
+if p:IsA("ProximityPrompt") then
+p.HoldDuration = 0
+p.RequiresLineOfSight = false
+end
+end
+
+workspace.DescendantAdded:Connect(function(p)
+if p:IsA("ProximityPrompt") then
+p.HoldDuration = 0
+p.RequiresLineOfSight = false
+end
+end)
+
+end
+
+------------------------------------------------
+-- FUNCTION 2 (TP NPC)
+------------------------------------------------
+
+local function teleportNPC()
+
+for _,v in pairs(workspace:GetDescendants()) do
+
+if string.find(v.Name,"bluewaterrobux") then
+
+if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+
+char.HumanoidRootPart.CFrame =
+v.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+
+return
+
+end
+end
+end
+
+end
+
+------------------------------------------------
+-- FUNCTION 3 (Click menu)
+------------------------------------------------
+
+local function clickMenu()
+
+clickXY(327,126)
+task.wait(0.2)
+
+clickXY(252,179)
+task.wait(0.2)
+
+clickXY(490,83)
+task.wait(0.2)
+
+clickXY(497,89)
+
+end
+
+------------------------------------------------
+-- FUNCTION 4 (TP đảo gần nhất)
+------------------------------------------------
+
+local islands = {
+
+Vector3.new(196.21,15.09,184.43),
+Vector3.new(1516.50,17.62,-500.17),
+Vector3.new(1012.33,10.98,1289.31),
+Vector3.new(743.41,14.48,-916.51),
+Vector3.new(-320.39,10.89,775.44)
+
+}
+
+local function teleportNearestIsland()
+
+local root = char.HumanoidRootPart
+local closest
+local dist = math.huge
+
+for _,pos in pairs(islands) do
+
+local d = (root.Position - pos).Magnitude
+
+if d < dist then
+dist = d
+closest = pos
+end
+
+end
+
+root.CFrame = CFrame.new(closest)
+
+end
+
+------------------------------------------------
+-- FUNCTION 5 (Spam skill + click)
+------------------------------------------------
+
+local function spamCombat()
+
+-- spam click toạ độ
+clickXY(475,215)
+
+-- spam skill
+keypress(0x5A)
+keyrelease(0x5A)
+
+keypress(0x58)
+keyrelease(0x58)
+
+keypress(0x43)
+keyrelease(0x43)
+
+keypress(0x56)
+keyrelease(0x56)
+
+end
+
+------------------------------------------------
+-- LOOP
+------------------------------------------------
+
+toggle.MouseButton1Click:Connect(function()
+
+autofarm = not autofarm
+toggle.Text = autofarm and "ON" or "OFF"
+
+if autofarm then
+
+spawn(function()
+
+while autofarm do
+
+-- 6 phút farm
+for i=1,360 do
+
+teleportNearestIsland()
+spamCombat()
+
+task.wait(0.25)
+
+if not autofarm then break end
+
+end
+
+-- hết 6 phút
+
+instantPrompt()
+teleportNPC()
+
+task.wait(1)
+
+clickMenu()
+
+task.wait(1)
+
+teleportNearestIsland()
+
+end
+
+end)
+
+end
+
+end)
