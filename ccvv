@@ -224,7 +224,7 @@ local function func5_Spam()
         clickScreen(475,250)
         pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
         pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
-        task.wait(0.001)
+        task.wait(0.25)
     end
 end
 
