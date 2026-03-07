@@ -186,7 +186,7 @@ local function findNPCSeller()
 end
 
 -- ── CHỨC NĂNG 3: Click bán hàng ─────────────────
-local sellCoords={{322,103},{327,167},{321,224},{259,159},{491,89}}
+local sellCoords={{322,103},{327,167},{321,224},{259,139},{491,65}}
 local function func3_SellUI()
     setActive(3); setStatus("🖱 Click bán hàng...",Color3.fromRGB(0,210,255))
     for _,c in ipairs(sellCoords) do
