@@ -240,7 +240,7 @@ local function mainLoop()
     while isRunning do
         -- Func 2: quét
         setActive(2); setStatus("🔍 Đang quét...",Color3.fromRGB(150,200,255))
-        task.wait(1)
+        task.wait(3)
 
         if isScreenFull() then
             -- Dừng 4,5, chuyển sang bán
