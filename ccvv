@@ -219,13 +219,14 @@ end
 -- ── CHỨC NĂNG 5: Spam click + ZXCV ─────────────
 local function func5_Spam()
     setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
-    for _=1,8 do
+    for _=1,10 do
         if not isRunning or isSelling then break end
         clickScreen(475,250)
         pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
         pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
         pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
-        pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.X)
+        pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.C)
+        pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.X)
         task.wait(0.01)
     end
 end
