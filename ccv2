@@ -147,23 +147,45 @@ local function clearActive()
     end
 end
 
--- ── Tìm UI element có text khớp → click chính giữa ──
+-- ── Tìm UI element có text khớp → di chuột đến → click chính giữa ──
 local function findAndClickText(searchText)
     local upper = string.upper(searchText)
-    for _,o in ipairs(player.PlayerGui:GetDescendants()) do
-        if (o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox"))
-            and o.Visible
-            and string.find(string.upper(o.Text), upper, 1, true)
-        then
-            local absPos  = o.AbsolutePosition
+
+    -- Tìm trong PlayerGui VÀ CoreGui
+    local containers = {player.PlayerGui}
+    pcall(function() table.insert(containers, game:GetService("CoreGui")) end)
+
+    for _, container in ipairs(containers) do
+        for _, o in ipairs(container:GetDescendants()) do
+            -- Chỉ xét TextLabel / TextButton / TextBox có text khớp
+            local txt = ""
+            if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then
+                txt = o.Text or ""
+            else
+                continue
+            end
+
             local absSize = o.AbsoluteSize
-            local cx = math.floor(absPos.X + absSize.X * 0.5)
-            local cy = math.floor(absPos.Y + absSize.Y * 0.5)
-            VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true,  game, 1)
-            task.wait(0.05)
-            VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-            task.wait(0.05)
-            return true
+            -- Phải visible, có kích thước thật, và text khớp
+            if  o.Visible
+            and absSize.X > 4 and absSize.Y > 4
+            and string.find(string.upper(txt), upper, 1, true)
+            then
+                local absPos = o.AbsolutePosition
+                local cx = math.floor(absPos.X + absSize.X * 0.5)
+                local cy = math.floor(absPos.Y + absSize.Y * 0.5)
+
+                -- ① Di chuột tới đúng vị trí trước
+                VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
+                task.wait(0.03)
+                -- ② Nhấn xuống
+                VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true,  game, 1)
+                task.wait(0.06)
+                -- ③ Thả ra
+                VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+                task.wait(0.05)
+                return true, cx, cy
+            end
         end
     end
     return false
@@ -171,7 +193,12 @@ end
 
 -- ── Tìm + click chữ Fishing liên tục (cho spam) ──
 local function clickFishing()
-    findAndClickText("Fishing")
+    -- Thử tìm đúng chữ "Fishing"; nếu không thấy thử "Cast" / "Fish"
+    if not findAndClickText("Fishing") then
+        if not findAndClickText("Cast") then
+            findAndClickText("Fish")
+        end
+    end
 end
 
 -- ═══════════════════════════════════════════════════
