@@ -15,6 +15,216 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local HttpService         = game:GetService("HttpService")
 local SoundService        = game:GetService("SoundService")
 
+-- ⚠️ THÊM VÀO ĐẦU SCRIPT, SAU PHẦN KHAI BÁO SERVICES (TweenService, v.v.)
+-- Yêu cầu: TweenService đã được khai báo trước đó
+-- Sau khi loading xong, gọi dismissLoading() để tắt màn hình
+
+-- ═══════════════════════════════════════════════════
+--           ██ HACKER LOADING SCREEN ██
+-- ═══════════════════════════════════════════════════
+local LoadSG = Instance.new("ScreenGui")
+LoadSG.Name = "TitanLoadScreen"; LoadSG.ResetOnSpawn = false
+LoadSG.DisplayOrder = 999; LoadSG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+LoadSG.Parent = game.CoreGui
+
+-- ── Full BG ──
+local LBG = Instance.new("Frame", LoadSG)
+LBG.Size = UDim2.new(1,0,1,0); LBG.Position = UDim2.new(0,0,0,0)
+LBG.BackgroundColor3 = Color3.fromRGB(2,4,12); LBG.BorderSizePixel = 0; LBG.ZIndex = 1
+local bgGrad = Instance.new("UIGradient", LBG)
+bgGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,  Color3.fromRGB(0,8,22)),
+    ColorSequenceKeypoint.new(0.5,Color3.fromRGB(2,4,12)),
+    ColorSequenceKeypoint.new(1,  Color3.fromRGB(0,6,18)),
+}); bgGrad.Rotation = 135
+
+-- ── Matrix Rain ──
+local MCHARS = {"0","1","█","▓","░","$","#","<",">","!","@","&","ア","イ","ウ","エ","オ","カ","コ","テ"}
+for col = 1, 28 do
+    task.spawn(function()
+        task.wait(math.random()*5)
+        local xFrac = (col-1)/28
+        local spd   = 1.8 + math.random()*2.2
+        while LoadSG.Parent do
+            local ch = Instance.new("TextLabel", LBG)
+            ch.Size = UDim2.new(0,14,0,14)
+            ch.Position = UDim2.new(xFrac + math.random(-3,3)*0.001, 0, -0.04, 0)
+            ch.BackgroundTransparency = 1
+            ch.Text = MCHARS[math.random(1,#MCHARS)]
+            local bright = math.random() > 0.8
+            ch.TextColor3 = bright and Color3.fromRGB(100,255,160) or Color3.fromRGB(0,math.random(140,210),70)
+            ch.Font = Enum.Font.Code; ch.TextSize = 13; ch.ZIndex = 2
+            local tw = TweenService:Create(ch, TweenInfo.new(spd, Enum.EasingStyle.Linear), {
+                Position = UDim2.new(xFrac + math.random(-3,3)*0.001, 0, 1.04, 0),
+                TextTransparency = 0.88,
+            }); tw:Play(); task.wait(spd+0.05); ch:Destroy()
+            task.wait(math.random()*0.6)
+        end
+    end)
+end
+
+-- ── Scan line ──
+local scanLn = Instance.new("Frame", LBG)
+scanLn.Size = UDim2.new(1,0,0,2); scanLn.Position = UDim2.new(0,0,-0.01,0)
+scanLn.BackgroundColor3 = Color3.fromRGB(0,255,110); scanLn.BackgroundTransparency = 0.72
+scanLn.BorderSizePixel = 0; scanLn.ZIndex = 7
+task.spawn(function()
+    while LoadSG.Parent do
+        local t = TweenService:Create(scanLn, TweenInfo.new(3.2, Enum.EasingStyle.Linear), {Position=UDim2.new(0,0,1.01,0)})
+        t:Play(); t.Completed:Wait(); scanLn.Position = UDim2.new(0,0,-0.01,0)
+    end
+end)
+
+-- ── Center Panel ──
+local LPanel = Instance.new("Frame", LBG)
+LPanel.Size = UDim2.new(0,310,0,410); LPanel.Position = UDim2.new(0.5,-155,0.5,-205)
+LPanel.BackgroundColor3 = Color3.fromRGB(3,8,22); LPanel.BackgroundTransparency = 0.25
+LPanel.BorderSizePixel = 0; LPanel.ZIndex = 9
+Instance.new("UICorner", LPanel).CornerRadius = UDim.new(0,14)
+local pStroke = Instance.new("UIStroke", LPanel)
+pStroke.Color = Color3.fromRGB(0,230,110); pStroke.Thickness = 1.5; pStroke.Transparency = 0.1
+TweenService:Create(pStroke, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Transparency=0.75}):Play()
+
+-- ── Corner brackets ──
+local function mkBracket(px, py)
+    local f = Instance.new("Frame", LPanel)
+    f.Size = UDim2.new(0,18,0,18)
+    f.Position = UDim2.new(px, px==0 and 7 or -25, py, py==0 and 7 or -25)
+    f.BackgroundTransparency = 1; f.BorderSizePixel = 0; f.ZIndex = 11
+    local h = Instance.new("Frame",f); h.Size=UDim2.new(1,0,0,2); h.Position=UDim2.new(0,0,0,0)
+    h.BackgroundColor3=Color3.fromRGB(0,255,120); h.BorderSizePixel=0; h.ZIndex=11
+    local v = Instance.new("Frame",f); v.Size=UDim2.new(0,2,1,0)
+    v.Position = UDim2.new(px==0 and 0 or 1, px==0 and 0 or -2, 0, 0)
+    v.BackgroundColor3=Color3.fromRGB(0,255,120); v.BorderSizePixel=0; v.ZIndex=11
+end
+mkBracket(0,0); mkBracket(1,0); mkBracket(0,1); mkBracket(1,1)
+
+-- ── Label helper ──
+local function lbl(parent,txt,y,sz,col,xa,bold)
+    local l = Instance.new("TextLabel",parent)
+    l.Size=UDim2.new(1,-16,0,sz+4); l.Position=UDim2.new(0,8,0,y)
+    l.BackgroundTransparency=1; l.Text=txt; l.TextSize=sz
+    l.Font= bold and Enum.Font.GothamBold or Enum.Font.Code
+    l.TextColor3=col or Color3.fromRGB(0,255,120)
+    l.TextXAlignment=xa or Enum.TextXAlignment.Center; l.ZIndex=11
+    return l
+end
+
+-- ── Divider helper ──
+local function div(parent,y)
+    local f=Instance.new("Frame",parent)
+    f.Size=UDim2.new(0.88,0,0,1); f.Position=UDim2.new(0.06,0,0,y)
+    f.BackgroundColor3=Color3.fromRGB(0,200,100); f.BackgroundTransparency=0.55
+    f.BorderSizePixel=0; f.ZIndex=10
+end
+
+-- ── Titles ──
+lbl(LPanel,"[ TITAN FISHING SYSTEM ]",10,13,Color3.fromRGB(0,255,120))
+lbl(LPanel,"// BRYDZVL ACCESS TERMINAL //",28,9,Color3.fromRGB(0,150,75))
+div(LPanel,46)
+
+-- ── Glow ring ──
+local glowRing = Instance.new("ImageLabel", LPanel)
+glowRing.Size=UDim2.new(0,148,0,148); glowRing.Position=UDim2.new(0.5,-74,0,52)
+glowRing.BackgroundTransparency=1; glowRing.Image="rbxassetid://5028857084"
+glowRing.ImageColor3=Color3.fromRGB(0,200,100); glowRing.ImageTransparency=0.45; glowRing.ZIndex=10
+TweenService:Create(glowRing, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+    ImageTransparency=0.82, Size=UDim2.new(0,158,0,158), Position=UDim2.new(0.5,-79,0,47)
+}):Play()
+
+-- ── Big Avatar ──
+local AvBig = Instance.new("ImageLabel", LPanel)
+AvBig.Size=UDim2.new(0,128,0,128); AvBig.Position=UDim2.new(0.5,-64,0,57)
+AvBig.BackgroundColor3=Color3.fromRGB(0,12,30); AvBig.BorderSizePixel=0
+AvBig.Image="rbxassetid://93792227174261"; AvBig.ScaleType=Enum.ScaleType.Fit; AvBig.ZIndex=12
+Instance.new("UICorner",AvBig).CornerRadius=UDim.new(0,14)
+local avStr=Instance.new("UIStroke",AvBig)
+avStr.Color=Color3.fromRGB(0,255,120); avStr.Thickness=2.2
+TweenService:Create(avStr, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut,-1,true), {Transparency=0.65}):Play()
+
+div(LPanel,196)
+
+-- ── Hacker status ──
+local hackStatus = lbl(LPanel,"> INITIALIZING...",202,11,Color3.fromRGB(0,255,120))
+local hackMsgs = {
+    "> BYPASSING ANTI-CHEAT...","> SCANNING MEMORY...","> PATCHING PROXIMITYPROMPT...",
+    "> LOADING ISLAND DATA...","> CALIBRATING CLICK ENGINE...","> DECRYPTING TOKEN...",
+    "> SYNCING FARM MODULES...","> INJECTING PAYLOAD...","> ESTABLISHING UPLINK...",
+    "> VALIDATING SESSION...",
+}
+task.spawn(function()
+    local i=1
+    while LoadSG.Parent do
+        task.wait(1.8)
+        if not LoadSG.Parent then break end
+        hackStatus.Text = hackMsgs[i]; i = i%#hackMsgs+1
+    end
+end)
+
+div(LPanel,224)
+
+-- ── Loading text bar ──
+local loadTxt = lbl(LPanel,"[░░░░░░░░░░░░░░░░░░░░]   0%",230,10,Color3.fromRGB(0,200,100))
+
+-- Bar BG
+local barBG = Instance.new("Frame",LPanel)
+barBG.Size=UDim2.new(0.86,0,0,13); barBG.Position=UDim2.new(0.07,0,0,251)
+barBG.BackgroundColor3=Color3.fromRGB(4,12,28); barBG.BorderSizePixel=0; barBG.ZIndex=11
+Instance.new("UICorner",barBG).CornerRadius=UDim.new(0,4)
+local bStr=Instance.new("UIStroke",barBG); bStr.Color=Color3.fromRGB(0,100,55); bStr.Thickness=1
+
+-- Bar fill
+local barFill = Instance.new("Frame",barBG)
+barFill.Size=UDim2.new(0,0,1,0); barFill.BackgroundColor3=Color3.fromRGB(0,235,100)
+barFill.BorderSizePixel=0; barFill.ZIndex=12
+Instance.new("UICorner",barFill).CornerRadius=UDim.new(0,4)
+local bfGrad=Instance.new("UIGradient",barFill)
+bfGrad.Color=ColorSequence.new(Color3.fromRGB(0,160,75),Color3.fromRGB(0,255,140))
+
+-- Percent label
+local pctLbl = lbl(LPanel,"0%",268,11,Color3.fromRGB(0,255,120),Enum.TextXAlignment.Center,true)
+
+-- ── Log lines ──
+local logLines = {}
+for i=1,4 do
+    local l=Instance.new("TextLabel",LPanel)
+    l.Size=UDim2.new(0.88,0,0,13); l.Position=UDim2.new(0.06,0,0,292+(i-1)*15)
+    l.BackgroundTransparency=1; l.Text=""; l.TextColor3=Color3.fromRGB(0,130,65)
+    l.Font=Enum.Font.Code; l.TextSize=10
+    l.TextXAlignment=Enum.TextXAlignment.Left; l.ZIndex=11; logLines[i]=l
+end
+local initLogs={"[OK] TITAN_HUB v6 LOADED","[OK] PLAYER VERIFIED","[OK] ANTI-DETECT ACTIVE","[OK] MODULES ONLINE"}
+for i,t in ipairs(initLogs) do task.spawn(function() task.wait(i*0.35); logLines[i].Text=t end) end
+
+-- ═══════════════════════════════════════════════════
+--         HÀM ĐIỀU KHIỂN LOADING (dùng trong script)
+-- ═══════════════════════════════════════════════════
+
+-- Đẩy dòng log mới vào cuối (tự đẩy cũ lên)
+local function pushLog(txt)
+    for i=1,3 do logLines[i].Text=logLines[i+1].Text end
+    logLines[4].Text=txt
+end
+
+-- Cập nhật thanh loading (pct: 0.0 → 1.0, msg: text hiện ở status)
+local function setLoadPct(pct, msg)
+    pct = math.clamp(pct,0,1)
+    local p = math.floor(pct*100)
+    local filled = math.floor(pct*20)
+    loadTxt.Text = "["..string.rep("█",filled)..string.rep("░",20-filled).."]  "..p.."%"
+    pctLbl.Text  = p.."%"
+    TweenService:Create(barFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size=UDim2.new(pct,0,1,0)}):Play()
+    if msg then hackStatus.Text = msg end
+end
+
+-- Tắt loading screen (fade out rồi destroy)
+local function dismissLoading()
+    TweenService:Create(LBG,   TweenInfo.new(0.8, Enum.EasingStyle.Quad), {BackgroundTransparency=1}):Play()
+    TweenService:Create(LPanel,TweenInfo.new(0.8, Enum.EasingStyle.Quad), {BackgroundTransparency=1, Position=UDim2.new(0.5,-155,0.4,-205)}):Play()
+    task.wait(0.85)
+    if LoadSG and LoadSG.Parent then LoadSG:Destroy() end
+end
+
 local player     = Players.LocalPlayer
 local isRunning  = false
 local isBossRunning = false
