@@ -88,12 +88,35 @@ local MF = Instance.new("Frame")
 MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
 MF.BackgroundColor3 = Color3.fromRGB(8,10,18); MF.BorderSizePixel = 0
 MF.Active = true; MF.Draggable = true; MF.Parent = SG
+MF.Visible = false  -- ẩn mặc định, bấm avatar mới hiện
 Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
 ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
+-- pendingRestore: true khi đổi server, đợi avatar click mới restore
+local pendingRestore = false
+local pendingState   = nil
+
 AvatarBtn.MouseButton1Click:Connect(function()
     MF.Visible = not MF.Visible
+    -- Nếu có state chờ restore (sau đổi server), bật lại khi mở GUI lần đầu
+    if MF.Visible and pendingRestore and pendingState then
+        pendingRestore = false
+        local st = pendingState; pendingState = nil
+        task.spawn(function()
+            task.wait(0.1)
+            if st.boss then
+                isBossRunning = true; syncBtns()
+                setStatus("👹 Tự bật Boss Farm...",Color3.fromRGB(255,120,30))
+                task.spawn(bossLoop)
+                saveState()
+            end
+            if st.farm then
+                task.wait(0.5)
+                startAutoFarm()
+            end
+        end)
+    end
 end)
 
 -- TopBar
@@ -550,17 +573,23 @@ end)
 task.spawn(function()
     task.wait(3)  -- chờ game load xong
     local state = loadState()
-    if not state then return end
-    if state.boss then
-        isBossRunning = true; syncBtns()
-        setStatus("👹 Tự bật Boss Farm...",Color3.fromRGB(255,120,30))
-        task.spawn(bossLoop)
-        saveState()
-    end
-    if state.farm then
-        task.wait(0.5)
-        startAutoFarm()
-    end
+    if not state then return end  -- lần chạy đầu, không có gì để restore
+
+    -- ── Đây là lần rejoin sau đổi server ──
+    -- 1) Chờ thêm 10s cho server ổn định
+    setStatus("⏳ Chờ server ổn định...", Color3.fromRGB(200,200,100))
+    task.wait(10)
+
+    -- 2) Click tọa độ 321,285 để tắt màn hình loading / confirm
+    clickScreen(321, 285)
+    task.wait(0.3)
+
+    -- 3) Chỉ hiện avatar, GUI vẫn ẩn – lưu state chờ
+    MF.Visible = false
+    pendingRestore = true
+    pendingState   = state
+    setStatus("👆 Bấm avatar để tiếp tục...", Color3.fromRGB(130,190,255))
+    -- Khi người chơi bấm avatar → AvatarBtn.MouseButton1Click sẽ restore
 end)
 
 -- ═══════════════════════════════════════════════════
