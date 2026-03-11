@@ -30,7 +30,7 @@ local STATE_FILE = "TitanFishState.json"
 local function saveState()
     pcall(function()
         writefile(STATE_FILE, HttpService:JSONEncode({
-            farm = isRunning,
+            farm = isRunning,bora
             boss = isBossRunning,
         }))
     end)
@@ -93,30 +93,12 @@ Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
 ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
--- pendingRestore: true khi đổi server, đợi avatar click mới restore
+-- pendingRestore không còn dùng (restore tự động sau click)
 local pendingRestore = false
 local pendingState   = nil
 
 AvatarBtn.MouseButton1Click:Connect(function()
     MF.Visible = not MF.Visible
-    -- Nếu có state chờ restore (sau đổi server), bật lại khi mở GUI lần đầu
-    if MF.Visible and pendingRestore and pendingState then
-        pendingRestore = false
-        local st = pendingState; pendingState = nil
-        task.spawn(function()
-            task.wait(0.1)
-            if st.boss then
-                isBossRunning = true; syncBtns()
-                setStatus("👹 Tự bật Boss Farm...",Color3.fromRGB(255,120,30))
-                task.spawn(bossLoop)
-                saveState()
-            end
-            if st.farm then
-                task.wait(0.5)
-                startAutoFarm()
-            end
-        end)
-    end
 end)
 
 -- TopBar
@@ -581,15 +563,21 @@ task.spawn(function()
     task.wait(10)
 
     -- 2) Click tọa độ 321,285 để tắt màn hình loading / confirm
-    clickScreen(321, 295)
+    clickScreen(321, 298)
     task.wait(0.3)
 
-    -- 3) Chỉ hiện avatar, GUI vẫn ẩn – lưu state chờ
+    -- 3) GUI vẫn ẩn (chỉ hiện avatar), nhưng tự bật lại farm/boss ngay
     MF.Visible = false
-    pendingRestore = true
-    pendingState   = state
-    setStatus("👆 Bấm avatar để tiếp tục...", Color3.fromRGB(130,190,255))
-    -- Khi người chơi bấm avatar → AvatarBtn.MouseButton1Click sẽ restore
+    if state.boss then
+        isBossRunning = true; syncBtns()
+        setStatus("👹 Tự bật Boss Farm...", Color3.fromRGB(255,120,30))
+        task.spawn(bossLoop)
+        saveState()
+    end
+    if state.farm then
+        task.wait(0.5)
+        startAutoFarm()
+    end
 end)
 
 -- ═══════════════════════════════════════════════════
