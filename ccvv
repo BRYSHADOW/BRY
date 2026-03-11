@@ -581,7 +581,7 @@ task.spawn(function()
     task.wait(10)
 
     -- 2) Click tọa độ 321,285 để tắt màn hình loading / confirm
-    clickScreen(321, 285)
+    clickScreen(321, 295)
     task.wait(0.3)
 
     -- 3) Chỉ hiện avatar, GUI vẫn ẩn – lưu state chờ
