@@ -1,28 +1,59 @@
--- AUTO FARM TITAN FISHING v2 | BY BRYDZVL (UPGRADED)
-local Players         = game:GetService("Players")
-local RunService      = game:GetService("RunService")
-local TweenService    = game:GetService("TweenService")
+-- AUTO FARM TITAN FISHING v4 | BY BRYDZVL
+local Players             = game:GetService("Players")
+local TweenService        = game:GetService("TweenService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local HttpService         = game:GetService("HttpService")
+local SoundService        = game:GetService("SoundService")
 
-local player    = Players.LocalPlayer
-local isRunning     = false   -- Auto Farm
-local isBossRunning = false   -- Auto Farm Boss
-local isSelling     = false
+local player     = Players.LocalPlayer
+local isRunning  = false
+local isBossRunning = false
+local isSelling  = false
+
+-- ── FORWARD DECLARE (fix bug bossLoop gọi mainLoop) ──
+local mainLoop
 
 -- ═══════════════════════════════════════════════════
---                       GUI
+--             STATE SAVE / LOAD  (writefile)
+-- ═══════════════════════════════════════════════════
+local STATE_FILE = "TitanFishState.json"
+local function saveState()
+    pcall(function()
+        writefile(STATE_FILE, HttpService:JSONEncode({
+            farm = isRunning,
+            boss = isBossRunning,
+        }))
+    end)
+end
+local function loadState()
+    local ok, r = pcall(function()
+        return HttpService:JSONDecode(readfile(STATE_FILE))
+    end)
+    return ok and r or nil
+end
+
+-- ═══════════════════════════════════════════════════
+--                  ÂM THANH
+-- ═══════════════════════════════════════════════════
+local clickSnd = Instance.new("Sound")
+clickSnd.SoundId = "rbxassetid://70452176150315"
+clickSnd.Volume  = 0.8
+clickSnd.Parent  = SoundService
+local function playClick() clickSnd:Play() end
+
+-- ═══════════════════════════════════════════════════
+--                     GUI
 -- ═══════════════════════════════════════════════════
 local SG = Instance.new("ScreenGui")
 SG.Name = "TitanHub"; SG.ResetOnSpawn = false
 SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 SG.Parent = game.CoreGui
 
-local W, H = 340, 330
+local W, H = 260, 270
+
 local MF = Instance.new("Frame")
-MF.Size       = UDim2.new(0,W,0,H)
-MF.Position   = UDim2.new(0.5,-W/2,0.5,-H/2)
-MF.BackgroundColor3 = Color3.fromRGB(8,10,18)
-MF.BorderSizePixel  = 0
+MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
+MF.BackgroundColor3 = Color3.fromRGB(8,10,18); MF.BorderSizePixel = 0
 MF.Active = true; MF.Draggable = true; MF.Parent = SG
 Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
@@ -30,92 +61,86 @@ ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
 -- TopBar
 local TB = Instance.new("Frame",MF)
-TB.Size = UDim2.new(1,0,0,42)
-TB.BackgroundColor3 = Color3.fromRGB(0,130,200); TB.BorderSizePixel = 0
+TB.Size = UDim2.new(1,0,0,38); TB.BackgroundColor3 = Color3.fromRGB(0,130,200); TB.BorderSizePixel = 0
 Instance.new("UICorner",TB).CornerRadius = UDim.new(0,10)
 local tbfix = Instance.new("Frame",TB)
 tbfix.Size = UDim2.new(1,0,0,10); tbfix.Position = UDim2.new(0,0,1,-10)
 tbfix.BackgroundColor3 = Color3.fromRGB(0,130,200); tbfix.BorderSizePixel = 0
 local tg = Instance.new("UIGradient",TB)
-tg.Color    = ColorSequence.new(Color3.fromRGB(0,170,255),Color3.fromRGB(0,70,170))
+tg.Color    = ColorSequence.new(Color3.fromRGB(0,170,255), Color3.fromRGB(0,70,170))
 tg.Rotation = 90
 
 local function makeLabel(parent,txt,sz,pos,tsz,bold,col,xa)
     local l = Instance.new("TextLabel",parent)
     l.BackgroundTransparency = 1; l.Text = txt; l.Size = sz; l.Position = pos
-    l.TextSize = tsz
-    l.Font     = bold and Enum.Font.GothamBold or Enum.Font.Gotham
-    l.TextColor3      = col or Color3.new(1,1,1)
-    l.TextXAlignment  = xa  or Enum.TextXAlignment.Left
+    l.TextSize = tsz; l.Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham
+    l.TextColor3 = col or Color3.new(1,1,1)
+    l.TextXAlignment = xa or Enum.TextXAlignment.Left
     return l
 end
 local function makeBtn(parent,txt,sz,pos,bg,tsz)
     local b = Instance.new("TextButton",parent)
     b.Size = sz; b.Position = pos; b.BackgroundColor3 = bg; b.BorderSizePixel = 0
-    b.Text = txt; b.TextColor3 = Color3.new(1,1,1)
-    b.TextSize = tsz or 11; b.Font = Enum.Font.GothamBold
+    b.Text = txt; b.TextColor3 = Color3.new(1,1,1); b.TextSize = tsz or 11
+    b.Font = Enum.Font.GothamBold
     Instance.new("UICorner",b).CornerRadius = UDim.new(0,6)
     return b
 end
 
-makeLabel(TB,"🎣 Titan Fishing",UDim2.new(1,-80,1,0),UDim2.new(0,10,0,0),13,true)
-makeLabel(TB,"BY BRYDZVL",UDim2.new(1,-80,0,14),UDim2.new(0,12,0,0),9,false,Color3.fromRGB(160,230,255))
+makeLabel(TB,"🎣 Titan Fishing",UDim2.new(1,-80,1,0),UDim2.new(0,10,0,0),12,true)
+makeLabel(TB,"BY BRYDZVL",UDim2.new(1,-80,0,13),UDim2.new(0,12,0,0),8,false,Color3.fromRGB(160,230,255))
 
-local CloseBtn = makeBtn(TB,"✕",UDim2.new(0,26,0,26),UDim2.new(1,-32,0,8),Color3.fromRGB(210,45,45))
-local MinBtn   = makeBtn(TB,"—",UDim2.new(0,26,0,26),UDim2.new(1,-62,0,8),Color3.fromRGB(220,150,0))
+local CloseBtn = makeBtn(TB,"✕",UDim2.new(0,24,0,24),UDim2.new(1,-28,0,7),Color3.fromRGB(210,45,45))
+local MinBtn   = makeBtn(TB,"—",UDim2.new(0,24,0,24),UDim2.new(1,-56,0,7),Color3.fromRGB(220,150,0))
 
--- Content Frame
+-- Content frame (đầy đủ)
 local CF = Instance.new("Frame",MF)
-CF.Size = UDim2.new(1,-16,1,-50); CF.Position = UDim2.new(0,8,0,46)
+CF.Size = UDim2.new(1,-14,1,-46); CF.Position = UDim2.new(0,7,0,42)
 CF.BackgroundTransparency = 1
 
 -- Status box
 local SB = Instance.new("Frame",CF)
-SB.Size = UDim2.new(1,0,0,26); SB.BackgroundColor3 = Color3.fromRGB(12,18,32)
-SB.BorderSizePixel = 0
+SB.Size = UDim2.new(1,0,0,24); SB.BackgroundColor3 = Color3.fromRGB(12,18,32); SB.BorderSizePixel = 0
 Instance.new("UICorner",SB).CornerRadius = UDim.new(0,6)
 local StatusLbl = makeLabel(SB,"⏸ Chờ bật...",UDim2.new(1,-8,1,0),
-    UDim2.new(0,6,0,0),11,false,Color3.fromRGB(130,190,255))
+    UDim2.new(0,6,0,0),10,false,Color3.fromRGB(130,190,255))
 
--- Function indicator rows
+-- Rows chức năng
 local funcDefs = {
-    {icon="⚡", name="ProximityPrompt",  note="1x khi bật"},
-    {icon="🔍", name="Detect Full",      note="scan 0.05s"},
-    {icon="🖱",  name="Click Bán Hàng",  note="khi Full"},
-    {icon="🗺", name="TP Đảo Gần",      note="lặp"},
-    {icon="⚡", name="Spam+Phím ZXCV",  note="lặp"},
+    {icon="⚡", name="ProximityPrompt", note="1x khi bật"},
+    {icon="🔍", name="Detect Full",     note="scan 0.05s"},
+    {icon="🖱",  name="Click Bán Hàng", note="khi Full"},
+    {icon="🗺", name="TP Đảo Gần",     note="lặp"},
+    {icon="⚡", name="Spam+Phím ZXCV", note="luôn chạy"},
 }
 local fRows = {}
 for i,fd in ipairs(funcDefs) do
     local row = Instance.new("Frame",CF)
-    row.Size = UDim2.new(1,0,0,26); row.Position = UDim2.new(0,0,0,30+(i-1)*30)
+    row.Size = UDim2.new(1,0,0,24); row.Position = UDim2.new(0,0,0,28+(i-1)*28)
     row.BackgroundColor3 = Color3.fromRGB(12,18,32); row.BorderSizePixel = 0
     Instance.new("UICorner",row).CornerRadius = UDim.new(0,6)
     local dot = Instance.new("Frame",row)
-    dot.Size = UDim2.new(0,7,0,7); dot.Position = UDim2.new(0,6,0.5,-3.5)
+    dot.Size = UDim2.new(0,6,0,6); dot.Position = UDim2.new(0,6,0.5,-3)
     dot.BackgroundColor3 = Color3.fromRGB(35,45,65); dot.BorderSizePixel = 0
     Instance.new("UICorner",dot).CornerRadius = UDim.new(0.5,0)
-    makeLabel(row,fd.icon.." "..fd.name,UDim2.new(1,-70,1,0),
-        UDim2.new(0,18,0,0),10,true,Color3.fromRGB(0,200,255))
-    makeLabel(row,fd.note,UDim2.new(0,62,1,0),UDim2.new(1,-64,0,0),
-        9,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
+    makeLabel(row,fd.icon.." "..fd.name,UDim2.new(1,-68,1,0),UDim2.new(0,17,0,0),9,true,Color3.fromRGB(0,200,255))
+    makeLabel(row,fd.note,UDim2.new(0,60,1,0),UDim2.new(1,-62,0,0),8,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
     fRows[i] = {row=row, dot=dot}
 end
 
--- ──────── 3 nút ở dưới ───────────────────────────
--- CF width = W - 16 = 324px  →  3 nút mỗi cái ~104px cách 4px
+-- 3 nút chính (full mode)
+local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",UDim2.new(0,78,0,28),UDim2.new(0,0,1,-30),  Color3.fromRGB(0,170,75), 9)
+local BossBtn   = makeBtn(CF,"👹 BOSS",     UDim2.new(0,78,0,28),UDim2.new(0,84,1,-30), Color3.fromRGB(180,70,0), 9)
+local TeleBtn   = makeBtn(CF,"🗺 TELE",     UDim2.new(0,80,0,28),UDim2.new(0,168,1,-30),Color3.fromRGB(100,0,200),9)
 
-local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",
-    UDim2.new(0,103,0,32), UDim2.new(0,0,1,-34),
-    Color3.fromRGB(0,170,75), 10)
+-- Mini bar (hiện khi bấm —, thay thế CF)
+local MinBar = Instance.new("Frame",MF)
+MinBar.Size = UDim2.new(1,-14,0,36); MinBar.Position = UDim2.new(0,7,0,42)
+MinBar.BackgroundTransparency = 1; MinBar.Visible = false
 
-local BossBtn = makeBtn(CF,"👹 FARM BOSS",
-    UDim2.new(0,107,0,32), UDim2.new(0,108,1,-34),
-    Color3.fromRGB(180,70,0), 10)
-
-local TeleBtn = makeBtn(CF,"🗺 TELE ĐẢO",
-    UDim2.new(0,103,0,32), UDim2.new(0,220,1,-34),
-    Color3.fromRGB(110,0,210), 10)
+local MiniToggle = makeBtn(MinBar,"▶ FARM",UDim2.new(0,74,0,28),UDim2.new(0,0,0,4),  Color3.fromRGB(0,170,75), 8)
+local MiniBoss   = makeBtn(MinBar,"👹 BOSS", UDim2.new(0,74,0,28),UDim2.new(0,80,0,4), Color3.fromRGB(180,70,0), 8)
+local MiniTele   = makeBtn(MinBar,"🗺 TELE", UDim2.new(0,78,0,28),UDim2.new(0,160,0,4),Color3.fromRGB(100,0,200),8)
 
 -- ═══════════════════════════════════════════════════
 --                    HELPERS
@@ -126,6 +151,10 @@ end
 local function teleportTo(pos)
     local r = getRoot(); if r then r.CFrame = CFrame.new(pos) end
 end
+local function clickScreen(x,y)
+    VirtualInputManager:SendMouseButtonEvent(x,y,0,true,game,1);  task.wait(0.05)
+    VirtualInputManager:SendMouseButtonEvent(x,y,0,false,game,1); task.wait(0.05)
+end
 local function pressKey(kc)
     VirtualInputManager:SendKeyEvent(true,kc,false,game);  task.wait(0.04)
     VirtualInputManager:SendKeyEvent(false,kc,false,game)
@@ -135,7 +164,7 @@ local function setStatus(txt,col)
 end
 local function setActive(id)
     for i,fr in ipairs(fRows) do
-        local on = (i == id)
+        local on = (i==id)
         fr.dot.BackgroundColor3 = on and Color3.fromRGB(0,255,150) or Color3.fromRGB(35,45,65)
         fr.row.BackgroundColor3 = on and Color3.fromRGB(0,38,60)   or Color3.fromRGB(12,18,32)
     end
@@ -147,62 +176,26 @@ local function clearActive()
     end
 end
 
--- ── Tìm UI element có text khớp → di chuột đến → click chính giữa ──
-local function findAndClickText(searchText)
-    local upper = string.upper(searchText)
-
-    -- Tìm trong PlayerGui VÀ CoreGui
-    local containers = {player.PlayerGui}
-    pcall(function() table.insert(containers, game:GetService("CoreGui")) end)
-
-    for _, container in ipairs(containers) do
-        for _, o in ipairs(container:GetDescendants()) do
-            -- Chỉ xét TextLabel / TextButton / TextBox có text khớp
-            local txt = ""
-            if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then
-                txt = o.Text or ""
-            else
-                continue
-            end
-
-            local absSize = o.AbsoluteSize
-            -- Phải visible, có kích thước thật, và text khớp
-            if  o.Visible
-            and absSize.X > 4 and absSize.Y > 4
-            and string.find(string.upper(txt), upper, 1, true)
-            then
-                local absPos = o.AbsolutePosition
-                local cx = math.floor(absPos.X + absSize.X * 0.5)
-                local cy = math.floor(absPos.Y + absSize.Y * 0.5)
-
-                -- ① Di chuột tới đúng vị trí trước
-                VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
-                task.wait(0.03)
-                -- ② Nhấn xuống
-                VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true,  game, 1)
-                task.wait(0.06)
-                -- ③ Thả ra
-                VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-                task.wait(0.05)
-                return true, cx, cy
-            end
-        end
+-- Đồng bộ text/màu tất cả nút (full + mini)
+local function syncBtns()
+    if isRunning then
+        ToggleBtn.Text="⏹ AUTO FARM"; ToggleBtn.BackgroundColor3=Color3.fromRGB(190,35,35)
+        MiniToggle.Text="⏹ FARM";     MiniToggle.BackgroundColor3=Color3.fromRGB(190,35,35)
+    else
+        ToggleBtn.Text="▶ AUTO FARM"; ToggleBtn.BackgroundColor3=Color3.fromRGB(0,170,75)
+        MiniToggle.Text="▶ FARM";     MiniToggle.BackgroundColor3=Color3.fromRGB(0,170,75)
     end
-    return false
-end
-
--- ── Tìm + click chữ Fishing liên tục (cho spam) ──
-local function clickFishing()
-    -- Thử tìm đúng chữ "Fishing"; nếu không thấy thử "Cast" / "Fish"
-    if not findAndClickText("Fishing") then
-        if not findAndClickText("Cast") then
-            findAndClickText("Fish")
-        end
+    if isBossRunning then
+        BossBtn.Text="⏹ BOSS"; BossBtn.BackgroundColor3=Color3.fromRGB(200,35,35)
+        MiniBoss.Text="⏹ BOSS"; MiniBoss.BackgroundColor3=Color3.fromRGB(200,35,35)
+    else
+        BossBtn.Text="👹 BOSS"; BossBtn.BackgroundColor3=Color3.fromRGB(180,70,0)
+        MiniBoss.Text="👹 BOSS"; MiniBoss.BackgroundColor3=Color3.fromRGB(180,70,0)
     end
 end
 
 -- ═══════════════════════════════════════════════════
---                    ISLANDS
+--                   ISLANDS
 -- ═══════════════════════════════════════════════════
 local islands = {
     {name="Đảo 1", pos=Vector3.new(196.21,15.09,184.43)},
@@ -213,10 +206,10 @@ local islands = {
 }
 local function nearestIsland()
     local r = getRoot(); if not r then return nil end
-    local best, bd = nil, math.huge
+    local best,bd = nil,math.huge
     for _,isle in ipairs(islands) do
-        local d = (r.Position - isle.pos).Magnitude
-        if d < bd then bd = d; best = isle end
+        local d = (r.Position-isle.pos).Magnitude
+        if d<bd then bd=d; best=isle end
     end
     return best
 end
@@ -224,28 +217,24 @@ end
 -- ═══════════════════════════════════════════════════
 --               CHỨC NĂNG 1 – ProximityPrompt
 -- ═══════════════════════════════════════════════════
+local func1Done = false
 local function func1_Once()
+    if func1Done then return end; func1Done = true
     for _,p in pairs(workspace:GetDescendants()) do
-        if p:IsA("ProximityPrompt") then
-            p.HoldDuration = 0; p.RequiresLineOfSight = false
-        end
+        if p:IsA("ProximityPrompt") then p.HoldDuration=0; p.RequiresLineOfSight=false end
     end
     workspace.DescendantAdded:Connect(function(p)
-        if p:IsA("ProximityPrompt") then
-            p.HoldDuration = 0; p.RequiresLineOfSight = false
-        end
+        if p:IsA("ProximityPrompt") then p.HoldDuration=0; p.RequiresLineOfSight=false end
     end)
 end
 
 -- ═══════════════════════════════════════════════════
---              CHỨC NĂNG 2 – Phát hiện Full
+--               CHỨC NĂNG 2 – Detect Full
 -- ═══════════════════════════════════════════════════
 local function isScreenFull()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
-        if (o:IsA("TextLabel") or o:IsA("TextButton"))
-            and string.find(string.upper(o.Text), "FULL") then
-            return true
-        end
+        if (o:IsA("TextLabel") or o:IsA("TextButton")) and
+           string.find(string.upper(o.Text),"FULL") then return true end
     end
     return false
 end
@@ -253,14 +242,14 @@ end
 local function findNPCSeller()
     local r = getRoot(); if not r then return nil end
     local npcsF = workspace:FindFirstChild("NPCs"); if not npcsF then return nil end
-    local best, bd = nil, math.huge
+    local best,bd = nil,math.huge
     for _,n in ipairs(npcsF:GetDescendants()) do
-        if string.find(string.lower(n.Name), "bluewaterrobux") then
+        if string.find(string.lower(n.Name),"bluewaterrobux") then
             local pos = n:IsA("BasePart") and n.Position
                      or (n:IsA("Model") and n:GetPivot().Position)
             if pos then
-                local d = (r.Position - pos).Magnitude
-                if d < bd then bd = d; best = pos end
+                local d = (r.Position-pos).Magnitude
+                if d<bd then bd=d; best=pos end
             end
         end
     end
@@ -268,35 +257,18 @@ local function findNPCSeller()
 end
 
 -- ═══════════════════════════════════════════════════
---           CHỨC NĂNG 3 – Click bán hàng (tìm text)
+--               CHỨC NĂNG 3 – Click bán
 -- ═══════════════════════════════════════════════════
+local sellCoords={{322,103},{322,125},{327,167},{321,224},{321,250},{321,265},{259,230},{491,140}}
 local function func3_SellUI()
-    setActive(3); setStatus("🖱 Click bán hàng...", Color3.fromRGB(0,210,255))
-
-    -- Bước 1: Tìm & click "Interact"
-    task.wait(0.15)
-    findAndClickText("Interact")
-    task.wait(0.35)
-
-    -- Bước 2: Tìm & click "Sell All" hoặc "SellAll"
-    if not findAndClickText("Sell All") then
-        findAndClickText("SellAll")
+    setActive(3); setStatus("🖱 Click bán hàng...",Color3.fromRGB(0,210,255))
+    for _,c in ipairs(sellCoords) do
+        clickScreen(c[1],c[2]); task.wait(0.2)
     end
-    task.wait(0.35)
-
-    -- Bước 3: Đóng UI – tìm nút X đỏ (✕ × X Close)
-    if not findAndClickText("✕") then
-        if not findAndClickText("×") then
-            if not findAndClickText("Cancel") then
-                findAndClickText("Close")
-            end
-        end
-    end
-    task.wait(0.2)
 end
 
 -- ═══════════════════════════════════════════════════
---           CHỨC NĂNG 4 – TP ghim đảo gần nhất
+--               CHỨC NĂNG 4 – TP ghim đảo
 -- ═══════════════════════════════════════════════════
 local lockedIsland = nil
 local function func4_TPIsland()
@@ -306,23 +278,21 @@ local function func4_TPIsland()
     if not lockedIsland then return end
     local dist = (r.Position - lockedIsland.pos).Magnitude
     if dist > 10 then
-        setStatus("🔁 Ra "..lockedIsland.name.."! TP về...", Color3.fromRGB(255,180,0))
-        teleportTo(lockedIsland.pos)
-        task.wait(0.3)
+        setStatus("🔁 Ra "..lockedIsland.name.."! TP về...",Color3.fromRGB(255,180,0))
+        teleportTo(lockedIsland.pos); task.wait(0.3)
     else
-        setStatus("📍 Đang ở "..lockedIsland.name, Color3.fromRGB(100,255,150))
+        setStatus("📍 Đang ở "..lockedIsland.name,Color3.fromRGB(100,255,150))
     end
 end
 
 -- ═══════════════════════════════════════════════════
---       CHỨC NĂNG 5 – Spam Fishing click + ZXCV
+--               CHỨC NĂNG 5 – Spam + ZXCV
 -- ═══════════════════════════════════════════════════
 local function func5_Spam()
-    setActive(5); setStatus("⚡ Spam Fishing + phím...", Color3.fromRGB(255,170,0))
-    for _ = 1, 10 do
+    setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
+    for _ = 1,10 do
         if (not isRunning and not isBossRunning) or isSelling then break end
-        -- Tìm chữ "Fishing" → click chính giữa thay vì toạ độ cố định
-        clickFishing()
+        clickScreen(475,250)
         pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
         pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
         pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
@@ -333,230 +303,273 @@ local function func5_Spam()
 end
 
 -- ═══════════════════════════════════════════════════
---              AUTO FARM BOSS
+--          startAutoFarm – dùng chung bossLoop gọi
+-- ═══════════════════════════════════════════════════
+local function startAutoFarm()
+    if isRunning then return end
+    isRunning = true; syncBtns()
+    setStatus("▶ Đang chạy...",Color3.fromRGB(100,255,150))
+    func1_Once()
+    task.spawn(mainLoop)
+    saveState()
+end
+
+-- ═══════════════════════════════════════════════════
+--               AUTO FARM BOSS
 -- ═══════════════════════════════════════════════════
 local bossPlatform = nil
-
--- Tạo kính nhỏ dưới chân player để đứng được
 local function createGlassPlatform()
-    if bossPlatform and bossPlatform.Parent then
-        bossPlatform:Destroy(); bossPlatform = nil
-    end
+    if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy() end
     local r = getRoot(); if not r then return end
-    local plat = Instance.new("Part")
-    plat.Name         = "BossGlassPlatform"
-    plat.Size         = Vector3.new(7, 0.4, 7)
-    plat.Anchored     = true
-    plat.CanCollide   = true
-    plat.CastShadow   = false
-    plat.Material     = Enum.Material.Glass
-    plat.Color        = Color3.fromRGB(100,200,255)
-    plat.Transparency = 0.35
-    plat.CFrame       = CFrame.new(r.Position - Vector3.new(0, 3.1, 0))
-    plat.Parent       = workspace
-    bossPlatform = plat
+    local p = Instance.new("Part")
+    p.Name="BossPlat"; p.Size=Vector3.new(6,0.3,6)
+    p.Anchored=true; p.CanCollide=true; p.CastShadow=false
+    p.Material=Enum.Material.Glass; p.Transparency=0.4
+    p.Color=Color3.fromRGB(120,210,255)
+    p.CFrame=CFrame.new(r.Position - Vector3.new(0,3,0))
+    p.Parent=workspace; bossPlatform=p
 end
 
--- Cập nhật vị trí kính theo chân player
-local function updatePlatformPos()
-    local r = getRoot()
-    if r and bossPlatform and bossPlatform.Parent then
-        bossPlatform.CFrame = CFrame.new(r.Position - Vector3.new(0, 3.1, 0))
-    end
-end
-
--- Tên đảo boss (thứ tự ưu tiên: Island 5 → 1)
 local bossIslandNames = {"Island 5","Island 4","Island 3","Island 2","Island 1"}
-
-local function getBossSpawnZone()
-    local bossZones = workspace:FindFirstChild("BossZones")
-    if not bossZones then return nil end
-    for _, islandName in ipairs(bossIslandNames) do
-        local island = bossZones:FindFirstChild(islandName)
-        if island then
-            local spawnZone = island:FindFirstChild("BossSpawnZone")
-            if spawnZone then return spawnZone end
+local function getBossZone()
+    local bz = workspace:FindFirstChild("BossZones"); if not bz then return nil end
+    for _,name in ipairs(bossIslandNames) do
+        local isle = bz:FindFirstChild(name)
+        if isle then
+            local zone = isle:FindFirstChild("BossSpawnZone")
+            if zone then return zone end
         end
     end
     return nil
 end
-
-local function getZonePosition(zone)
-    if zone:IsA("BasePart") then
-        return zone.Position
-    elseif zone:IsA("Model") then
-        return zone:GetPivot().Position
+local function zonePos(zone)
+    if zone:IsA("BasePart") then return zone.Position
+    elseif zone:IsA("Model") then return zone:GetPivot().Position
     else
         local bp = zone:FindFirstChildWhichIsA("BasePart")
-        return bp and bp.Position or nil
+        return bp and bp.Position
     end
 end
 
 local function bossLoop()
     while isBossRunning do
-        task.wait(0.01)  -- quét mỗi 0.01s
-        local zone = getBossSpawnZone()
+        task.wait(0.01)
+        local zone = getBossZone()
         if zone then
-            local pos = getZonePosition(zone)
+            local pos = zonePos(zone)
             if pos then
-                -- Tắt auto farm thường khi có boss
+                -- Tắt auto farm (giữ func5 chạy qua isBossRunning)
                 if isRunning then
-                    isRunning = false
-                    ToggleBtn.Text = "▶ AUTO FARM"
-                    ToggleBtn.BackgroundColor3 = Color3.fromRGB(0,170,75)
+                    isRunning = false; syncBtns()
                 end
                 isSelling = false
 
-                setStatus("👹 BOSS! TP ngay...", Color3.fromRGB(255,50,50))
-                teleportTo(pos + Vector3.new(0, 5, 0))
-                task.wait(0.15)
+                setStatus("👹 BOSS! TP ngay...",Color3.fromRGB(255,60,60))
+                teleportTo(pos + Vector3.new(0,5,0))
+                task.wait(0.2)
                 createGlassPlatform()
 
-                -- Ở lại đánh boss: spam Fishing click + ZXCV + cập nhật kính
-                while isBossRunning and getBossSpawnZone() do
-                    updatePlatformPos()
-                    -- Chức năng 5: click Fishing + phím ZXCV
-                    clickFishing()
-                    pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
-                    pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
-                    pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
-                    task.wait(0.01)
+                -- Đánh boss: func5 + cập nhật kính
+                while isBossRunning and getBossZone() do
+                    local r = getRoot()
+                    if r and bossPlatform and bossPlatform.Parent then
+                        bossPlatform.CFrame = CFrame.new(r.Position - Vector3.new(0,3,0))
+                    end
+                    func5_Spam()
                 end
 
-                -- Boss xong → xóa kính
+                -- Boss xong
                 if bossPlatform and bossPlatform.Parent then
                     bossPlatform:Destroy(); bossPlatform = nil
                 end
-                setStatus("✅ Boss xong! Tiếp tục...", Color3.fromRGB(100,255,150))
+
+                -- TP về đảo cũ
+                local returnIsle = lockedIsland or nearestIsland()
+                if returnIsle then
+                    setStatus("✅ Boss xong! TP "..returnIsle.name.."...",Color3.fromRGB(100,255,150))
+                    task.wait(0.2)
+                    teleportTo(returnIsle.pos)
+                    task.wait(0.6)
+                end
+
+                -- Bật lại Auto Farm
+                setStatus("🔄 Bật lại Auto Farm...",Color3.fromRGB(100,200,255))
+                startAutoFarm()
             end
         end
     end
-
-    -- Cleanup khi tắt Boss Farm
-    if bossPlatform and bossPlatform.Parent then
-        bossPlatform:Destroy(); bossPlatform = nil
-    end
-    clearActive()
-    setStatus("⏸ Boss Farm dừng", Color3.fromRGB(130,190,255))
+    if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy(); bossPlatform=nil end
+    clearActive(); setStatus("⏸ Boss Farm dừng",Color3.fromRGB(130,190,255))
 end
 
 -- ═══════════════════════════════════════════════════
---              MAIN AUTO FARM LOOP
+--         MAIN LOOP  (gán cho biến forward-declared)
 -- ═══════════════════════════════════════════════════
-local function mainLoop()
+mainLoop = function()
     while isRunning do
-        setActive(2); setStatus("🔍 Đang quét...", Color3.fromRGB(150,200,255))
+        setActive(2); setStatus("🔍 Đang quét...",Color3.fromRGB(150,200,255))
         task.wait(0.05)
-
         if isScreenFull() then
             isSelling = true
-            setStatus("🐟 Full! Đến NPC...", Color3.fromRGB(255,220,0))
+            setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
-            if npcPos then
-                teleportTo(npcPos + Vector3.new(0,3,0))
-                task.wait(0.4)
-            end
-            func3_SellUI()
-            task.wait(0.3)
+            if npcPos then teleportTo(npcPos+Vector3.new(0,3,0)); task.wait(0.4) end
+            func3_SellUI(); task.wait(0.3)
             isSelling = false
         else
             func4_TPIsland()
-            if isRunning and not isSelling then
-                func5_Spam()
-            end
+            if isRunning and not isSelling then func5_Spam() end
         end
-
         task.wait(0.08)
     end
-    clearActive()
-    setStatus("⏸ Đã dừng", Color3.fromRGB(130,190,255))
+    clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
 end
 
 -- ═══════════════════════════════════════════════════
---           BUTTONS – Toggle / Boss / Tele
+--     DISCORD WEBHOOK – quét "Legendary [999]" 0.01s
 -- ═══════════════════════════════════════════════════
+local WEBHOOK = "https://discord.com/api/webhooks/1481238101354479616/1wK2bjv5tapNzHWhYeo3GWZNd3yN46WYbDhC54v3r2OgGzNDl5HdIFlwfoxdI57nHgrG"
+local webhookSent = false
 
--- ── Toggle Auto Farm ─────────────────────────────
-ToggleBtn.MouseButton1Click:Connect(function()
+local function sendWebhook()
+    pcall(function()
+        local body = HttpService:JSONEncode({
+            content = "<@1277608259317927977> Đang Câu Boss Kìa",
+            embeds = {{
+                title       = "⚠️ BOSS XUẤT HIỆN!",
+                description = "🎣 Phát hiện **Legendary [999]** trên màn hình!\n👤 Người chơi: **bora21456**\n🎮 Server: `"..tostring(game.PlaceId).."`",
+                color       = 0xFF4500,
+                thumbnail   = { url = "https://i.imgur.com/HzJzLgO.png" },
+                footer      = { text = "🤖 Titan Fishing Bot | BY BRYDZVL" },
+            }}
+        })
+        HttpService:PostAsync(WEBHOOK, body, Enum.HttpContentType.ApplicationJson)
+    end)
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+        if player.Name == "bora21456" then
+            local found = false
+            for _,o in ipairs(player.PlayerGui:GetDescendants()) do
+                if (o:IsA("TextLabel") or o:IsA("TextButton")) and
+                   string.find(o.Text,"Legendary",1,true) and string.find(o.Text,"999",1,true)
+                then
+                    found = true; break
+                end
+            end
+            if found and not webhookSent then
+                webhookSent = true
+                task.spawn(sendWebhook)
+            elseif not found then
+                webhookSent = false
+            end
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════════
+--            TỰ ĐỘNG RESTORE KHI REJOIN
+-- ═══════════════════════════════════════════════════
+task.spawn(function()
+    task.wait(3)  -- chờ game load xong
+    local state = loadState()
+    if not state then return end
+    if state.boss then
+        isBossRunning = true; syncBtns()
+        setStatus("👹 Tự bật Boss Farm...",Color3.fromRGB(255,120,30))
+        task.spawn(bossLoop)
+        saveState()
+    end
+    if state.farm then
+        task.wait(0.5)
+        startAutoFarm()
+    end
+end)
+
+-- ═══════════════════════════════════════════════════
+--                     BUTTONS
+-- ═══════════════════════════════════════════════════
+local function toggleFarm()
+    playClick()
     isRunning = not isRunning
     if isRunning then
-        ToggleBtn.Text = "⏹ AUTO FARM"
-        ToggleBtn.BackgroundColor3 = Color3.fromRGB(190,35,35)
-        setStatus("▶ Đang chạy...", Color3.fromRGB(100,255,150))
-        setActive(1); func1_Once()
-        task.wait(0.1)
-        task.spawn(mainLoop)
+        setStatus("▶ Đang chạy...",Color3.fromRGB(100,255,150))
+        setActive(1); func1_Once(); task.wait(0.1); task.spawn(mainLoop)
     else
-        isRunning = false; isSelling = false; lockedIsland = nil
-        ToggleBtn.Text = "▶ AUTO FARM"
-        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0,170,75)
-        clearActive()
-        setStatus("⏸ Đã dừng", Color3.fromRGB(130,190,255))
+        isRunning=false; isSelling=false; lockedIsland=nil
+        clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
     end
-end)
+    syncBtns(); saveState()
+end
 
--- ── Toggle Auto Farm Boss ─────────────────────────
-BossBtn.MouseButton1Click:Connect(function()
+local function toggleBoss()
+    playClick()
     isBossRunning = not isBossRunning
     if isBossRunning then
-        BossBtn.Text = "⏹ FARM BOSS"
-        BossBtn.BackgroundColor3 = Color3.fromRGB(200,35,35)
-        setStatus("👹 Boss Farm ON | Đang quét...", Color3.fromRGB(255,120,30))
+        setStatus("👹 Boss Farm ON | Quét...",Color3.fromRGB(255,120,30))
         task.spawn(bossLoop)
     else
-        isBossRunning = false
-        BossBtn.Text = "👹 FARM BOSS"
-        BossBtn.BackgroundColor3 = Color3.fromRGB(180,70,0)
-        if bossPlatform and bossPlatform.Parent then
-            bossPlatform:Destroy(); bossPlatform = nil
-        end
-        setStatus("⏸ Boss Farm dừng", Color3.fromRGB(130,190,255))
+        isBossRunning=false
+        if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy(); bossPlatform=nil end
+        setStatus("⏸ Boss Farm dừng",Color3.fromRGB(130,190,255))
+    end
+    syncBtns(); saveState()
+end
+
+local function doTele()
+    playClick()
+    setStatus("🗺 Đang load Tele...",Color3.fromRGB(200,130,255))
+    task.spawn(function()
+        local ok,err = pcall(function()
+            loadstring(game:HttpGet("https://pastefy.app/ysrg4hah/raw"))()
+        end)
+        if ok then setStatus("✅ Tele Đảo bật!",Color3.fromRGB(100,255,150))
+        else setStatus("❌ "..tostring(err):sub(1,35),Color3.fromRGB(255,80,80)) end
+    end)
+end
+
+ToggleBtn.MouseButton1Click:Connect(toggleFarm)
+BossBtn.MouseButton1Click:Connect(toggleBoss)
+TeleBtn.MouseButton1Click:Connect(doTele)
+MiniToggle.MouseButton1Click:Connect(toggleFarm)
+MiniBoss.MouseButton1Click:Connect(toggleBoss)
+MiniTele.MouseButton1Click:Connect(doTele)
+
+-- ─── Minimize (giữ 3 nút) ───
+local isMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    playClick()
+    isMinimized = not isMinimized
+    if isMinimized then
+        CF.Visible = false; MinBar.Visible = true
+        MF.Size = UDim2.new(0,W,0,84)  -- 38 topbar + 6 gap + 36 minibar + 4 pad
+        MinBtn.Text = "+"; syncBtns()
+    else
+        CF.Visible = true; MinBar.Visible = false
+        MF.Size = UDim2.new(0,W,0,H)
+        MinBtn.Text = "—"
     end
 end)
 
--- ── TELE Đảo – load script ngoài ─────────────────
-TeleBtn.MouseButton1Click:Connect(function()
-    setStatus("🗺 Đang load Tele Đảo...", Color3.fromRGB(200,130,255))
-    task.spawn(function()
-        local ok, err = pcall(function()
-            loadstring(game:HttpGet("https://pastefy.app/ysrg4hah/raw"))()
-        end)
-        if ok then
-            setStatus("✅ Tele Đảo đã bật!", Color3.fromRGB(100,255,150))
-        else
-            setStatus("❌ Lỗi: " .. tostring(err):sub(1,40), Color3.fromRGB(255,80,80))
-        end
-    end)
-end)
-
--- ── Close / Minimize ──────────────────────────────
-local isMinimized = false
 CloseBtn.MouseButton1Click:Connect(function()
-    isRunning = false; isBossRunning = false; isSelling = false
+    playClick()
+    isRunning=false; isBossRunning=false; isSelling=false
     if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy() end
     SG:Destroy()
 end)
-MinBtn.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    CF.Visible = not isMinimized
-    if isMinimized then
-        MF.Size = UDim2.new(0,W,0,44); MinBtn.Text = "+"
-    else
-        MF.Size = UDim2.new(0,W,0,H); MinBtn.Text = "—"
-    end
-end)
 
--- Hover glow cho 3 nút
-local function addHover(btn, onCol, offCol)
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=onCol}):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=offCol}):Play()
-    end)
+-- Hover
+local function addHover(btn,on,off)
+    btn.MouseEnter:Connect(function() TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=on}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=off}):Play() end)
 end
-addHover(ToggleBtn, Color3.fromRGB(0,220,90),    Color3.fromRGB(0,170,75))
-addHover(BossBtn,   Color3.fromRGB(220,100,20),  Color3.fromRGB(180,70,0))
-addHover(TeleBtn,   Color3.fromRGB(150,30,255),  Color3.fromRGB(110,0,210))
+addHover(ToggleBtn, Color3.fromRGB(0,210,90),   Color3.fromRGB(0,170,75))
+addHover(BossBtn,   Color3.fromRGB(220,100,20), Color3.fromRGB(180,70,0))
+addHover(TeleBtn,   Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
+addHover(MiniToggle,Color3.fromRGB(0,210,90),   Color3.fromRGB(0,170,75))
+addHover(MiniBoss,  Color3.fromRGB(220,100,20), Color3.fromRGB(180,70,0))
+addHover(MiniTele,  Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
 
-print("[TitanFishing Hub v2] Loaded | BY BRYDZVL")
+print("[TitanFishing Hub v4] Loaded | BY BRYDZVL")
