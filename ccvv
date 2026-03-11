@@ -289,7 +289,23 @@ local function bossLoop()
                 end
 
                 if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy(); bossPlatform = nil end
-                setStatus("✅ Boss xong!", Color3.fromRGB(100,255,150))
+                setStatus("✅ Boss xong! TP về đảo...", Color3.fromRGB(100,255,150))
+                -- TP về đảo đã ghim trước đó
+                local returnIsle = lockedIsland or nearestIsland()
+                if returnIsle then
+                    task.wait(0.3)
+                    teleportTo(returnIsle.pos)
+                    setStatus("📍 Về "..returnIsle.name.." | Bật lại Auto Farm", Color3.fromRGB(100,255,150))
+                end
+                task.wait(0.3)
+                -- Bật lại toàn bộ Auto Farm như trước
+                if not isRunning then
+                    isRunning = true
+                    ToggleBtn.Text = "⏹ AUTO FARM"
+                    ToggleBtn.BackgroundColor3 = Color3.fromRGB(190,35,35)
+                    func1_Once()
+                    task.spawn(mainLoop)
+                end
             end
         end
     end
