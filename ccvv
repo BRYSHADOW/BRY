@@ -547,7 +547,7 @@ task.spawn(function()
     task.wait(18)
 
     -- 2) Click tọa độ 321,298 để tắt màn hình loading / confirm
-    clickScreen(321, 298)
+    clickScreen(321, 305)
     task.wait(0.3)
 
     -- 3) GUI vẫn ẩn (chỉ hiện avatar), tự bật lại farm/boss ngay
