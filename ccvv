@@ -30,7 +30,7 @@ local STATE_FILE = "TitanFishState.json"
 local function saveState()
     pcall(function()
         writefile(STATE_FILE, HttpService:JSONEncode({
-            farm = isRunning,bora
+            farm = isRunning,
             boss = isBossRunning,
         }))
     end)
@@ -373,18 +373,6 @@ end
 -- ═══════════════════════════════════════════════════
 --               AUTO FARM BOSS
 -- ═══════════════════════════════════════════════════
-local bossPlatform = nil
-local function createGlassPlatform()
-    if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy() end
-    local r = getRoot(); if not r then return end
-    local p = Instance.new("Part")
-    p.Name="BossPlat"; p.Size=Vector3.new(6,0.3,6)
-    p.Anchored=true; p.CanCollide=true; p.CastShadow=false
-    p.Material=Enum.Material.Glass; p.Transparency=0.4
-    p.Color=Color3.fromRGB(120,210,255)
-    p.CFrame=CFrame.new(r.Position - Vector3.new(0,3,0))
-    p.Parent=workspace; bossPlatform=p
-end
 
 local bossIslandNames = {"Island 5","Island 4","Island 3","Island 2","Island 1"}
 local function getBossZone()
@@ -423,21 +411,13 @@ local function bossLoop()
                 setStatus("👹 BOSS! TP ngay...",Color3.fromRGB(255,60,60))
                 teleportTo(pos + Vector3.new(0,5,0))
                 task.wait(0.2)
-                createGlassPlatform()
 
-                -- Đánh boss: func5 + cập nhật kính
+                -- Đánh boss: func5
                 while isBossRunning and getBossZone() do
-                    local r = getRoot()
-                    if r and bossPlatform and bossPlatform.Parent then
-                        bossPlatform.CFrame = CFrame.new(r.Position - Vector3.new(0,3,0))
-                    end
                     func5_Spam()
                 end
 
                 -- Boss xong
-                if bossPlatform and bossPlatform.Parent then
-                    bossPlatform:Destroy(); bossPlatform = nil
-                end
 
                 -- TP về đảo cũ
                 local returnIsle = lockedIsland or nearestIsland()
@@ -454,7 +434,6 @@ local function bossLoop()
             end
         end
     end
-    if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy(); bossPlatform=nil end
     clearActive(); setStatus("⏸ Boss Farm dừng",Color3.fromRGB(130,190,255))
 end
 
@@ -555,18 +534,23 @@ end)
 task.spawn(function()
     task.wait(3)  -- chờ game load xong
     local state = loadState()
-    if not state then return end  -- lần chạy đầu, không có gì để restore
 
-    -- ── Đây là lần rejoin sau đổi server ──
+    -- Không có state, hoặc không có gì đang chạy → hiện GUI bình thường
+    if not state or (not state.farm and not state.boss) then
+        MF.Visible = true
+        return
+    end
+
+    -- ── Có state đang chạy → đây là rejoin sau đổi server ──
     -- 1) Chờ thêm 10s cho server ổn định
     setStatus("⏳ Chờ server ổn định...", Color3.fromRGB(200,200,100))
     task.wait(10)
 
-    -- 2) Click tọa độ 321,285 để tắt màn hình loading / confirm
+    -- 2) Click tọa độ 321,298 để tắt màn hình loading / confirm
     clickScreen(321, 298)
     task.wait(0.3)
 
-    -- 3) GUI vẫn ẩn (chỉ hiện avatar), nhưng tự bật lại farm/boss ngay
+    -- 3) GUI vẫn ẩn (chỉ hiện avatar), tự bật lại farm/boss ngay
     MF.Visible = false
     if state.boss then
         isBossRunning = true; syncBtns()
@@ -604,7 +588,6 @@ local function toggleBoss()
         task.spawn(bossLoop)
     else
         isBossRunning=false
-        if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy(); bossPlatform=nil end
         setStatus("⏸ Boss Farm dừng",Color3.fromRGB(130,190,255))
     end
     syncBtns(); saveState()
@@ -648,7 +631,6 @@ end)
 CloseBtn.MouseButton1Click:Connect(function()
     playClick()
     isRunning=false; isBossRunning=false; isSelling=false
-    if bossPlatform and bossPlatform.Parent then bossPlatform:Destroy() end
     SG:Destroy()
 end)
 
