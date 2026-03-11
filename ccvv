@@ -27,7 +27,7 @@ local function saveState()
 end
 local function loadState()
     local ok, r = pcall(function()
-       local sel return HttpService:JSONDecode(readfile(STATE_FILE))
+        return HttpService:JSONDecode(readfile(STATE_FILE))
     end)
     return ok and r or nil
 end
@@ -37,7 +37,7 @@ end
 -- ═══════════════════════════════════════════════════
 local clickSnd = Instance.new("Sound")
 clickSnd.SoundId = "rbxassetid://70452176150315"
-clickSnd.Volume  = 1
+clickSnd.Volume  = 0.8
 clickSnd.Parent  = SoundService
 local function playClick() clickSnd:Play() end
 
@@ -406,16 +406,40 @@ end
 --         MAIN LOOP  (gán cho biến forward-declared)
 -- ═══════════════════════════════════════════════════
 mainLoop = function()
+    local sellCooldown = 0   -- chống bán lặp liên tục
     while isRunning do
         setActive(2); setStatus("🔍 Đang quét...",Color3.fromRGB(150,200,255))
         task.wait(0.05)
-        if isScreenFull() then
+
+        local full = isScreenFull()
+        local now  = tick()
+
+        if full and (now - sellCooldown) > 8 then
             isSelling = true
+
+            -- Lưu đảo trước khi rời đi bán
+            if not lockedIsland then lockedIsland = nearestIsland() end
+            local savedIsland = lockedIsland
+
             setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
-            if npcPos then teleportTo(npcPos+Vector3.new(0,3,0)); task.wait(0.4) end
-            func3_SellUI(); task.wait(0.3)
-            isSelling = false
+            if npcPos then
+                teleportTo(npcPos + Vector3.new(0,3,0))
+                task.wait(0.5)
+            end
+
+            func3_SellUI()
+            task.wait(0.5)
+
+            -- TP về đảo ngay sau khi bán xong
+            if savedIsland then
+                setStatus("🔁 Về "..savedIsland.name.." câu tiếp...",Color3.fromRGB(100,255,150))
+                teleportTo(savedIsland.pos)
+                task.wait(0.5)
+            end
+
+            isSelling  = false
+            sellCooldown = tick()   -- reset cooldown
         else
             func4_TPIsland()
             if isRunning and not isSelling then func5_Spam() end
