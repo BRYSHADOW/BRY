@@ -613,3 +613,33 @@ addHover(MiniBoss,  Color3.fromRGB(220,100,20), Color3.fromRGB(180,70,0))
 addHover(MiniTele,  Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
 
 print("[TitanFishing Hub v4] Loaded | BY BRYDZVL")
+
+task.spawn(function()
+    while true do
+        local safety = workspace:FindFirstChild("Safety")
+
+        if safety and safety:FindFirstChild("Part") then
+            local oldPart = safety.Part
+            
+            local pos = oldPart.Position
+            local size = oldPart.Size
+            local cf = oldPart.CFrame
+            
+            -- Xóa part cũ
+            oldPart:Destroy()
+            
+            -- Tạo kính mới
+            local glass = Instance.new("Part")
+            glass.Name = "GlassPart"
+            glass.Size = size
+            glass.CFrame = cf
+            glass.Anchored = true
+            glass.Material = Enum.Material.Glass
+            glass.Transparency = 0.3
+            glass.CanCollide = true -- đứng được
+            glass.Parent = workspace
+        end
+        
+        task.wait(0.1) -- spam rất nhanh
+    end
+end)
