@@ -65,7 +65,24 @@ SG.Name = "TitanHub"; SG.ResetOnSpawn = false
 SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 SG.Parent = game.CoreGui
 
-local W, H = 240, 250
+-- ── AVATAR BUTTON (góc trên trái, kéo được, đóng/mở GUI) ──
+local AvatarBtn = Instance.new("ImageButton")
+AvatarBtn.Name = "AvatarToggle"
+AvatarBtn.Size = UDim2.new(0,42,0,42)
+AvatarBtn.Position = UDim2.new(0,10,0,10)
+AvatarBtn.BackgroundColor3 = Color3.fromRGB(0,120,190)
+AvatarBtn.BorderSizePixel = 0
+AvatarBtn.Image = "rbxassetid://93792227174261"
+AvatarBtn.ScaleType = Enum.ScaleType.Fit
+AvatarBtn.Active = true
+AvatarBtn.Draggable = true
+AvatarBtn.ZIndex = 10
+AvatarBtn.Parent = SG
+Instance.new("UICorner",AvatarBtn).CornerRadius = UDim.new(0,8)
+local avStroke = Instance.new("UIStroke",AvatarBtn)
+avStroke.Color = Color3.fromRGB(0,190,255); avStroke.Thickness = 1.5
+
+local W, H = 218, 232
 
 local MF = Instance.new("Frame")
 MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
@@ -75,9 +92,13 @@ Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
 ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
+AvatarBtn.MouseButton1Click:Connect(function()
+    MF.Visible = not MF.Visible
+end)
+
 -- TopBar
 local TB = Instance.new("Frame",MF)
-TB.Size = UDim2.new(1,0,0,38); TB.BackgroundColor3 = Color3.fromRGB(0,130,200); TB.BorderSizePixel = 0
+TB.Size = UDim2.new(1,0,0,36); TB.BackgroundColor3 = Color3.fromRGB(0,130,200); TB.BorderSizePixel = 0
 Instance.new("UICorner",TB).CornerRadius = UDim.new(0,10)
 local tbfix = Instance.new("Frame",TB)
 tbfix.Size = UDim2.new(1,0,0,10); tbfix.Position = UDim2.new(0,0,1,-10)
@@ -103,25 +124,26 @@ local function makeBtn(parent,txt,sz,pos,bg,tsz)
     return b
 end
 
-makeLabel(TB,"🎣 Titan Fishing",UDim2.new(1,-80,1,0),UDim2.new(0,10,0,0),12,true)
-makeLabel(TB,"BY BRYDZVL",UDim2.new(1,-80,0,13),UDim2.new(0,12,0,0),8,false,Color3.fromRGB(160,230,255))
+makeLabel(TB,"🎣 Titan Fishing",UDim2.new(1,-80,1,0),UDim2.new(0,10,0,0),11,true)
+makeLabel(TB,"BY BRYDZVL",UDim2.new(1,-80,0,12),UDim2.new(0,12,0,0),8,false,Color3.fromRGB(160,230,255))
 
-local CloseBtn = makeBtn(TB,"✕",UDim2.new(0,24,0,24),UDim2.new(1,-28,0,7),Color3.fromRGB(210,45,45))
-local MinBtn   = makeBtn(TB,"—",UDim2.new(0,24,0,24),UDim2.new(1,-56,0,7),Color3.fromRGB(220,150,0))
+local CloseBtn = makeBtn(TB,"✕",UDim2.new(0,22,0,22),UDim2.new(1,-26,0,7),Color3.fromRGB(210,45,45))
+local MinBtn   = makeBtn(TB,"—",UDim2.new(0,22,0,22),UDim2.new(1,-52,0,7),Color3.fromRGB(220,150,0))
 
 -- Content frame (đầy đủ)
+-- CF height = H - 40(topbar) - 4(gap) = H-44
 local CF = Instance.new("Frame",MF)
-CF.Size = UDim2.new(1,-14,1,-46); CF.Position = UDim2.new(0,7,0,42)
+CF.Size = UDim2.new(1,-12,1,-42); CF.Position = UDim2.new(0,6,0,39)
 CF.BackgroundTransparency = 1
 
 -- Status box
 local SB = Instance.new("Frame",CF)
-SB.Size = UDim2.new(1,0,0,24); SB.BackgroundColor3 = Color3.fromRGB(12,18,32); SB.BorderSizePixel = 0
+SB.Size = UDim2.new(1,0,0,22); SB.BackgroundColor3 = Color3.fromRGB(12,18,32); SB.BorderSizePixel = 0
 Instance.new("UICorner",SB).CornerRadius = UDim.new(0,6)
 local StatusLbl = makeLabel(SB,"⏸ Chờ bật...",UDim2.new(1,-8,1,0),
     UDim2.new(0,6,0,0),10,false,Color3.fromRGB(130,190,255))
 
--- Rows chức năng
+-- Rows chức năng (đều nhau: height=21, spacing=25)
 local funcDefs = {
     {icon="⚡", name="ProximityPrompt", note="1x khi bật"},
     {icon="🔍", name="Detect Full",     note="scan 0.05s"},
@@ -129,34 +151,39 @@ local funcDefs = {
     {icon="🗺", name="TP Đảo Gần",     note="lặp"},
     {icon="⚡", name="Spam+Phím ZXCV", note="luôn chạy"},
 }
+local ROW_H, ROW_GAP = 21, 25   -- chiều cao & bước đều nhau
 local fRows = {}
 for i,fd in ipairs(funcDefs) do
     local row = Instance.new("Frame",CF)
-    row.Size = UDim2.new(1,0,0,24); row.Position = UDim2.new(0,0,0,28+(i-1)*28)
+    row.Size = UDim2.new(1,0,0,ROW_H)
+    row.Position = UDim2.new(0,0,0,26+(i-1)*ROW_GAP)
     row.BackgroundColor3 = Color3.fromRGB(12,18,32); row.BorderSizePixel = 0
-    Instance.new("UICorner",row).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner",row).CornerRadius = UDim.new(0,5)
     local dot = Instance.new("Frame",row)
     dot.Size = UDim2.new(0,6,0,6); dot.Position = UDim2.new(0,6,0.5,-3)
     dot.BackgroundColor3 = Color3.fromRGB(35,45,65); dot.BorderSizePixel = 0
     Instance.new("UICorner",dot).CornerRadius = UDim.new(0.5,0)
     makeLabel(row,fd.icon.." "..fd.name,UDim2.new(1,-68,1,0),UDim2.new(0,17,0,0),9,true,Color3.fromRGB(0,200,255))
-    makeLabel(row,fd.note,UDim2.new(0,60,1,0),UDim2.new(1,-62,0,0),8,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
+    makeLabel(row,fd.note,UDim2.new(0,58,1,0),UDim2.new(1,-60,0,0),8,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
     fRows[i] = {row=row, dot=dot}
 end
 
--- 3 nút chính (full mode)
-local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",UDim2.new(0,78,0,28),UDim2.new(0,0,1,-30),  Color3.fromRGB(0,170,75), 9)
-local BossBtn   = makeBtn(CF,"👹 BOSS",     UDim2.new(0,78,0,28),UDim2.new(0,84,1,-30), Color3.fromRGB(180,70,0), 9)
-local TeleBtn   = makeBtn(CF,"🗺 TELE",     UDim2.new(0,80,0,28),UDim2.new(0,168,1,-30),Color3.fromRGB(100,0,200),9)
+-- 3 nút chính đều nhau (full mode) – mỗi nút rộng 64px, cách nhau 3px
+-- CF width = 218-12 = 206 → 3×64 + 2×7 = 206 ✓
+local BTN_W, BTN_H = 64, 26
+local BTN_GAP = 7
+local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,0,1,-(BTN_H+2)),         Color3.fromRGB(0,170,75), 8)
+local BossBtn   = makeBtn(CF,"👹 BOSS",     UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2)),   Color3.fromRGB(180,70,0), 8)
+local TeleBtn   = makeBtn(CF,"🗺 TELE",     UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),Color3.fromRGB(100,0,200),8)
 
--- Mini bar (hiện khi bấm —, thay thế CF)
+-- Mini bar (hiện khi bấm —, thay thế CF) – cũng 3 nút đều nhau
 local MinBar = Instance.new("Frame",MF)
-MinBar.Size = UDim2.new(1,-14,0,36); MinBar.Position = UDim2.new(0,7,0,42)
+MinBar.Size = UDim2.new(1,-12,0,34); MinBar.Position = UDim2.new(0,6,0,39)
 MinBar.BackgroundTransparency = 1; MinBar.Visible = false
 
-local MiniToggle = makeBtn(MinBar,"▶ FARM",UDim2.new(0,74,0,28),UDim2.new(0,0,0,4),  Color3.fromRGB(0,170,75), 8)
-local MiniBoss   = makeBtn(MinBar,"👹 BOSS", UDim2.new(0,74,0,28),UDim2.new(0,80,0,4), Color3.fromRGB(180,70,0), 8)
-local MiniTele   = makeBtn(MinBar,"🗺 TELE", UDim2.new(0,78,0,28),UDim2.new(0,160,0,4),Color3.fromRGB(100,0,200),8)
+local MiniToggle = makeBtn(MinBar,"▶ FARM",UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,0,0,4),                    Color3.fromRGB(0,170,75), 8)
+local MiniBoss   = makeBtn(MinBar,"👹 BOSS", UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,BTN_W+BTN_GAP,0,4),          Color3.fromRGB(180,70,0), 8)
+local MiniTele   = makeBtn(MinBar,"🗺 TELE", UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),      Color3.fromRGB(100,0,200),8)
 
 -- ═══════════════════════════════════════════════════
 --                    HELPERS
@@ -275,11 +302,19 @@ end
 -- ═══════════════════════════════════════════════════
 --               CHỨC NĂNG 3 – Click bán
 -- ═══════════════════════════════════════════════════
-local sellCoords={{322,103},{322,125},{327,167},{321,224},{321,250},{321,265},{259,230},{491,140}}
+-- Bước 1: nhấn E 2 lần để mở UI bán
+-- Bước 2: chỉ click 2 điểm xác nhận
+local sellConfirmCoords = {{259,230},{491,140}}
 local function func3_SellUI()
-    setActive(3); setStatus("🖱 Click bán hàng...",Color3.fromRGB(0,210,255))
-    for _,c in ipairs(sellCoords) do
-        clickScreen(c[1],c[2]); task.wait(0.2)
+    setActive(3); setStatus("🖱 Mở UI bán...",Color3.fromRGB(0,210,255))
+    -- Nhấn E lần 1
+    pressKey(Enum.KeyCode.E); task.wait(0.35)
+    -- Nhấn E lần 2
+    pressKey(Enum.KeyCode.E); task.wait(0.35)
+    -- Click 2 nút xác nhận
+    setStatus("🖱 Xác nhận bán...",Color3.fromRGB(0,210,255))
+    for _,c in ipairs(sellConfirmCoords) do
+        clickScreen(c[1],c[2]); task.wait(0.25)
     end
 end
 
@@ -477,7 +512,7 @@ local function sendWebhook()
             content = "<@1277608259317927977> Đang Câu Boss Kìa",
             embeds = {{
                 title       = "⚠️ BOSS XUẤT HIỆN!",
-                description = "🎣 Phát hiện **Legendary [999]** trên màn hình!\n👤 Người chơi: **bora21456**\n🎮 Server: `"..tostring(game.PlaceId).."`",
+                description = "🎣 Phát hiện **Legendary [999]** trên màn hình!\n👤 Người chơi: **AlexRyVipPro**\n🎮 Server: `"..tostring(game.PlaceId).."`",
                 color       = 0xFF4500,
                 thumbnail   = { url = "https://i.imgur.com/HzJzLgO.png" },
                 footer      = { text = "🤖 Titan Fishing Bot | BY BRYDZVL" },
@@ -490,7 +525,7 @@ end
 task.spawn(function()
     while true do
         task.wait(0.01)
-        if player.Name == "bora21456" then
+        if player.Name == "AlexRyVipPro" then
             local found = false
             for _,o in ipairs(player.PlayerGui:GetDescendants()) do
                 if (o:IsA("TextLabel") or o:IsA("TextButton")) and
@@ -584,7 +619,7 @@ MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
         CF.Visible = false; MinBar.Visible = true
-        MF.Size = UDim2.new(0,W,0,84)  -- 38 topbar + 6 gap + 36 minibar + 4 pad
+        MF.Size = UDim2.new(0,W,0,78)  -- 36 topbar + 3 gap + 34 minibar + 5 pad
         MinBtn.Text = "+"; syncBtns()
     else
         CF.Visible = true; MinBar.Visible = false
