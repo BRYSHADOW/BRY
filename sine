@@ -485,6 +485,50 @@ mainLoop = function()
 end
 
 -- ═══════════════════════════════════════════════════
+--     DISCORD WEBHOOK – quét "Legendary [999]" 0.01s
+-- ═══════════════════════════════════════════════════
+local WEBHOOK = "https://discord.com/api/webhooks/1481238101354479616/1wK2bjv5tapNzHWhYeo3GWZNd3yN46WYbDhC54v3r2OgGzNDl5HdIFlwfoxdI57nHgrG"
+local webhookSent = false
+
+local function sendWebhook()
+    pcall(function()
+        local body = HttpService:JSONEncode({
+            content = "<@1277608259317927977> Đang Câu Boss Kìa",
+            embeds = {{
+                title       = "⚠️ BOSS XUẤT HIỆN!",
+                description = "🎣 Phát hiện **Legendary [999]** trên màn hình!\n👤 Người chơi: **AlexRyVipPro**\n🎮 Server: `"..tostring(game.PlaceId).."`",
+                color       = 0xFF4500,
+                thumbnail   = { url = "https://i.imgur.com/HzJzLgO.png" },
+                footer      = { text = "🤖 Titan Fishing Bot | BY BRYDZVL" },
+            }}
+        })
+        HttpService:PostAsync(WEBHOOK, body, Enum.HttpContentType.ApplicationJson)
+    end)
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+        if player.Name == "AlexRyVipPro" then
+            local found = false
+            for _,o in ipairs(player.PlayerGui:GetDescendants()) do
+                if (o:IsA("TextLabel") or o:IsA("TextButton")) and
+                   string.find(o.Text,"Legendary",1,true) and string.find(o.Text,"999",1,true)
+                then
+                    found = true; break
+                end
+            end
+            if found and not webhookSent then
+                webhookSent = true
+                task.spawn(sendWebhook)
+            elseif not found then
+                webhookSent = false
+            end
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════════
 --            TỰ ĐỘNG RESTORE KHI REJOIN
 -- ═══════════════════════════════════════════════════
 task.spawn(function()
@@ -500,7 +544,7 @@ task.spawn(function()
     -- ── Có state đang chạy → đây là rejoin sau đổi server ──
     -- 1) Chờ thêm 10s cho server ổn định
     setStatus("⏳ Chờ server ổn định...", Color3.fromRGB(200,200,100))
-    task.wait(10)
+    task.wait(18)
 
     -- 2) Click tọa độ 321,298 để tắt màn hình loading / confirm
     clickScreen(395, 300)
@@ -510,6 +554,36 @@ task.spawn(function()
     MF.Visible = false
     if state.boss then
         isBossRunning = true; syncBtns()
+        setStatus("👹 Tự bật Boss Farm...", Color3.fromRGB(255,120,30))
+        task.spawn(bossLoop)
+        saveState()
+    end
+    if state.farm then
+        task.wait(0.5)
+        startAutoFarm()
+    end
+end)
+
+-- ═══════════════════════════════════════════════════
+--                     BUTTONS
+-- ═══════════════════════════════════════════════════
+local function toggleFarm()
+    playClick()
+    isRunning = not isRunning
+    if isRunning then
+        setStatus("▶ Đang chạy...",Color3.fromRGB(100,255,150))
+        setActive(1); func1_Once(); task.wait(0.1); task.spawn(mainLoop)
+    else
+        isRunning=false; isSelling=false; lockedIsland=nil
+        clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+    end
+    syncBtns(); saveState()
+end
+
+local function toggleBoss()
+    playClick()
+    isBossRunning = not isBossRunning
+    if isBossRunning then
         setStatus("👹 Boss Farm ON | Quét...",Color3.fromRGB(255,120,30))
         task.spawn(bossLoop)
     else
