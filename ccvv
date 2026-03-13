@@ -598,7 +598,7 @@ local function doTele()
     setStatus("🗺 Đang load Tele...",Color3.fromRGB(200,130,255))
     task.spawn(function()
         local ok,err = pcall(function()
-            loadstring(game:HttpGet("https://pastefy.app/ysrg4hah/raw"))()
+            loadstring(game:HttpGet("https://pastefy.app/u1GvkvEE/raw"))()
         end)
         if ok then setStatus("✅ Tele Đảo bật!",Color3.fromRGB(100,255,150))
         else setStatus("❌ "..tostring(err):sub(1,35),Color3.fromRGB(255,80,80)) end
