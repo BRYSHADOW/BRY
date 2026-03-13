@@ -250,7 +250,7 @@ local islands = {
     {name="Đảo 2", pos=Vector3.new(1516.50,17.62,-500.17)},
     {name="Đảo 3", pos=Vector3.new(1047.37,14.38,1338.36)},
     {name="Đảo 4", pos=Vector3.new(743.41,14.48,-916.51)},
-    {name="Đảo 5", pos=Vector3.new(-371.72,15.90,1044.46)},
+    {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
 }
 local function nearestIsland()
     local r = getRoot(); if not r then return nil end
