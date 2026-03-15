@@ -398,27 +398,15 @@ task.spawn(function()
     end
 end)
 
--- Xoá toàn bộ Part trong Workspace.Map.Dao6."Dao 6".base (đảo 6 câu cá)
+-- Xoá liên tục mỗi 0.2s toàn bộ children trong Workspace.Map.Dao6."Dao 6".base
 task.spawn(function()
-    local function clearDao6Base()
-        local ok, base = pcall(function()
-            return workspace.Map.Dao6["Dao 6"].base
-        end)
-        if not ok or not base then return end
-        for _, child in ipairs(base:GetChildren()) do
-            pcall(function() child:Destroy() end)
-        end
-    end
-    -- Xoá ngay khi load
-    clearDao6Base()
-    -- Xoá lại mỗi khi có thứ mới spawn vào base
-    local ok, base = pcall(function()
-        return workspace.Map.Dao6["Dao 6"].base
-    end)
-    if ok and base then
-        base.ChildAdded:Connect(function(child)
-            task.wait(0.05)
-            pcall(function() child:Destroy() end)
+    while true do
+        task.wait(0.2)
+        pcall(function()
+            local base = workspace.Map.Dao6["Dao 6"].base
+            for _, child in ipairs(base:GetChildren()) do
+                pcall(function() child:Destroy() end)
+            end
         end)
     end
 end)
@@ -535,6 +523,43 @@ end
 -- ═══════════════════════════════════════════════════════
 mainLoop = function()
     local sellCooldown = 0
+
+    -- Khi bắt đầu: nếu xa đảo gần nhất → đi bộ tốc độ game đến gần
+    -- Khi còn 8 studs → TP đến đảo rồi mới farm
+    if not lockedIsland then lockedIsland = nearestIsland() end
+    if lockedIsland then
+        local r = getRoot()
+        if r then
+            local dist = (r.Position - lockedIsland.pos).Magnitude
+            if dist > 8 then
+                setStatus("🚶 Đi bộ đến "..lockedIsland.name.."...",Color3.fromRGB(200,200,100))
+                -- Dùng Humanoid:MoveTo đi bộ tốc độ bình thường
+                local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum:MoveTo(lockedIsland.pos)
+                    -- Chờ đến khi còn 8 studs hoặc farm bị tắt
+                    while isRunning do
+                        task.wait(0.1)
+                        local root = getRoot()
+                        if not root then break end
+                        local d = (root.Position - lockedIsland.pos).Magnitude
+                        if d <= 8 then break end
+                        -- Gọi lại MoveTo để không bị dừng giữa chừng
+                        hum:MoveTo(lockedIsland.pos)
+                    end
+                end
+                if not isRunning then
+                    clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+                    return
+                end
+                -- Đã gần 8 studs → TP đến đảo
+                setStatus("🚀 TP đến "..lockedIsland.name.."...",Color3.fromRGB(100,200,255))
+                teleportTo(lockedIsland.pos)
+                task.wait(0.4)
+            end
+        end
+    end
+
     while isRunning do
         setActive(2); setStatus("🔍 Đang quét...",Color3.fromRGB(150,200,255))
         task.wait(0.05)
@@ -996,6 +1021,21 @@ do
     end
 
     task.spawn(function()
+        -- Thử tìm loading game trong 1 giây đầu
+        -- Nếu không tìm thấy → tắt loading screen luôn, không hiện
+        local foundGame = false
+        local checkStart = tick()
+        repeat
+            task.wait(0.1)
+            if getGameLoadPct() then foundGame = true; break end
+        until tick() - checkStart > 1
+
+        if not foundGame then
+            -- Không có loading game → tắt ngay
+            if LoadSG and LoadSG.Parent then LoadSG:Destroy() end
+            return
+        end
+
         local startTime  = tick()
         local FALLBACK_T = 20
         local lastPct    = 0
@@ -1015,7 +1055,7 @@ do
 
         local function setLoadPct(pct, msg)
             pct = math.clamp(pct,0,1)
-            local p      = math.floor(pct*100)
+            local p      = math.floor(pct*300)
             local filled = math.floor(pct*20)
             loadTxt.Text = "["..string.rep("█",filled)..string.rep("░",20-filled).."]  "..p.."%"
             pctLbl.Text  = p.."%"
@@ -1032,12 +1072,7 @@ do
             task.wait(0.1)
             local gamePct = getGameLoadPct()
             local elapsed = tick() - startTime
-            local cur
-            if gamePct and gamePct >= lastPct then
-                cur = gamePct
-            else
-                cur = math.min(elapsed / FALLBACK_T, 1)
-            end
+            local cur = gamePct or math.min(elapsed / FALLBACK_T, 1)
             if cur > lastPct then
                 lastPct = cur
                 setLoadPct(cur)
