@@ -214,10 +214,32 @@ local function clearMovers()
     end
 end
 
+local RunService = game:GetService("RunService")
+
+-- teleportTo thường (1 lần, dùng khi auto farm loop)
 local function teleportTo(pos)
     local r = getRoot(); if not r then return end
     r.CFrame = CFrame.new(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
+end
+
+-- teleportToLocked: TP + giữ vị trí bằng Heartbeat trong N giây
+-- Dùng khi bán cá để không bị kéo về
+local function teleportToLocked(pos, duration)
+    local r = getRoot(); if not r then return end
+    r.CFrame = CFrame.new(pos)
+    clearMovers()
+    local conn
+    conn = RunService.Heartbeat:Connect(function()
+        local root = getRoot()
+        if not root then conn:Disconnect(); return end
+        if (root.Position - pos).Magnitude > 2 then
+            root.CFrame = CFrame.new(pos)
+            clearMovers()
+        end
+    end)
+    task.wait(duration or 2)
+    conn:Disconnect()
 end
 
 -- Tele thủ công – chỉ dịch chuyển 1 lần, không lock gì cả
@@ -571,8 +593,18 @@ mainLoop = function()
             local savedIsland = lockedIsland
             setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
-            if npcPos then teleportTo(npcPos + Vector3.new(0,3,0)); task.wait(0.5) end
-            func3_SellUI(); task.wait(0.5)
+            if npcPos then
+                -- TP đến NPC + giữ đứng yên 2 giây để bán
+                teleportToLocked(npcPos + Vector3.new(0,3,0), 0.3)
+            end
+            func3_SellUI()
+            -- Đứng tại chỗ 2s (Heartbeat giữ không bị kéo về)
+            setStatus("💰 Đang bán...",Color3.fromRGB(255,220,0))
+            if npcPos then
+                teleportToLocked(npcPos + Vector3.new(0,3,0), 2)
+            else
+                task.wait(2)
+            end
             if savedIsland then
                 setStatus("🔁 Về "..savedIsland.name.." câu tiếp...",Color3.fromRGB(100,255,150))
                 teleportTo(savedIsland.pos); task.wait(0.5)
@@ -1055,7 +1087,7 @@ do
 
         local function setLoadPct(pct, msg)
             pct = math.clamp(pct,0,1)
-            local p      = math.floor(pct*300)
+            local p      = math.floor(pct*100)
             local filled = math.floor(pct*20)
             loadTxt.Text = "["..string.rep("█",filled)..string.rep("░",20-filled).."]  "..p.."%"
             pctLbl.Text  = p.."%"
