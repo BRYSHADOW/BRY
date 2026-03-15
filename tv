@@ -288,7 +288,7 @@ local islands = {
     {name="Đảo 3", pos=Vector3.new(1047.37,14.38,1338.36)},
     {name="Đảo 4", pos=Vector3.new(743.41,14.48,-916.51)},
     {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
-    {name="Đảo 6", pos=Vector3.new(-840.01,23.59,-34.65)},
+    {name="Đảo 6", pos=Vector3.new(-999.58,15.25,-54.09)},
     {name="Đảo 7", pos=Vector3.new(-743.52,32.23,-1454.71)},
 }
 local function nearestIsland()
