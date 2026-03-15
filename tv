@@ -25,9 +25,6 @@ local isFilterLeg   = false
 local isTeleOpen    = false
 local TelePanel     = nil
 
--- [2] manualTeleTarget: vị trí đang được heartbeat giữ (nil = không lock)
-local manualTeleTarget = nil
-
 -- Forward declare
 local mainLoop
 
@@ -217,46 +214,17 @@ local function clearMovers()
     end
 end
 
-local RunService = game:GetService("RunService")
-
--- Teleport thông thường (dùng trong auto farm)
 local function teleportTo(pos)
     local r = getRoot(); if not r then return end
     r.CFrame = CFrame.new(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
--- [2] Teleport THỦ CÔNG – Heartbeat chạy MÃI MÃI cho đến khi
---     bấm đảo khác (gọi manualTeleport lại) hoặc đóng panel
-local heartbeatConn = nil
-
-local function stopManualLock()
-    if heartbeatConn then
-        heartbeatConn:Disconnect()
-        heartbeatConn    = nil
-        manualTeleTarget = nil
-    end
-end
-
+-- Tele thủ công – chỉ dịch chuyển 1 lần, không lock gì cả
 local function manualTeleport(pos)
-    -- Huỷ lock cũ trước
-    stopManualLock()
-
-    manualTeleTarget = pos
-
-    -- Tele ngay
-    local r = getRoot()
-    if r then r.CFrame = CFrame.new(pos); clearMovers() end
-
-    -- Heartbeat: KHÔNG có giới hạn thời gian – chạy mãi
-    heartbeatConn = RunService.Heartbeat:Connect(function()
-        local root = getRoot()
-        if not root then return end
-        if (root.Position - manualTeleTarget).Magnitude > 2 then
-            root.CFrame = CFrame.new(manualTeleTarget)
-            clearMovers()
-        end
-    end)
+    local r = getRoot(); if not r then return end
+    r.CFrame = CFrame.new(pos)
+    task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
 local function clickScreen(x,y)
@@ -318,7 +286,7 @@ local islands = {
     {name="Đảo 3", pos=Vector3.new(1047.37,14.38,1338.36)},
     {name="Đảo 4", pos=Vector3.new(743.41,14.48,-916.51)},
     {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
-    {name="Đảo 6", pos=Vector3.new(-840.01,23.59,-34.65)},
+    {name="Đảo 6", pos=Vector3.new(-871.14,27.43,-329.58)},
     {name="Đảo 7", pos=Vector3.new(-743.52,32.23,-1454.71)},
 }
 local function nearestIsland()
@@ -387,71 +355,26 @@ local function func3_SellUI()
 end
 
 -- ═══════════════════════════════════════════════════════
--- CHỨC NĂNG 4 – TP đảo +13 studs + air detect
--- (xoá kính spawn, dùng MeshPart workspace làm tham chiếu)
+-- CHỨC NĂNG 4 – TP đảo (vị trí gốc, không cao thêm)
 -- ═══════════════════════════════════════════════════════
 local lockedIsland = nil
-local FISH_HEIGHT  = 13
-local lastFishPos  = nil   -- vị trí câu hiện tại (không cần kính)
-
--- Lookup MeshPart của từng đảo trong workspace để lấy Y chính xác
--- Đường dẫn mẫu: workspace.Map["Dao6"]["Dao 6"].MeshPart
-local islandMeshPaths = {
-    ["Đảo 1"] = {"Map","Dao1","Dao 1","MeshPart"},
-    ["Đảo 2"] = {"Map","Dao2","Dao 2","MeshPart"},
-    ["Đảo 3"] = {"Map","Dao3","Dao 3","MeshPart"},
-    ["Đảo 4"] = {"Map","Dao4","Dao 4","MeshPart"},
-    ["Đảo 5"] = {"Map","Dao5","Dao 5","MeshPart"},
-    ["Đảo 6"] = {"Map","Dao6","Dao 6","MeshPart"},
-    ["Đảo 7"] = {"Map","Dao7","Dao 7","MeshPart"},
-}
-
-local function getIslandMeshY(isle)
-    local path = islandMeshPaths[isle.name]
-    if not path then return nil end
-    local obj = workspace
-    for _, seg in ipairs(path) do
-        obj = obj:FindFirstChild(seg)
-        if not obj then return nil end
-    end
-    if obj:IsA("BasePart") then
-        -- Trả về mặt trên của MeshPart (Position.Y + Size.Y/2)
-        return obj.Position.Y + obj.Size.Y * 0.5
-    end
-    return nil
-end
-
-local function getFishPos(isle)
-    local baseY  = getIslandMeshY(isle) or isle.pos.Y
-    return Vector3.new(isle.pos.X, baseY + FISH_HEIGHT, isle.pos.Z)
-end
 
 local function func4_TPIsland()
     setActive(4)
     local r = getRoot(); if not r then return end
-    -- Nếu heartbeat manual đang giữ vị trí → không ghi đè
-    if heartbeatConn then
-        setStatus("📌 Giữ vị trí thủ công...",Color3.fromRGB(200,180,255))
-        return
-    end
     if not lockedIsland then lockedIsland = nearestIsland() end
     if not lockedIsland then return end
     local dist = (r.Position - lockedIsland.pos).Magnitude
     if dist > 10 then
         setStatus("🔁 Ra "..lockedIsland.name.."! TP về...",Color3.fromRGB(255,180,0))
-        local tp = getFishPos(lockedIsland)
-        lastFishPos = tp
-        teleportTo(tp)
+        teleportTo(lockedIsland.pos)
         task.wait(0.25)
     else
         setStatus("📍 Đang ở "..lockedIsland.name,Color3.fromRGB(100,255,150))
-        if not lastFishPos then
-            lastFishPos = getFishPos(lockedIsland)
-        end
     end
 end
 
--- Theo dõi chữ "Cannot cast while in Air!" → ép về vị trí câu
+-- Theo dõi chữ "Cannot cast while in Air!" → ép về đảo đang câu
 local function isAirCastError()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
         if (o:IsA("TextLabel") or o:IsA("TextButton")) and o.Visible then
@@ -466,13 +389,37 @@ end
 task.spawn(function()
     while true do
         task.wait(0.08)
-        -- Chỉ xử lý khi farm đang chạy và không có manual lock
-        if isRunning and lastFishPos and not heartbeatConn then
+        if isRunning and lockedIsland then
             if isAirCastError() then
-                teleportTo(lastFishPos)
+                teleportTo(lockedIsland.pos)
                 task.wait(0.3)
             end
         end
+    end
+end)
+
+-- Xoá toàn bộ Part trong Workspace.Map.Dao6."Dao 6".base (đảo 6 câu cá)
+task.spawn(function()
+    local function clearDao6Base()
+        local ok, base = pcall(function()
+            return workspace.Map.Dao6["Dao 6"].base
+        end)
+        if not ok or not base then return end
+        for _, child in ipairs(base:GetChildren()) do
+            pcall(function() child:Destroy() end)
+        end
+    end
+    -- Xoá ngay khi load
+    clearDao6Base()
+    -- Xoá lại mỗi khi có thứ mới spawn vào base
+    local ok, base = pcall(function()
+        return workspace.Map.Dao6["Dao 6"].base
+    end)
+    if ok and base then
+        base.ChildAdded:Connect(function(child)
+            task.wait(0.05)
+            pcall(function() child:Destroy() end)
+        end)
     end
 end)
 
@@ -626,7 +573,6 @@ local function toggleFarm()
         setActive(1); func1_Once(); task.wait(0.1); task.spawn(mainLoop)
     else
         isRunning=false; isSelling=false; lockedIsland=nil
-        lastFishPos = nil
         clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
     end
     syncBtns(); saveState()
@@ -684,7 +630,6 @@ local function doTele()
         tpClose.ZIndex = 23
         tpClose.MouseButton1Click:Connect(function()
             playClick(); isTeleOpen = false
-            stopManualLock()   -- dừng heartbeat giữ vị trí
             TelePanel:Destroy(); TelePanel = nil
             TeleBtn.Text="🗺 TELE"; TeleBtn.BackgroundColor3=Color3.fromRGB(100,0,200)
             MiniTele.Text="🗺 TELE"; MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
