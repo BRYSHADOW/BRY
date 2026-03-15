@@ -125,7 +125,7 @@ end
 
 if queue_on_teleport then
     queue_on_teleport([[
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/ccvv"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRYSHADOW/BRY/refs/heads/main/c"))()
     ]])
 end
 
