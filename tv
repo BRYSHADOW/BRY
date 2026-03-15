@@ -223,35 +223,54 @@ local function clearMovers()
     end
 end
 
--- [2] Teleport thông thường (dùng trong auto farm)
+local RunService = game:GetService("RunService")
+
+-- Teleport thông thường (dùng trong auto farm)
 local function teleportTo(pos)
     local r = getRoot(); if not r then return end
     r.CFrame = CFrame.new(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
--- [2] Teleport THỦ CÔNG – giữ vị trí MANUAL_LOCK_TIME giây, spam chống kéo về
+-- [2] Teleport THỦ CÔNG – dùng Heartbeat spam CFrame MỖI FRAME
+--     mạnh gấp ~60x so với task.wait(0.1), không thứ gì kéo về được
+local heartbeatConn = nil   -- giữ connection để disconnect đúng lúc
+
 local function manualTeleport(pos)
+    -- Huỷ lock cũ nếu đang chạy
+    if heartbeatConn then
+        heartbeatConn:Disconnect()
+        heartbeatConn = nil
+    end
+
     manualTeleTime   = tick()
     manualTeleTarget = pos
-    local r = getRoot(); if not r then return end
-    r.CFrame = CFrame.new(pos)
-    clearMovers()
-    -- Spawn task bám vị trí suốt thời gian lock
-    task.spawn(function()
-        while tick() - manualTeleTime < MANUAL_LOCK_TIME do
-            task.wait(0.1)
-            local root = getRoot()
-            if root then
-                local dist = (root.Position - manualTeleTarget).Magnitude
-                if dist > 5 then
-                    -- game kéo về → ép về lại
-                    root.CFrame = CFrame.new(manualTeleTarget)
-                    clearMovers()
-                end
-            end
+
+    -- Tele ngay lập tức
+    local r = getRoot()
+    if r then
+        r.CFrame = CFrame.new(pos)
+        clearMovers()
+    end
+
+    -- Dùng Heartbeat: mỗi frame kiểm tra & ép về
+    heartbeatConn = RunService.Heartbeat:Connect(function()
+        -- Hết thời gian lock → ngắt
+        if tick() - manualTeleTime >= MANUAL_LOCK_TIME then
+            heartbeatConn:Disconnect()
+            heartbeatConn    = nil
+            manualTeleTarget = nil
+            return
         end
-        manualTeleTarget = nil
+
+        local root = getRoot()
+        if not root then return end
+
+        -- Nếu game cố kéo xa hơn 2 studs → ép về ngay
+        if (root.Position - manualTeleTarget).Magnitude > 2 then
+            root.CFrame = CFrame.new(manualTeleTarget)
+            clearMovers()
+        end
     end)
 end
 
@@ -314,7 +333,7 @@ local islands = {
     {name="Đảo 3", pos=Vector3.new(1047.37,14.38,1338.36)},
     {name="Đảo 4", pos=Vector3.new(743.41,14.48,-916.51)},
     {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
-    {name="Đảo 6", pos=Vector3.new(-999.58,15.25,-54.09)},
+    {name="Đảo 6", pos=Vector3.new(-840.01,23.59,-34.65)},
     {name="Đảo 7", pos=Vector3.new(-743.52,32.23,-1454.71)},
 }
 local function nearestIsland()
