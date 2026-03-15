@@ -85,7 +85,7 @@ local MF = Instance.new("Frame")
 MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
 MF.BackgroundColor3 = Color3.fromRGB(8,10,18); MF.BorderSizePixel = 0
 MF.Active = true; MF.Draggable = true; MF.Parent = SG
-MF.Visible = false
+MF.Visible = true
 Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
 ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
@@ -777,9 +777,10 @@ end)
 task.spawn(function()
     task.wait(3)
     local state = loadState()
-    if not state or not state.farm then
-        MF.Visible = true; return
-    end
+    -- Không có state farm đang chạy → không làm gì thêm
+    if not state or not state.farm then return end
+    -- Có state → đây là rejoin, ẩn GUI chờ ổn định rồi tự bật farm
+    MF.Visible = false
     setStatus("⏳ Chờ server ổn định...",Color3.fromRGB(200,200,100))
     task.wait(18)
     local r = getRoot()
@@ -787,12 +788,10 @@ task.spawn(function()
         VirtualInputManager:SendMouseButtonEvent(321,305,0,true,game,1); task.wait(0.05)
         VirtualInputManager:SendMouseButtonEvent(321,305,0,false,game,1); task.wait(0.3)
     end
-    MF.Visible = false
-    if state.farm then task.wait(0.5)
-        isRunning = true; syncBtns()
-        setStatus("▶ Tự bật Farm...",Color3.fromRGB(100,255,150))
-        func1_Once(); task.spawn(mainLoop); saveState()
-    end
+    MF.Visible = true
+    isRunning = true; syncBtns()
+    setStatus("▶ Tự bật Farm...",Color3.fromRGB(100,255,150))
+    func1_Once(); task.spawn(mainLoop); saveState()
 end)
 
 -- ═══════════════════════════════════════════════════════
