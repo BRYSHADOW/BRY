@@ -802,12 +802,12 @@ end)
 -- ═══════════════════════════════════════════════════════
 --        TỰ ĐỘNG RESTORE KHI REJOIN
 -- ═══════════════════════════════════════════════════════
-MF.Visible = true  -- Hiện GUI ngay khi bật script
-
 task.spawn(function()
     task.wait(3)
     local state = loadState()
-    if not state or not state.farm then return end
+    if not state or not state.farm then
+        MF.Visible = true; return
+    end
     setStatus("⏳ Chờ server ổn định...",Color3.fromRGB(200,200,100))
     task.wait(18)
     local r = getRoot()
@@ -815,6 +815,7 @@ task.spawn(function()
         VirtualInputManager:SendMouseButtonEvent(321,305,0,true,game,1); task.wait(0.05)
         VirtualInputManager:SendMouseButtonEvent(321,305,0,false,game,1); task.wait(0.3)
     end
+    MF.Visible = false
     if state.farm then task.wait(0.5)
         isRunning = true; syncBtns()
         setStatus("▶ Tự bật Farm...",Color3.fromRGB(100,255,150))
