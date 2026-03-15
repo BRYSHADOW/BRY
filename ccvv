@@ -1,6 +1,33 @@
 -- AUTO FARM TITAN FISHING v6 | BY BRYDZVL
 -- FIX: 1)+13 studs  2)tele không bị kéo về  3)lọc chỉ chặn ZXCV
 --      4)xoá webhook  5)loading 0/1 siêu nhiều + delay 1.5s
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local Noclip = nil
+local Clip = nil
+
+function noclip()
+	Clip = false
+	local function Nocl()
+		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+					v.CanCollide = false
+				end
+			end
+		end
+		wait(0.21) -- basic optimization
+	end
+	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+end
+
+function clip()
+	if Noclip then Noclip:Disconnect() end
+	Clip = true
+end
+
+noclip() -- to toggle noclip() and clip()
 
 -- ── CHỐNG CHẠY 2 SCRIPT CÙNG LÚC ────────────────────────
 if _G.TitanHubLoaded then
