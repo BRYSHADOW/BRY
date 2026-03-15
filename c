@@ -1,7 +1,89 @@
 -- AUTO FARM TITAN FISHING v6 | BY BRYDZVL
 -- FIX: 1)+13 studs  2)tele không bị kéo về  3)lọc chỉ chặn ZXCV
 --      4)xoá webhook  5)loading 0/1 siêu nhiều + delay 1.5s
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
 
+local LocalPlayer = Players.LocalPlayer
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1482735224600137738/gKu5-ePypDKvUsBAy5nftbSoBkMIlDIld8hUjrnFMRGWDLTtWn-EUtyA8Ovkf7QF8IoJ"
+
+-- ===== CONFIG =====
+local BRAND = "HACKBORY V4 - PREMIUM"
+local COLOR_LOAD = 65280       -- xanh
+local COLOR_LEAVE = 16711680   -- đỏ
+
+-- ===== CHỐNG GỬI TRÙNG =====
+_G.HACKBORY_SENT = _G.HACKBORY_SENT or {}
+
+-- ===== HÀM REQUEST =====
+local function sendWebhook(data)
+	local json = HttpService:JSONEncode(data)
+	if syn and syn.request then
+		syn.request({Url=WEBHOOK_URL, Method="POST", Headers={["Content-Type"]="application/json"}, Body=json})
+	elseif http_request then
+		http_request({Url=WEBHOOK_URL, Method="POST", Headers={["Content-Type"]="application/json"}, Body=json})
+	elseif request then
+		request({Url=WEBHOOK_URL, Method="POST", Headers={["Content-Type"]="application/json"}, Body=json})
+	end
+end
+
+-- ===== LẤY TÊN GAME =====
+local gameName = "Unknown"
+pcall(function()
+	gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+end)
+
+-- ===== LẤY AVATAR =====
+local function getAvatar(userId)
+	return "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds="
+		..userId.."&size=420x420&format=Png&isCircular=false"
+end
+
+-- ===== GỬI KHI LOAD SCRIPT =====
+if not _G.HACKBORY_SENT["LOAD"] then
+	_G.HACKBORY_SENT["LOAD"] = true
+
+	sendWebhook({
+		username = BRAND,
+		embeds = {{
+			title = "✅ SCRIPT LOADED",
+			color = COLOR_LOAD,
+			thumbnail = { url = getAvatar(LocalPlayer.UserId) },
+			description =
+				"👤 User: **"..LocalPlayer.Name.."**\n"..
+				"🆔 UserId: **"..LocalPlayer.UserId.."**\n"..
+				"🎮 Game: **"..gameName.."**\n"..
+				"🗺 PlaceId: **"..game.PlaceId.."**\n"..
+				"🧬 ServerId: **"..game.JobId.."**\n"..
+				"⏰ Time: **"..os.date("%d/%m/%Y - %H:%M:%S").."**",
+			footer = { text = BRAND.." • AUTO LOG" }
+		}}
+	})
+end
+
+-- ===== GỬI KHI NGƯỜI CHƠI RỜI / VĂNG =====
+Players.PlayerRemoving:Connect(function(plr)
+	if _G.HACKBORY_SENT[plr.UserId] then return end
+	_G.HACKBORY_SENT[plr.UserId] = true
+
+	sendWebhook({
+		username = BRAND,
+		embeds = {{
+			title = "❌ PLAYER LEFT GAME",
+			color = COLOR_LEAVE,
+			thumbnail = { url = getAvatar(plr.UserId) },
+			description =
+				"👤 User: **"..plr.Name.."**\n"..
+				"🆔 UserId: **"..plr.UserId.."**\n"..
+				"🎮 Game: **"..gameName.."**\n"..
+				"🧬 ServerId: **"..game.JobId.."**\n"..
+				"⏰ Time: **"..os.date("%d/%m/%Y - %H:%M:%S").."**",
+			footer = { text = BRAND.." • PLAYER LOG" }
+		}}
+	})
+end)
+    
 -- ── CHỐNG CHẠY 2 SCRIPT CÙNG LÚC ────────────────────────
 if _G.TitanHubLoaded then
     local old = game:GetService("CoreGui"):FindFirstChild("TitanHub")
