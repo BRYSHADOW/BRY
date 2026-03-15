@@ -522,19 +522,16 @@ mainLoop = function()
                 setStatus("🚶 Đi bộ đến "..lockedIsland.name.."...",Color3.fromRGB(200,200,100))
                 local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
                 if hum then
-                    -- Noclip xuyên TẤT CẢ: ép CanCollide=false mỗi frame bằng Heartbeat
-                    local noclipConn
-                    noclipConn = RunService.Heartbeat:Connect(function()
+                    -- Bật noclip cho nhân vật
+                    local function setNoclip(state)
                         local char = player.Character; if not char then return end
                         for _, part in ipairs(char:GetDescendants()) do
                             if part:IsA("BasePart") then
-                                part.CanCollide = false
+                                part.CanCollide = not state
                             end
                         end
-                        -- HumanoidRootPart cũng force off
-                        local hrp = char:FindFirstChild("HumanoidRootPart")
-                        if hrp then hrp.CanCollide = false end
-                    end)
+                    end
+                    setNoclip(true)
                     hum:MoveTo(lockedIsland.pos)
                     while isRunning do
                         task.wait(0.1)
@@ -542,16 +539,8 @@ mainLoop = function()
                         if (root.Position - lockedIsland.pos).Magnitude <= 8 then break end
                         hum:MoveTo(lockedIsland.pos)
                     end
-                    -- Tắt noclip: ngắt Heartbeat → restore CanCollide
-                    noclipConn:Disconnect()
-                    local char = player.Character
-                    if char then
-                        for _, part in ipairs(char:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = true
-                            end
-                        end
-                    end
+                    setNoclip(false)
+                end
                 if not isRunning then
                     clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
                     return
