@@ -24,15 +24,9 @@ local isSelling     = false
 local isFilterLeg   = false
 local isTeleOpen    = false
 local TelePanel     = nil
-local lastGlassPos  = nil
-local lastGlassPart = nil
 
--- [2] Thời điểm người dùng bấm tele thủ công
---     Trong MANUAL_LOCK_TIME giây sau khi bấm tele,
---     func4 KHÔNG được override vị trí
-local manualTeleTime     = 0
-local manualTeleTarget   = nil
-local MANUAL_LOCK_TIME   = 6   -- giây giữ vị trí sau tele thủ công
+-- [2] manualTeleTarget: vị trí đang được heartbeat giữ (nil = không lock)
+local manualTeleTarget = nil
 
 -- Forward declare
 local mainLoop
@@ -232,41 +226,32 @@ local function teleportTo(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
--- [2] Teleport THỦ CÔNG – dùng Heartbeat spam CFrame MỖI FRAME
---     mạnh gấp ~60x so với task.wait(0.1), không thứ gì kéo về được
-local heartbeatConn = nil   -- giữ connection để disconnect đúng lúc
+-- [2] Teleport THỦ CÔNG – Heartbeat chạy MÃI MÃI cho đến khi
+--     bấm đảo khác (gọi manualTeleport lại) hoặc đóng panel
+local heartbeatConn = nil
 
-local function manualTeleport(pos)
-    -- Huỷ lock cũ nếu đang chạy
+local function stopManualLock()
     if heartbeatConn then
         heartbeatConn:Disconnect()
-        heartbeatConn = nil
+        heartbeatConn    = nil
+        manualTeleTarget = nil
     end
+end
 
-    manualTeleTime   = tick()
+local function manualTeleport(pos)
+    -- Huỷ lock cũ trước
+    stopManualLock()
+
     manualTeleTarget = pos
 
-    -- Tele ngay lập tức
+    -- Tele ngay
     local r = getRoot()
-    if r then
-        r.CFrame = CFrame.new(pos)
-        clearMovers()
-    end
+    if r then r.CFrame = CFrame.new(pos); clearMovers() end
 
-    -- Dùng Heartbeat: mỗi frame kiểm tra & ép về
+    -- Heartbeat: KHÔNG có giới hạn thời gian – chạy mãi
     heartbeatConn = RunService.Heartbeat:Connect(function()
-        -- Hết thời gian lock → ngắt
-        if tick() - manualTeleTime >= MANUAL_LOCK_TIME then
-            heartbeatConn:Disconnect()
-            heartbeatConn    = nil
-            manualTeleTarget = nil
-            return
-        end
-
         local root = getRoot()
         if not root then return end
-
-        -- Nếu game cố kéo xa hơn 2 studs → ép về ngay
         if (root.Position - manualTeleTarget).Magnitude > 2 then
             root.CFrame = CFrame.new(manualTeleTarget)
             clearMovers()
@@ -402,33 +387,50 @@ local function func3_SellUI()
 end
 
 -- ═══════════════════════════════════════════════════════
--- CHỨC NĂNG 4 – TP đảo +13 studs + kính + air detect
+-- CHỨC NĂNG 4 – TP đảo +13 studs + air detect
+-- (xoá kính spawn, dùng MeshPart workspace làm tham chiếu)
 -- ═══════════════════════════════════════════════════════
 local lockedIsland = nil
-local FISH_HEIGHT  = 13   -- [1] FIX: +13 studs
+local FISH_HEIGHT  = 13
+local lastFishPos  = nil   -- vị trí câu hiện tại (không cần kính)
 
-local function createFishingGlass(targetPos)
-    if lastGlassPart and lastGlassPart.Parent then
-        pcall(function() lastGlassPart:Destroy() end)
+-- Lookup MeshPart của từng đảo trong workspace để lấy Y chính xác
+-- Đường dẫn mẫu: workspace.Map["Dao6"]["Dao 6"].MeshPart
+local islandMeshPaths = {
+    ["Đảo 1"] = {"Map","Dao1","Dao 1","MeshPart"},
+    ["Đảo 2"] = {"Map","Dao2","Dao 2","MeshPart"},
+    ["Đảo 3"] = {"Map","Dao3","Dao 3","MeshPart"},
+    ["Đảo 4"] = {"Map","Dao4","Dao 4","MeshPart"},
+    ["Đảo 5"] = {"Map","Dao5","Dao 5","MeshPart"},
+    ["Đảo 6"] = {"Map","Dao6","Dao 6","MeshPart"},
+    ["Đảo 7"] = {"Map","Dao7","Dao 7","MeshPart"},
+}
+
+local function getIslandMeshY(isle)
+    local path = islandMeshPaths[isle.name]
+    if not path then return nil end
+    local obj = workspace
+    for _, seg in ipairs(path) do
+        obj = obj:FindFirstChild(seg)
+        if not obj then return nil end
     end
-    local glass = Instance.new("Part")
-    glass.Name = "FishingGlass"
-    glass.Size = Vector3.new(4, 0.5, 4)
-    glass.CFrame = CFrame.new(targetPos.X, targetPos.Y - 2.8, targetPos.Z)
-    glass.Anchored = true
-    glass.Material = Enum.Material.Glass
-    glass.Transparency = 0.35
-    glass.CanCollide = true
-    glass.Parent = workspace
-    lastGlassPart = glass
-    lastGlassPos  = targetPos
+    if obj:IsA("BasePart") then
+        -- Trả về mặt trên của MeshPart (Position.Y + Size.Y/2)
+        return obj.Position.Y + obj.Size.Y * 0.5
+    end
+    return nil
+end
+
+local function getFishPos(isle)
+    local baseY  = getIslandMeshY(isle) or isle.pos.Y
+    return Vector3.new(isle.pos.X, baseY + FISH_HEIGHT, isle.pos.Z)
 end
 
 local function func4_TPIsland()
     setActive(4)
     local r = getRoot(); if not r then return end
-    -- [2] Nếu đang trong khóa tele thủ công → không ghi đè
-    if tick() - manualTeleTime < MANUAL_LOCK_TIME then
+    -- Nếu heartbeat manual đang giữ vị trí → không ghi đè
+    if heartbeatConn then
         setStatus("📌 Giữ vị trí thủ công...",Color3.fromRGB(200,180,255))
         return
     end
@@ -437,28 +439,19 @@ local function func4_TPIsland()
     local dist = (r.Position - lockedIsland.pos).Magnitude
     if dist > 10 then
         setStatus("🔁 Ra "..lockedIsland.name.."! TP về...",Color3.fromRGB(255,180,0))
-        local targetPos = Vector3.new(
-            lockedIsland.pos.X,
-            lockedIsland.pos.Y + FISH_HEIGHT,  -- [1] +13
-            lockedIsland.pos.Z
-        )
-        teleportTo(targetPos)
+        local tp = getFishPos(lockedIsland)
+        lastFishPos = tp
+        teleportTo(tp)
         task.wait(0.25)
-        createFishingGlass(targetPos)
     else
         setStatus("📍 Đang ở "..lockedIsland.name,Color3.fromRGB(100,255,150))
-        if not (lastGlassPart and lastGlassPart.Parent) then
-            local targetPos = Vector3.new(
-                lockedIsland.pos.X,
-                lockedIsland.pos.Y + FISH_HEIGHT,
-                lockedIsland.pos.Z
-            )
-            createFishingGlass(targetPos)
+        if not lastFishPos then
+            lastFishPos = getFishPos(lockedIsland)
         end
     end
 end
 
--- [1] Theo dõi chữ "Cannot cast while in Air!" → ép về kính
+-- Theo dõi chữ "Cannot cast while in Air!" → ép về vị trí câu
 local function isAirCastError()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
         if (o:IsA("TextLabel") or o:IsA("TextButton")) and o.Visible then
@@ -473,10 +466,10 @@ end
 task.spawn(function()
     while true do
         task.wait(0.08)
-        if isRunning and lastGlassPos and
-           tick() - manualTeleTime >= MANUAL_LOCK_TIME then
+        -- Chỉ xử lý khi farm đang chạy và không có manual lock
+        if isRunning and lastFishPos and not heartbeatConn then
             if isAirCastError() then
-                teleportTo(lastGlassPos)
+                teleportTo(lastFishPos)
                 task.wait(0.3)
             end
         end
@@ -633,10 +626,7 @@ local function toggleFarm()
         setActive(1); func1_Once(); task.wait(0.1); task.spawn(mainLoop)
     else
         isRunning=false; isSelling=false; lockedIsland=nil
-        if lastGlassPart and lastGlassPart.Parent then
-            pcall(function() lastGlassPart:Destroy() end)
-        end
-        lastGlassPart=nil; lastGlassPos=nil
+        lastFishPos = nil
         clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
     end
     syncBtns(); saveState()
@@ -694,6 +684,7 @@ local function doTele()
         tpClose.ZIndex = 23
         tpClose.MouseButton1Click:Connect(function()
             playClick(); isTeleOpen = false
+            stopManualLock()   -- dừng heartbeat giữ vị trí
             TelePanel:Destroy(); TelePanel = nil
             TeleBtn.Text="🗺 TELE"; TeleBtn.BackgroundColor3=Color3.fromRGB(100,0,200)
             MiniTele.Text="🗺 TELE"; MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
