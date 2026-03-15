@@ -52,7 +52,7 @@ end
 -- ═══════════════════════════════════════════════════════
 local clickSnd = Instance.new("Sound")
 clickSnd.SoundId = "rbxassetid://70452176150315"
-clickSnd.Volume  = 1.5
+clickSnd.Volume  = 1
 clickSnd.Parent  = SoundService
 local function playClick() clickSnd:Play() end
 
@@ -162,28 +162,28 @@ for i,fd in ipairs(funcDefs) do
     fRows[i] = {row=row, dot=dot}
 end
 
--- 4 nút chính
+-- Boss status label nằm bên phải trong row 6 (Lọc Legendary)
+local BossStatusLbl = Instance.new("TextLabel", fRows[6].row)
+BossStatusLbl.Size = UDim2.new(0,52,1,-2)
+BossStatusLbl.Position = UDim2.new(1,-54,0,1)
+BossStatusLbl.BackgroundColor3 = Color3.fromRGB(20,10,10)
+BossStatusLbl.BorderSizePixel = 0
+BossStatusLbl.Text = "👹❌"
+BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
+BossStatusLbl.TextSize = 8
+BossStatusLbl.Font = Enum.Font.GothamBold
+BossStatusLbl.TextWrapped = true
+BossStatusLbl.ZIndex = 5
+Instance.new("UICorner",BossStatusLbl).CornerRadius = UDim.new(0,4) (boss status đã chuyển lên row Lọc Legendary)
 local BTN_W, BTN_H, BTN_GAP = 47, 26, 5
 local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",
     UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
     Color3.fromRGB(0,170,75), 7)
--- BossStatusLbl: hiện trạng thái boss spawn (thay thế nút BOSS)
-local BossStatusLbl = Instance.new("TextLabel", CF)
-BossStatusLbl.Size = UDim2.new(0,BTN_W,0,BTN_H)
-BossStatusLbl.Position = UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2))
-BossStatusLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-BossStatusLbl.BorderSizePixel = 0
-BossStatusLbl.Text = "👹 ❌"
-BossStatusLbl.TextColor3 = Color3.fromRGB(180,180,180)
-BossStatusLbl.TextSize = 7
-BossStatusLbl.Font = Enum.Font.GothamBold
-BossStatusLbl.TextWrapped = true
-Instance.new("UICorner",BossStatusLbl).CornerRadius = UDim.new(0,6)
 local TeleBtn = makeBtn(CF,"🗺 TELE",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2)),
     Color3.fromRGB(100,0,200), 7)
 local FilterBtn = makeBtn(CF,"🐟 LỌC CÁ",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*3,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
     Color3.fromRGB(0,130,130), 7)
 
 -- Mini bar
@@ -191,19 +191,8 @@ local MinBar = Instance.new("Frame",MF)
 MinBar.Size = UDim2.new(1,-12,0,34); MinBar.Position = UDim2.new(0,6,0,39)
 MinBar.BackgroundTransparency = 1; MinBar.Visible = false
 local MiniToggle = makeBtn(MinBar,"▶ FARM",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,0,0,4),Color3.fromRGB(0,170,75),7)
-local MiniBossLbl = Instance.new("TextLabel", MinBar)
-MiniBossLbl.Size = UDim2.new(0,BTN_W,0,BTN_H)
-MiniBossLbl.Position = UDim2.new(0,BTN_W+BTN_GAP,0,4)
-MiniBossLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-MiniBossLbl.BorderSizePixel = 0
-MiniBossLbl.Text = "👹 ❌"
-MiniBossLbl.TextColor3 = Color3.fromRGB(180,180,180)
-MiniBossLbl.TextSize = 7
-MiniBossLbl.Font = Enum.Font.GothamBold
-MiniBossLbl.TextWrapped = true
-Instance.new("UICorner",MiniBossLbl).CornerRadius = UDim.new(0,6)
-local MiniTele   = makeBtn(MinBar,"🗺 TELE",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),Color3.fromRGB(100,0,200),7)
-local MiniFilter = makeBtn(MinBar,"🐟 LỌC",   UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*3,0,4),Color3.fromRGB(0,130,130),7)
+local MiniTele   = makeBtn(MinBar,"🗺 TELE",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,BTN_W+BTN_GAP,0,4),Color3.fromRGB(100,0,200),7)
+local MiniFilter = makeBtn(MinBar,"🐟 LỌC",   UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),Color3.fromRGB(0,130,130),7)
 
 -- ═══════════════════════════════════════════════════════
 --                     HELPERS
@@ -510,16 +499,15 @@ mainLoop = function()
                 setStatus("🚶 Đi bộ đến "..lockedIsland.name.."...",Color3.fromRGB(200,200,100))
                 local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
                 if hum then
-                    -- Bật noclip cho nhân vật
-                    local function setNoclip(state)
+                    -- Noclip thật sự: Heartbeat spam CanCollide=false mỗi frame
+                    local noclipConn = RunService.Heartbeat:Connect(function()
                         local char = player.Character; if not char then return end
                         for _, part in ipairs(char:GetDescendants()) do
                             if part:IsA("BasePart") then
-                                part.CanCollide = not state
+                                part.CanCollide = false
                             end
                         end
-                    end
-                    setNoclip(true)
+                    end)
                     hum:MoveTo(lockedIsland.pos)
                     while isRunning do
                         task.wait(0.1)
@@ -527,7 +515,16 @@ mainLoop = function()
                         if (root.Position - lockedIsland.pos).Magnitude <= 8 then break end
                         hum:MoveTo(lockedIsland.pos)
                     end
-                    setNoclip(false)
+                    -- Tắt noclip
+                    noclipConn:Disconnect()
+                    local char = player.Character
+                    if char then
+                        for _, part in ipairs(char:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = true
+                            end
+                        end
+                    end
                 end
                 if not isRunning then
                     clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
@@ -720,12 +717,20 @@ addHover(FilterBtn,  Color3.fromRGB(0,180,180),   Color3.fromRGB(0,130,130))
 addHover(MiniToggle, Color3.fromRGB(0,210,90),    Color3.fromRGB(0,170,75))
 addHover(MiniTele,   Color3.fromRGB(140,30,240),  Color3.fromRGB(100,0,200))
 addHover(MiniFilter, Color3.fromRGB(0,180,180),   Color3.fromRGB(0,130,130))
-
 print("[TitanFishing Hub v6] Loaded | BY BRYDZVL")
 
 -- ═══════════════════════════════════════════════════════
--- BOSS SPAWN SCAN – cập nhật trạng thái label mỗi 1s
+-- BOSS SPAWN SCAN – notify + cập nhật label kế bên Lọc Legendary
 -- ═══════════════════════════════════════════════════════
+local StarterGui = game:GetService("StarterGui")
+local function notify(t)
+    StarterGui:SetCore("SendNotification", {
+        Title    = "Boss Finder | Bô Ry ĐZVL",
+        Text     = t,
+        Duration = 4,
+    })
+end
+
 local bossIslandNames = {
     {zone="Island 1", label="Đảo 1"},
     {zone="Island 2", label="Đảo 2"},
@@ -733,6 +738,7 @@ local bossIslandNames = {
     {zone="Island 4", label="Đảo 4"},
     {zone="Island 5", label="Đảo 5"},
 }
+local lastBossFound = nil   -- tránh notify spam
 task.spawn(function()
     while true do
         task.wait(1)
@@ -741,27 +747,27 @@ task.spawn(function()
         if bz then
             for _, entry in ipairs(bossIslandNames) do
                 local isle = bz:FindFirstChild(entry.zone)
-                if isle then
-                    local zone = isle:FindFirstChild("BossSpawnZone")
-                    if zone then found = entry.label; break end
+                if isle and isle:FindFirstChild("BossSpawnZone") then
+                    found = entry.label; break
                 end
             end
         end
         if found then
-            BossStatusLbl.Text = "👹 ✅\n"..found
+            BossStatusLbl.Text = "👹✅\n"..found
             BossStatusLbl.TextColor3 = Color3.fromRGB(255,80,80)
-            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(40,10,10)
-            MiniBossLbl.Text = "👹 ✅"
-            MiniBossLbl.TextColor3 = Color3.fromRGB(255,80,80)
-            MiniBossLbl.BackgroundColor3 = Color3.fromRGB(40,10,10)
+            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(40,8,8)
+            -- Notify chỉ 1 lần khi mới xuất hiện
+            if lastBossFound ~= found then
+                pcall(function()
+                    notify("⚠️ Boss spawn ở "..found.."!")
+                end)
+            end
         else
-            BossStatusLbl.Text = "👹 ❌"
-            BossStatusLbl.TextColor3 = Color3.fromRGB(180,180,180)
-            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-            MiniBossLbl.Text = "👹 ❌"
-            MiniBossLbl.TextColor3 = Color3.fromRGB(180,180,180)
-            MiniBossLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
+            BossStatusLbl.Text = "👹❌"
+            BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
+            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(20,10,10)
         end
+        lastBossFound = found
     end
 end)
 
