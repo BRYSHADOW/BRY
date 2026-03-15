@@ -16,6 +16,7 @@ local TweenService        = game:GetService("TweenService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local HttpService         = game:GetService("HttpService")
 local SoundService        = game:GetService("SoundService")
+local StarterGui          = game:GetService("StarterGui")
 
 local player        = Players.LocalPlayer
 local isRunning     = false
@@ -92,6 +93,40 @@ ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
 AvatarBtn.MouseButton1Click:Connect(function() MF.Visible = not MF.Visible end)
 
+-- Boss Indicator kề bên AvatarBtn (di chuyển cùng khi kéo)
+local BossIndicator = Instance.new("Frame", AvatarBtn)
+BossIndicator.Size = UDim2.new(0,76,0,42)
+BossIndicator.Position = UDim2.new(1,6,0,0)
+BossIndicator.BackgroundColor3 = Color3.fromRGB(18,22,40)
+BossIndicator.BorderSizePixel = 0
+BossIndicator.ZIndex = 10
+Instance.new("UICorner",BossIndicator).CornerRadius = UDim.new(0,8)
+local biStroke = Instance.new("UIStroke",BossIndicator)
+biStroke.Color = Color3.fromRGB(80,80,110); biStroke.Thickness = 1.2
+
+local BossIconLbl = Instance.new("TextLabel", BossIndicator)
+BossIconLbl.Size = UDim2.new(0,22,1,0)
+BossIconLbl.Position = UDim2.new(0,2,0,0)
+BossIconLbl.BackgroundTransparency = 1
+BossIconLbl.Text = "👹"
+BossIconLbl.TextSize = 14
+BossIconLbl.Font = Enum.Font.GothamBold
+BossIconLbl.TextColor3 = Color3.fromRGB(220,220,220)
+BossIconLbl.ZIndex = 11
+BossIconLbl.TextXAlignment = Enum.TextXAlignment.Center
+
+local BossStatusLbl = Instance.new("TextLabel", BossIndicator)
+BossStatusLbl.Size = UDim2.new(1,-26,1,0)
+BossStatusLbl.Position = UDim2.new(0,24,0,0)
+BossStatusLbl.BackgroundTransparency = 1
+BossStatusLbl.Text = "❌\nKhông\nCó Boss"
+BossStatusLbl.TextSize = 7
+BossStatusLbl.Font = Enum.Font.GothamBold
+BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
+BossStatusLbl.TextWrapped = true
+BossStatusLbl.ZIndex = 11
+BossStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+
 -- TopBar
 local TB = Instance.new("Frame",MF)
 TB.Size = UDim2.new(1,0,0,36); TB.BackgroundColor3 = Color3.fromRGB(0,130,200); TB.BorderSizePixel = 0
@@ -162,28 +197,16 @@ for i,fd in ipairs(funcDefs) do
     fRows[i] = {row=row, dot=dot}
 end
 
--- 4 nút chính
-local BTN_W, BTN_H, BTN_GAP = 47, 26, 5
+-- 3 nút chính (66*3 + 4*2 = 206 = đúng width CF)
+local BTN_W, BTN_H, BTN_GAP = 66, 26, 4
 local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",
     UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
     Color3.fromRGB(0,170,75), 7)
--- BossStatusLbl: hiện trạng thái boss spawn (thay thế nút BOSS)
-local BossStatusLbl = Instance.new("TextLabel", CF)
-BossStatusLbl.Size = UDim2.new(0,BTN_W,0,BTN_H)
-BossStatusLbl.Position = UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2))
-BossStatusLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-BossStatusLbl.BorderSizePixel = 0
-BossStatusLbl.Text = "👹 ❌"
-BossStatusLbl.TextColor3 = Color3.fromRGB(180,180,180)
-BossStatusLbl.TextSize = 7
-BossStatusLbl.Font = Enum.Font.GothamBold
-BossStatusLbl.TextWrapped = true
-Instance.new("UICorner",BossStatusLbl).CornerRadius = UDim.new(0,6)
 local TeleBtn = makeBtn(CF,"🗺 TELE",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2)),
     Color3.fromRGB(100,0,200), 7)
 local FilterBtn = makeBtn(CF,"🐟 LỌC CÁ",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*3,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
     Color3.fromRGB(0,130,130), 7)
 
 -- Mini bar
@@ -191,19 +214,8 @@ local MinBar = Instance.new("Frame",MF)
 MinBar.Size = UDim2.new(1,-12,0,34); MinBar.Position = UDim2.new(0,6,0,39)
 MinBar.BackgroundTransparency = 1; MinBar.Visible = false
 local MiniToggle = makeBtn(MinBar,"▶ FARM",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,0,0,4),Color3.fromRGB(0,170,75),7)
-local MiniBossLbl = Instance.new("TextLabel", MinBar)
-MiniBossLbl.Size = UDim2.new(0,BTN_W,0,BTN_H)
-MiniBossLbl.Position = UDim2.new(0,BTN_W+BTN_GAP,0,4)
-MiniBossLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-MiniBossLbl.BorderSizePixel = 0
-MiniBossLbl.Text = "👹 ❌"
-MiniBossLbl.TextColor3 = Color3.fromRGB(180,180,180)
-MiniBossLbl.TextSize = 7
-MiniBossLbl.Font = Enum.Font.GothamBold
-MiniBossLbl.TextWrapped = true
-Instance.new("UICorner",MiniBossLbl).CornerRadius = UDim.new(0,6)
-local MiniTele   = makeBtn(MinBar,"🗺 TELE",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),Color3.fromRGB(100,0,200),7)
-local MiniFilter = makeBtn(MinBar,"🐟 LỌC",   UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*3,0,4),Color3.fromRGB(0,130,130),7)
+local MiniTele   = makeBtn(MinBar,"🗺 TELE",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,BTN_W+BTN_GAP,0,4),Color3.fromRGB(100,0,200),7)
+local MiniFilter = makeBtn(MinBar,"🐟 LỌC",   UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),Color3.fromRGB(0,130,130),7)
 
 -- ═══════════════════════════════════════════════════════
 --                     HELPERS
@@ -510,16 +522,19 @@ mainLoop = function()
                 setStatus("🚶 Đi bộ đến "..lockedIsland.name.."...",Color3.fromRGB(200,200,100))
                 local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
                 if hum then
-                    -- Bật noclip cho nhân vật
-                    local function setNoclip(state)
+                    -- Noclip xuyên TẤT CẢ: ép CanCollide=false mỗi frame bằng Heartbeat
+                    local noclipConn
+                    noclipConn = RunService.Heartbeat:Connect(function()
                         local char = player.Character; if not char then return end
                         for _, part in ipairs(char:GetDescendants()) do
                             if part:IsA("BasePart") then
-                                part.CanCollide = not state
+                                part.CanCollide = false
                             end
                         end
-                    end
-                    setNoclip(true)
+                        -- HumanoidRootPart cũng force off
+                        local hrp = char:FindFirstChild("HumanoidRootPart")
+                        if hrp then hrp.CanCollide = false end
+                    end)
                     hum:MoveTo(lockedIsland.pos)
                     while isRunning do
                         task.wait(0.1)
@@ -527,8 +542,16 @@ mainLoop = function()
                         if (root.Position - lockedIsland.pos).Magnitude <= 8 then break end
                         hum:MoveTo(lockedIsland.pos)
                     end
-                    setNoclip(false)
-                end
+                    -- Tắt noclip: ngắt Heartbeat → restore CanCollide
+                    noclipConn:Disconnect()
+                    local char = player.Character
+                    if char then
+                        for _, part in ipairs(char:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = true
+                            end
+                        end
+                    end
                 if not isRunning then
                     clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
                     return
@@ -733,6 +756,7 @@ local bossIslandNames = {
     {zone="Island 4", label="Đảo 4"},
     {zone="Island 5", label="Đảo 5"},
 }
+local lastBossFound = false
 task.spawn(function()
     while true do
         task.wait(1)
@@ -748,19 +772,29 @@ task.spawn(function()
             end
         end
         if found then
-            BossStatusLbl.Text = "👹 ✅\n"..found
+            -- Thông báo lần đầu khi boss vừa xuất hiện
+            if not lastBossFound then
+                pcall(function()
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "👹 Boss Spawn!",
+                        Text = "Boss Đang Spawn " .. found .. "!",
+                        Duration = 4,
+                    })
+                end)
+                lastBossFound = true
+            end
+            BossIconLbl.Text = "👹"
+            BossStatusLbl.Text = "✅\n" .. found
             BossStatusLbl.TextColor3 = Color3.fromRGB(255,80,80)
-            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(40,10,10)
-            MiniBossLbl.Text = "👹 ✅"
-            MiniBossLbl.TextColor3 = Color3.fromRGB(255,80,80)
-            MiniBossLbl.BackgroundColor3 = Color3.fromRGB(40,10,10)
+            BossIndicator.BackgroundColor3 = Color3.fromRGB(40,10,10)
+            biStroke.Color = Color3.fromRGB(255,60,60)
         else
-            BossStatusLbl.Text = "👹 ❌"
-            BossStatusLbl.TextColor3 = Color3.fromRGB(180,180,180)
-            BossStatusLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
-            MiniBossLbl.Text = "👹 ❌"
-            MiniBossLbl.TextColor3 = Color3.fromRGB(180,180,180)
-            MiniBossLbl.BackgroundColor3 = Color3.fromRGB(18,22,40)
+            lastBossFound = false
+            BossIconLbl.Text = "👹"
+            BossStatusLbl.Text = "❌\nKhông\nCó Boss"
+            BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
+            BossIndicator.BackgroundColor3 = Color3.fromRGB(18,22,40)
+            biStroke.Color = Color3.fromRGB(80,80,110)
         end
     end
 end)
