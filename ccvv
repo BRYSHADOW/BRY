@@ -353,13 +353,13 @@ end
 --                     ISLANDS
 -- ═══════════════════════════════════════════════════════
 local islands = {
-    {name="Đảo 1", pos=Vector3.new(196.21,15.09,184.43)},
-    {name="Đảo 2", pos=Vector3.new(1516.50,17.62,-500.17)},
-    {name="Đảo 3", pos=Vector3.new(1047.37,14.38,1338.36)},
-    {name="Đảo 4", pos=Vector3.new(743.41,14.48,-916.51)},
+    {name="Đảo 1", pos=Vector3.new(294.28,18.58,39.08)},
+    {name="Đảo 2", pos=Vector3.new(1778.18,18.58,-333.49)},
+    {name="Đảo 3", pos=Vector3.new(917.31,18.58,1164.85)},
+    {name="Đảo 4", pos=Vector3.new(664.25,18.58,-875.08)},
     {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
-    {name="Đảo 6", pos=Vector3.new(-871.14,27.43,-329.58)},
-    {name="Đảo 7", pos=Vector3.new(-725.64,23.60,-1290.97)},
+    {name="Đảo 6", pos=Vector3.new(-992.23,18.58,-61.70)},
+    {name="Đảo 7", pos=Vector3.new(-779.95,18.58,-1362.72)},
 }
 local function nearestIsland()
     local r = getRoot(); if not r then return nil end
