@@ -504,7 +504,7 @@ end
 
 local function func5_Spam()
     setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
-    for _ = 1,3 do
+    for _ = 1,4 do
         if not isRunning or isSelling then break end
 
         -- [3] clickScreen(475,250) LUÔN LUÔN chạy dù lọc hay không
@@ -527,6 +527,7 @@ local function func5_Spam()
             pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
             pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.C)
             pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.X)
+            pressKey(Enum.KeyCode.V); pressKey(Enum.KeyCode.V)
         end
         task.wait(0.01)
     end
