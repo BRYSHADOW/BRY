@@ -826,11 +826,11 @@ task.spawn(function()
         MF.Visible = true; return
     end
     setStatus("⏳ Chờ server ổn định...",Color3.fromRGB(200,200,100))
-    task.wait(18)
+    task.wait(5)
     local r = getRoot()
     if r then
-        VirtualInputManager:SendMouseButtonEvent(321,305,0,true,game,1); task.wait(0.05)
-        VirtualInputManager:SendMouseButtonEvent(321,305,0,false,game,1); task.wait(0.3)
+        VirtualInputManager:SendMouseButtonEvent(287,305,0,true,game,1); task.wait(0.05)
+        VirtualInputManager:SendMouseButtonEvent(287,305,0,false,game,1); task.wait(0.3)
     end
     MF.Visible = false
     if state.farm then task.wait(0.5)
