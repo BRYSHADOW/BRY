@@ -1,7 +1,5 @@
 -- ============================================
 --     AUTO FARM - FULL FIXED
---     Machine: Workspace.GameObjects
---              .PlaceSpecific.root.SpawnMachines
 -- ============================================
 
 local Players    = game:GetService("Players")
@@ -15,12 +13,11 @@ local HRP  = Char:WaitForChild("HumanoidRootPart")
 local Hum  = Char:WaitForChild("Humanoid")
 
 -- ============ PATHS ============
-local NETWORKING   = RS:WaitForChild("Shared"):WaitForChild("Remotes"):WaitForChild("Networking")
-local SPAWN_ACTION = NETWORKING:WaitForChild("RF/SpawnMachineAction")
-
--- SpawnMachines = machine object truyền vào args
+-- Remote nằm trong SpawnMachines
 local SPAWN_MACHINES = workspace:WaitForChild("GameObjects")
     :WaitForChild("PlaceSpecific"):WaitForChild("root"):WaitForChild("SpawnMachines")
+
+local SPAWN_ACTION = SPAWN_MACHINES:WaitForChild("RF/SpawnMachineAction")
 
 local LEGENDARY = workspace:WaitForChild("DefaultMap")
     :WaitForChild("Spawners"):WaitForChild("Legendary")
@@ -87,7 +84,7 @@ local TL = Instance.new("TextLabel", TB)
 TL.Size = UDim2.new(1,-10,1,0)
 TL.Position = UDim2.new(0,12,0,0)
 TL.BackgroundTransparency = 1
-TL.Text = "🐾 PET AUTO FARM"
+TL.Text = "PET AUTO FARM"
 TL.TextColor3 = Color3.fromRGB(100, 200, 255)
 TL.TextSize = 14
 TL.Font = Enum.Font.GothamBold
@@ -106,7 +103,7 @@ local SL = Instance.new("TextLabel", MF)
 SL.Size = UDim2.new(1,-16,0,22)
 SL.Position = UDim2.new(0,8,0,42)
 SL.BackgroundTransparency = 1
-SL.Text = "⏸ San sang"
+SL.Text = "San sang"
 SL.TextColor3 = Color3.fromRGB(170,170,200)
 SL.TextSize = 12
 SL.Font = Enum.Font.Gotham
@@ -172,13 +169,11 @@ local function setDot(on)
 end
 
 local function getMachinePos()
-    -- Dùng GetBoundingBox của SpawnMachines
     local ok, cf = pcall(function()
         local c = SPAWN_MACHINES:GetBoundingBox()
         return c
     end)
     if ok and cf then return cf.Position end
-    -- fallback: tìm part con đầu tiên
     for _, v in ipairs(SPAWN_MACHINES:GetDescendants()) do
         if v:IsA("BasePart") then return v.Position end
     end
@@ -216,7 +211,6 @@ end
 
 local function flyTo(targetPos)
     isFlying = true
-    -- Offset Y -4.1
     local dest = Vector3.new(targetPos.X, targetPos.Y - 4.1, targetPos.Z)
     pcall(function() Hum.PlatformStand = true end)
     local done = false
@@ -265,7 +259,7 @@ end
 
 -- ============================================
 --     DEPOSIT / COMBINE
---     Machine object = SPAWN_MACHINES (folder)
+--     Remote: SpawnMachines/RF/SpawnMachineAction
 -- ============================================
 
 local function stopSpam()
@@ -285,7 +279,12 @@ local function startSpam()
                         :WaitForChild("root")
                         :WaitForChild("SpawnMachines")
                 }
-                SPAWN_ACTION:InvokeServer(unpack(args))
+                workspace:WaitForChild("GameObjects")
+                    :WaitForChild("PlaceSpecific")
+                    :WaitForChild("root")
+                    :WaitForChild("SpawnMachines")
+                    :WaitForChild("RF/SpawnMachineAction")
+                    :InvokeServer(unpack(args))
             end)
             task.wait(0.2)
         end
@@ -302,7 +301,12 @@ local function startSpam()
                         :WaitForChild("root")
                         :WaitForChild("SpawnMachines")
                 }
-                SPAWN_ACTION:InvokeServer(unpack(args))
+                workspace:WaitForChild("GameObjects")
+                    :WaitForChild("PlaceSpecific")
+                    :WaitForChild("root")
+                    :WaitForChild("SpawnMachines")
+                    :WaitForChild("RF/SpawnMachineAction")
+                    :InvokeServer(unpack(args))
             end)
             task.wait(1)
         end
@@ -345,7 +349,6 @@ local function startFarm()
                     setStatus("Dang farm...", Color3.fromRGB(60,255,110))
                     startSpam()
 
-                    -- Chờ machine rời vùng
                     while isRunning do
                         task.wait(0.5)
                         if not machineNearLegendary() then break end
@@ -360,7 +363,7 @@ local function startFarm()
             else
                 if not isFlying then
                     setStatus("Dang quet...", Color3.fromRGB(170,170,200))
-                    ML.Text = "Machine: Chua trong vung"
+                    ML.Text = "Chua trong vung"
                 end
             end
         end
@@ -383,7 +386,6 @@ local function stopFarm()
     end
 end
 
--- ============================================
 TOG.MouseButton1Click:Connect(function()
     if isRunning then
         stopFarm()
