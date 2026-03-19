@@ -276,7 +276,7 @@ clickArea.MouseButton1Click:Connect(function()
                     ghostClone.HumanoidRootPart.CFrame = ghostClone.HumanoidRootPart.CFrame:Lerp(targetRot, 0.25)
                 end
                 
-                char.HumanoidRootPart.CFrame = ghostClone.HumanoidRootPart.CFrame * CFrame.new(0, -3.75, 0)
+                char.HumanoidRootPart.CFrame = ghostClone.HumanoidRootPart.CFrame * CFrame.new(0, -3.2, 0)
                 char.HumanoidRootPart.Velocity = Vector3.zero
             else
                 cleanup()
