@@ -1,16 +1,16 @@
 -- ╔══════════════════════════════════════════╗
--- ║        PET FARM SCRIPT - No Pet Input    ║
--- ║   Executor: Synapse X / KRNL / Fluxus   ║
+-- ║   PET FARM SCRIPT - Máy Xa Nhất (Full)  ║
+-- ║  Executor: Synapse X / KRNL / Fluxus    ║
 -- ╚══════════════════════════════════════════╝
 
-local Players        = game:GetService("Players")
-local RunService     = game:GetService("RunService")
-local TweenService   = game:GetService("TweenService")
+local Players           = game:GetService("Players")
+local RunService        = game:GetService("RunService")
+local TweenService      = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local LocalPlayer    = Players.LocalPlayer
-local Character      = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local LocalPlayer       = Players.LocalPlayer
+local Character         = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart  = Character:WaitForChild("HumanoidRootPart")
 
 -- ===================== CONFIG =====================
 local Config = {
@@ -19,14 +19,12 @@ local Config = {
     ScanInterval    = 0.5,
     DepositInterval = 0.2,
     CombineInterval = 1.0,
-    ScanRadius      = 60,
     FlyOffset       = Vector3.new(0, -3.1, 0),
 }
 
 -- ===================== STATE =====================
 local State = {
     OriginalCFrame = nil,
-    IsFlying       = false,
     CurrentMachine = nil,
     DepositLoop    = nil,
     CombineLoop    = nil,
@@ -34,19 +32,18 @@ local State = {
 }
 
 -- ===================== GUI =====================
--- Xóa GUI cũ nếu có
 if LocalPlayer.PlayerGui:FindFirstChild("PetFarmGUI") then
     LocalPlayer.PlayerGui.PetFarmGUI:Destroy()
 end
 
-local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui           = Instance.new("ScreenGui")
 ScreenGui.Name            = "PetFarmGUI"
 ScreenGui.ResetOnSpawn    = false
 ScreenGui.ZIndexBehavior  = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent          = LocalPlayer:WaitForChild("PlayerGui")
 
 -- ── Avatar Toggle Button ──────────────────────────
-local AvatarBtn = Instance.new("ImageButton")
+local AvatarBtn           = Instance.new("ImageButton")
 AvatarBtn.Name            = "AvatarBtn"
 AvatarBtn.Size            = UDim2.new(0, 55, 0, 55)
 AvatarBtn.Position        = UDim2.new(0, 10, 0.5, -27)
@@ -62,7 +59,7 @@ AvatarStroke.Color        = Color3.fromRGB(0, 200, 255)
 AvatarStroke.Thickness    = 2.5
 
 -- ── Main Frame ────────────────────────────────────
-local MainFrame = Instance.new("Frame")
+local MainFrame           = Instance.new("Frame")
 MainFrame.Name            = "MainFrame"
 MainFrame.Size            = UDim2.new(0, 270, 0, 175)
 MainFrame.Position        = UDim2.new(0, 75, 0.5, -87)
@@ -85,7 +82,6 @@ TitleBar.BorderSizePixel  = 0
 
 Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 12)
 
--- Fix bottom corners of title bar
 local TitleFix            = Instance.new("Frame", TitleBar)
 TitleFix.Size             = UDim2.new(1, 0, 0.5, 0)
 TitleFix.Position         = UDim2.new(0, 0, 0.5, 0)
@@ -95,9 +91,9 @@ TitleFix.BorderSizePixel  = 0
 local TitleLabel          = Instance.new("TextLabel", TitleBar)
 TitleLabel.Size           = UDim2.new(1, 0, 1, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text           = "🐾  Pet Farm"
+TitleLabel.Text           = "🐾  Pet Farm  •  Máy Xa Nhất"
 TitleLabel.TextColor3     = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize       = 16
+TitleLabel.TextSize       = 14
 TitleLabel.Font           = Enum.Font.GothamBold
 
 -- ── Status Label ──────────────────────────────────
@@ -114,7 +110,7 @@ StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 -- ── Machine Label ─────────────────────────────────
 local MachineLabel        = Instance.new("TextLabel", MainFrame)
 MachineLabel.Size         = UDim2.new(1, -20, 0, 20)
-MachineLabel.Position     = UDim2.new(0, 10, 0, 70)
+MachineLabel.Position     = UDim2.new(0, 10, 0, 68)
 MachineLabel.BackgroundTransparency = 1
 MachineLabel.Text         = "Machine: None"
 MachineLabel.TextColor3   = Color3.fromRGB(100, 180, 255)
@@ -122,10 +118,21 @@ MachineLabel.TextSize     = 11
 MachineLabel.Font         = Enum.Font.Gotham
 MachineLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+-- ── Distance Label ────────────────────────────────
+local DistLabel           = Instance.new("TextLabel", MainFrame)
+DistLabel.Size            = UDim2.new(1, -20, 0, 18)
+DistLabel.Position        = UDim2.new(0, 10, 0, 90)
+DistLabel.BackgroundTransparency = 1
+DistLabel.Text            = "📏 Khoảng cách: --"
+DistLabel.TextColor3      = Color3.fromRGB(200, 150, 255)
+DistLabel.TextSize        = 11
+DistLabel.Font            = Enum.Font.Gotham
+DistLabel.TextXAlignment  = Enum.TextXAlignment.Left
+
 -- ── Info Label ────────────────────────────────────
 local InfoLabel           = Instance.new("TextLabel", MainFrame)
-InfoLabel.Size            = UDim2.new(1, -20, 0, 20)
-InfoLabel.Position        = UDim2.new(0, 10, 0, 93)
+InfoLabel.Size            = UDim2.new(1, -20, 0, 18)
+InfoLabel.Position        = UDim2.new(0, 10, 0, 110)
 InfoLabel.BackgroundTransparency = 1
 InfoLabel.Text            = "💡 Hãy cầm pet trước khi bắt đầu"
 InfoLabel.TextColor3      = Color3.fromRGB(255, 220, 80)
@@ -135,8 +142,8 @@ InfoLabel.TextXAlignment  = Enum.TextXAlignment.Left
 
 -- ── Toggle Button ─────────────────────────────────
 local ToggleBtn           = Instance.new("TextButton", MainFrame)
-ToggleBtn.Size            = UDim2.new(1, -20, 0, 40)
-ToggleBtn.Position        = UDim2.new(0, 10, 0, 122)
+ToggleBtn.Size            = UDim2.new(1, -20, 0, 38)
+ToggleBtn.Position        = UDim2.new(0, 10, 0, 132)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 195, 75)
 ToggleBtn.BorderSizePixel = 0
 ToggleBtn.Text            = "▶   BẮT ĐẦU FARM"
@@ -179,7 +186,7 @@ end
 
 -- ===================== GUI TOGGLE =====================
 AvatarBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
+    MainFrame.Visible  = not MainFrame.Visible
     AvatarStroke.Color = MainFrame.Visible
         and Color3.fromRGB(0, 255, 150)
         or  Color3.fromRGB(0, 200, 255)
@@ -187,38 +194,19 @@ end)
 
 -- ===================== UTILITY =====================
 local function setStatus(text, color)
-    StatusLabel.Text      = "Trạng thái: " .. text
+    StatusLabel.Text       = "Trạng thái: " .. text
     StatusLabel.TextColor3 = color or Color3.fromRGB(150, 150, 200)
 end
 
 local function stopLoops()
-    if State.DepositLoop then
-        task.cancel(State.DepositLoop)
-        State.DepositLoop = nil
-    end
-    if State.CombineLoop then
-        task.cancel(State.CombineLoop)
-        State.CombineLoop = nil
-    end
-    if State.LockConnection then
-        State.LockConnection:Disconnect()
-        State.LockConnection = nil
-    end
+    if State.DepositLoop    then task.cancel(State.DepositLoop);    State.DepositLoop    = nil end
+    if State.CombineLoop    then task.cancel(State.CombineLoop);    State.CombineLoop    = nil end
+    if State.LockConnection then State.LockConnection:Disconnect(); State.LockConnection = nil end
 end
 
--- ===================== SCAN =====================
--- Tìm SpawnMachine trong bán kính ≤ ScanRadius tính từ Legendary Spawner
-local function findNearbyMachine()
-    local legendarySpawner = workspace:FindFirstChild("DefaultMap")
-        and workspace.DefaultMap:FindFirstChild("Spawners")
-        and workspace.DefaultMap.Spawners:FindFirstChild("Legendary")
-
-    if not legendarySpawner then return nil, nil end
-
-    local origin = legendarySpawner:IsA("BasePart")
-        and legendarySpawner.Position
-        or  legendarySpawner:GetPivot().Position
-
+-- ===================== SCAN - MÁY XA NHẤT =====================
+-- Duyệt toàn bộ SpawnMachines, chọn máy có PromptZone xa nhân vật nhất
+local function findFarthestMachine()
     local spawnMachines = workspace:FindFirstChild("GameObjects")
         and workspace.GameObjects:FindFirstChild("PlaceSpecific")
         and workspace.GameObjects.PlaceSpecific:FindFirstChild("root")
@@ -226,20 +214,28 @@ local function findNearbyMachine()
 
     if not spawnMachines then return nil, nil end
 
+    local playerPos    = HumanoidRootPart.Position
+    local farthestMachine = nil
+    local farthestZone    = nil
+    local maxDist         = -1
+
     for _, machine in ipairs(spawnMachines:GetChildren()) do
         local promptZone = machine:FindFirstChild("PromptZone")
         if promptZone then
             for _, zone in ipairs(promptZone:GetChildren()) do
                 if zone:IsA("BasePart") then
-                    local dist = (zone.Position - origin).Magnitude
-                    if dist <= Config.ScanRadius then
-                        return machine, zone
+                    local dist = (zone.Position - playerPos).Magnitude
+                    if dist > maxDist then
+                        maxDist          = dist
+                        farthestMachine  = machine
+                        farthestZone     = zone
                     end
                 end
             end
         end
     end
-    return nil, nil
+
+    return farthestMachine, farthestZone, maxDist
 end
 
 -- ===================== FLY =====================
@@ -254,22 +250,23 @@ local function flyToTarget(zone)
     local distance  = (targetPos - HumanoidRootPart.Position).Magnitude
     local duration  = math.max(distance / Config.FlySpeed, 0.05)
 
-    local tween = TweenService:Create(
+    TweenService:Create(
         HumanoidRootPart,
         TweenInfo.new(duration, Enum.EasingStyle.Linear),
         { CFrame = targetCF }
-    )
-    tween:Play()
-    tween.Completed:Wait()
+    ):Play()
+    task.wait(duration)
 
-    -- Khoá vị trí liên tục (không di chuyển được)
+    -- Khoá vị trí (không di chuyển được)
     if State.LockConnection then State.LockConnection:Disconnect() end
     State.LockConnection = RunService.Heartbeat:Connect(function()
         if Config.FarmEnabled and State.CurrentMachine then
             HumanoidRootPart.CFrame = targetCF
         else
-            State.LockConnection:Disconnect()
-            State.LockConnection = nil
+            if State.LockConnection then
+                State.LockConnection:Disconnect()
+                State.LockConnection = nil
+            end
         end
     end)
 end
@@ -280,18 +277,17 @@ local function returnToOriginal()
         State.LockConnection:Disconnect()
         State.LockConnection = nil
     end
-
     local humanoid = Character:FindFirstChildOfClass("Humanoid")
     if humanoid then humanoid.PlatformStand = false end
-
     if State.OriginalCFrame then
         HumanoidRootPart.CFrame = State.OriginalCFrame
         State.OriginalCFrame    = nil
     end
+    DistLabel.Text = "📏 Khoảng cách: --"
 end
 
 -- ===================== DEPOSIT / COMBINE =====================
-local RF -- cache remote function
+local RF
 local function getRemote()
     if RF then return RF end
     RF = ReplicatedStorage
@@ -331,20 +327,21 @@ local farmThread = nil
 
 local function startFarm()
     if farmThread then return end
-
     farmThread = task.spawn(function()
         while Config.FarmEnabled do
 
-            local machine, zone = findNearbyMachine()
+            -- ← Lấy máy XA NHẤT
+            local machine, zone, dist = findFarthestMachine()
 
             if machine and zone then
-                -- Máy mới xuất hiện
+
                 if State.CurrentMachine ~= machine then
                     State.CurrentMachine = machine
                     MachineLabel.Text    = "Machine: " .. machine.Name
-                    setStatus("🚀 Bay đến máy...", Color3.fromRGB(100, 200, 255))
+                    DistLabel.Text       = string.format("📏 Khoảng cách: %.1f studs", dist)
+                    setStatus("🚀 Bay đến máy xa nhất...", Color3.fromRGB(100, 200, 255))
 
-                    -- Lưu vị trí hiện tại trước khi bay
+                    -- Lưu vị trí gốc
                     if not State.OriginalCFrame then
                         State.OriginalCFrame = HumanoidRootPart.CFrame
                     end
@@ -352,16 +349,15 @@ local function startFarm()
                     flyToTarget(zone)
 
                     setStatus("⚙️ Đang farm...", Color3.fromRGB(80, 255, 120))
-
                     stopLoops()
                     startDeposit(machine)
                     task.wait(0.05)
                     startCombine(machine)
                 end
 
-                -- Kiểm tra máy còn tồn tại không
                 task.wait(Config.ScanInterval)
 
+                -- Kiểm tra máy + PromptZone còn tồn tại không
                 local stillExists = workspace:FindFirstChild("GameObjects")
                     and workspace.GameObjects:FindFirstChild("PlaceSpecific")
                     and workspace.GameObjects.PlaceSpecific:FindFirstChild("root")
@@ -379,45 +375,37 @@ local function startFarm()
                 end
 
             else
-                -- Chưa có máy, reset nếu đang giữ machine
                 if State.CurrentMachine then
                     stopLoops()
                     State.CurrentMachine = nil
                     MachineLabel.Text    = "Machine: None"
                     returnToOriginal()
                 end
-                setStatus("🔍 Đang quét...", Color3.fromRGB(150, 150, 220))
+                setStatus("🔍 Quét toàn map...", Color3.fromRGB(150, 150, 220))
                 task.wait(Config.ScanInterval)
             end
         end
 
-        -- Farm tắt
         farmThread = nil
         setStatus("⏹️ Đã dừng", Color3.fromRGB(200, 80, 80))
     end)
 end
 
--- ===================== TOGGLE BUTTON =====================
+-- ===================== TOGGLE =====================
 ToggleBtn.MouseButton1Click:Connect(function()
     Config.FarmEnabled = not Config.FarmEnabled
 
     if Config.FarmEnabled then
         ToggleBtn.BackgroundColor3 = Color3.fromRGB(210, 45, 45)
         ToggleBtn.Text             = "⏹   DỪNG FARM"
-        setStatus("🔍 Đang quét...", Color3.fromRGB(150, 200, 255))
+        setStatus("🔍 Quét toàn map...", Color3.fromRGB(150, 200, 255))
         startFarm()
     else
         ToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 195, 75)
         ToggleBtn.Text             = "▶   BẮT ĐẦU FARM"
-
         stopLoops()
         State.CurrentMachine = nil
-
-        if farmThread then
-            task.cancel(farmThread)
-            farmThread = nil
-        end
-
+        if farmThread then task.cancel(farmThread); farmThread = nil end
         returnToOriginal()
         MachineLabel.Text = "Machine: None"
     end
@@ -428,16 +416,14 @@ LocalPlayer.CharacterAdded:Connect(function(newChar)
     Character            = newChar
     HumanoidRootPart     = newChar:WaitForChild("HumanoidRootPart")
     Config.FarmEnabled   = false
-
     ToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 195, 75)
     ToggleBtn.Text       = "▶   BẮT ĐẦU FARM"
-
     stopLoops()
     State.CurrentMachine = nil
     State.OriginalCFrame = nil
     farmThread           = nil
-
     MachineLabel.Text    = "Machine: None"
+    DistLabel.Text       = "📏 Khoảng cách: --"
     setStatus("Sẵn sàng ✅", Color3.fromRGB(80, 255, 120))
 end)
 
