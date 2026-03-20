@@ -1,5 +1,5 @@
 -- ╔══════════════════════════════════════════╗
--- ║   PET FARM SCRIPT - Máy Xa Nhất (Full)  ║
+-- ║   PET FARM SCRIPT - Máy Xa Nhất v3      ║
 -- ║  Executor: Synapse X / KRNL / Fluxus    ║
 -- ╚══════════════════════════════════════════╝
 
@@ -28,6 +28,7 @@ local State = {
     CurrentMachine = nil,
     DepositLoop    = nil,
     CombineLoop    = nil,
+    LockCF         = nil,
     LockConnection = nil,
 }
 
@@ -204,48 +205,56 @@ local function stopLoops()
     if State.LockConnection then State.LockConnection:Disconnect(); State.LockConnection = nil end
 end
 
+-- ===================== LẤY VỊ TRÍ CỦA MACHINE =====================
+-- Lấy Position từ bất kỳ BasePart nào trong machine (PrimaryPart → con đầu tiên → GetPivot)
+local function getMachinePosition(machine)
+    if machine.PrimaryPart then
+        return machine.PrimaryPart.Position
+    end
+    for _, v in ipairs(machine:GetDescendants()) do
+        if v:IsA("BasePart") then
+            return v.Position
+        end
+    end
+    return machine:GetPivot().Position
+end
+
 -- ===================== SCAN - MÁY XA NHẤT =====================
--- Duyệt toàn bộ SpawnMachines, chọn máy có PromptZone xa nhân vật nhất
+-- Miễn có SpawnMachine tồn tại trong path là đủ điều kiện
+-- → Chọn cái XA nhân vật nhất
 local function findFarthestMachine()
     local spawnMachines = workspace:FindFirstChild("GameObjects")
         and workspace.GameObjects:FindFirstChild("PlaceSpecific")
         and workspace.GameObjects.PlaceSpecific:FindFirstChild("root")
         and workspace.GameObjects.PlaceSpecific.root:FindFirstChild("SpawnMachines")
 
-    if not spawnMachines then return nil, nil end
+    if not spawnMachines then return nil, -1 end
 
-    local playerPos    = HumanoidRootPart.Position
+    local playerPos       = HumanoidRootPart.Position
     local farthestMachine = nil
-    local farthestZone    = nil
     local maxDist         = -1
 
     for _, machine in ipairs(spawnMachines:GetChildren()) do
-        local promptZone = machine:FindFirstChild("PromptZone")
-        if promptZone then
-            for _, zone in ipairs(promptZone:GetChildren()) do
-                if zone:IsA("BasePart") then
-                    local dist = (zone.Position - playerPos).Magnitude
-                    if dist > maxDist then
-                        maxDist          = dist
-                        farthestMachine  = machine
-                        farthestZone     = zone
-                    end
-                end
-            end
+        -- Chỉ cần là Instance (không cần PromptZone hay bất cứ thứ gì)
+        local pos  = getMachinePosition(machine)
+        local dist = (pos - playerPos).Magnitude
+        if dist > maxDist then
+            maxDist          = dist
+            farthestMachine  = machine
         end
     end
 
-    return farthestMachine, farthestZone, maxDist
+    return farthestMachine, maxDist
 end
 
 -- ===================== FLY =====================
-local function flyToTarget(zone)
-    if not zone then return end
+local function flyToTarget(machine)
+    if not machine then return end
 
     local humanoid = Character:FindFirstChildOfClass("Humanoid")
     if humanoid then humanoid.PlatformStand = true end
 
-    local targetPos = zone.Position + Config.FlyOffset
+    local targetPos = getMachinePosition(machine) + Config.FlyOffset
     local targetCF  = CFrame.new(targetPos)
     local distance  = (targetPos - HumanoidRootPart.Position).Magnitude
     local duration  = math.max(distance / Config.FlySpeed, 0.05)
@@ -257,11 +266,12 @@ local function flyToTarget(zone)
     ):Play()
     task.wait(duration)
 
-    -- Khoá vị trí (không di chuyển được)
+    -- Khoá vị trí — không di chuyển được
+    State.LockCF = targetCF
     if State.LockConnection then State.LockConnection:Disconnect() end
     State.LockConnection = RunService.Heartbeat:Connect(function()
         if Config.FarmEnabled and State.CurrentMachine then
-            HumanoidRootPart.CFrame = targetCF
+            HumanoidRootPart.CFrame = State.LockCF
         else
             if State.LockConnection then
                 State.LockConnection:Disconnect()
@@ -330,10 +340,9 @@ local function startFarm()
     farmThread = task.spawn(function()
         while Config.FarmEnabled do
 
-            -- ← Lấy máy XA NHẤT
-            local machine, zone, dist = findFarthestMachine()
+            local machine, dist = findFarthestMachine()
 
-            if machine and zone then
+            if machine then
 
                 if State.CurrentMachine ~= machine then
                     State.CurrentMachine = machine
@@ -346,7 +355,7 @@ local function startFarm()
                         State.OriginalCFrame = HumanoidRootPart.CFrame
                     end
 
-                    flyToTarget(zone)
+                    flyToTarget(machine)
 
                     setStatus("⚙️ Đang farm...", Color3.fromRGB(80, 255, 120))
                     stopLoops()
@@ -357,13 +366,12 @@ local function startFarm()
 
                 task.wait(Config.ScanInterval)
 
-                -- Kiểm tra máy + PromptZone còn tồn tại không
+                -- Kiểm tra machine còn tồn tại không
                 local stillExists = workspace:FindFirstChild("GameObjects")
                     and workspace.GameObjects:FindFirstChild("PlaceSpecific")
                     and workspace.GameObjects.PlaceSpecific:FindFirstChild("root")
                     and workspace.GameObjects.PlaceSpecific.root:FindFirstChild("SpawnMachines")
                     and workspace.GameObjects.PlaceSpecific.root.SpawnMachines:FindFirstChild(machine.Name)
-                    and workspace.GameObjects.PlaceSpecific.root.SpawnMachines[machine.Name]:FindFirstChild("PromptZone")
 
                 if not stillExists then
                     setStatus("↩️ Máy biến mất, về vị trí cũ", Color3.fromRGB(255, 150, 50))
