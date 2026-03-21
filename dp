@@ -206,7 +206,6 @@ local function stopLoops()
 end
 
 -- ===================== LẤY VỊ TRÍ CỦA MACHINE =====================
--- Lấy Position từ bất kỳ BasePart nào trong machine (PrimaryPart → con đầu tiên → GetPivot)
 local function getMachinePosition(machine)
     if machine.PrimaryPart then
         return machine.PrimaryPart.Position
@@ -220,8 +219,6 @@ local function getMachinePosition(machine)
 end
 
 -- ===================== SCAN - MÁY XA NHẤT =====================
--- Miễn có SpawnMachine tồn tại trong path là đủ điều kiện
--- → Chọn cái XA nhân vật nhất
 local function findFarthestMachine()
     local spawnMachines = workspace:FindFirstChild("GameObjects")
         and workspace.GameObjects:FindFirstChild("PlaceSpecific")
@@ -235,7 +232,6 @@ local function findFarthestMachine()
     local maxDist         = -1
 
     for _, machine in ipairs(spawnMachines:GetChildren()) do
-        -- Chỉ cần là Instance (không cần PromptZone hay bất cứ thứ gì)
         local pos  = getMachinePosition(machine)
         local dist = (pos - playerPos).Magnitude
         if dist > maxDist then
@@ -250,6 +246,13 @@ end
 -- ===================== FLY =====================
 local function flyToTarget(machine)
     if not machine then return end
+
+    -- ✅ FIX BUG 1: Ngắt lock cũ TRƯỚC khi tween bay
+    -- (Trước đây lock chỉ ngắt SAU task.wait → Heartbeat override tween → player bị kẹt)
+    if State.LockConnection then
+        State.LockConnection:Disconnect()
+        State.LockConnection = nil
+    end
 
     local humanoid = Character:FindFirstChildOfClass("Humanoid")
     if humanoid then humanoid.PlatformStand = true end
@@ -266,9 +269,9 @@ local function flyToTarget(machine)
     ):Play()
     task.wait(duration)
 
-    -- Khoá vị trí — không di chuyển được
+    -- Khoá vị trí sau khi đến nơi
+    if not Config.FarmEnabled then return end  -- kiểm tra nếu bị tắt trong lúc bay
     State.LockCF = targetCF
-    if State.LockConnection then State.LockConnection:Disconnect() end
     State.LockConnection = RunService.Heartbeat:Connect(function()
         if Config.FarmEnabled and State.CurrentMachine then
             HumanoidRootPart.CFrame = State.LockCF
@@ -355,10 +358,11 @@ local function startFarm()
                         State.OriginalCFrame = HumanoidRootPart.CFrame
                     end
 
+                    stopLoops()
                     flyToTarget(machine)
 
+                    if not Config.FarmEnabled then break end  -- thoát nếu bị tắt trong lúc bay
                     setStatus("⚙️ Đang farm...", Color3.fromRGB(80, 255, 120))
-                    stopLoops()
                     startDeposit(machine)
                     task.wait(0.05)
                     startCombine(machine)
@@ -429,7 +433,9 @@ LocalPlayer.CharacterAdded:Connect(function(newChar)
     stopLoops()
     State.CurrentMachine = nil
     State.OriginalCFrame = nil
-    farmThread           = nil
+    -- ✅ FIX BUG 2: task.cancel farmThread thay vì chỉ set nil
+    -- (Trước đây coroutine cũ vẫn chạy ngầm, sau khi resume nó flyToTarget sang máy với character mới)
+    if farmThread then task.cancel(farmThread); farmThread = nil end
     MachineLabel.Text    = "Machine: None"
     DistLabel.Text       = "📏 Khoảng cách: --"
     setStatus("Sẵn sàng ✅", Color3.fromRGB(80, 255, 120))
