@@ -526,11 +526,21 @@ local function getVisibleFishRarity()
     return nil
 end
 
+-- Loop click liên tục độc lập – luôn bấm clickScreen(475,250) khi đang farm hoặc boss
+task.spawn(function()
+    while true do
+        task.wait(0.02)
+        if (isRunning and not isSelling) or bossFarmActive then
+            clickScreen(475,250)
+        end
+    end
+end)
+
 local function func5_Spam()
     setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
     for _ = 1,3 do
         if not isRunning or isSelling then break end
-        clickScreen(475,250)
+        -- clickScreen đã có loop riêng bên trên, không cần gọi lại ở đây
         local doKeys = true
         if isFilterLeg then
             local rarity = getVisibleFishRarity()
@@ -556,7 +566,7 @@ end
 local function func5_BossSpam()
     setActive(5); setStatus("👹 Boss: Spam+ZXCV...",Color3.fromRGB(255,100,0))
     for _ = 1,3 do
-        clickScreen(475,250)
+        -- clickScreen đã có loop riêng bên trên
         local doKeys = true
         if isFilterLeg then
             local rarity = getVisibleFishRarity()
