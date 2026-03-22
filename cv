@@ -114,7 +114,7 @@ Instance.new("UICorner",AvatarBtn).CornerRadius = UDim.new(0,8)
 local avStroke = Instance.new("UIStroke",AvatarBtn)
 avStroke.Color = Color3.fromRGB(0,190,255); avStroke.Thickness = 1.5
 
-local W, H = 218, 275
+local W, H = 218, 305
 
 local MF = Instance.new("Frame")
 MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
@@ -238,17 +238,21 @@ end
 -- 4 nút chính (49*4 + 3*3 = 205 ≈ width CF)
 local BTN_W, BTN_H, BTN_GAP = 49, 26, 3
 local ToggleBtn = makeBtn(CF,"▶ FARM",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,0,1,-(BTN_H*2+BTN_GAP+2)),
     Color3.fromRGB(0,170,75), 7)
 local BossBtn = makeBtn(CF,"👹 BOSS",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H*2+BTN_GAP+2)),
     Color3.fromRGB(120,20,0), 7)
 local TeleBtn = makeBtn(CF,"🗺 TELE",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H*2+BTN_GAP+2)),
     Color3.fromRGB(100,0,200), 7)
 local FilterBtn = makeBtn(CF,"🐟 LỌC",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*3,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*3,1,-(BTN_H*2+BTN_GAP+2)),
     Color3.fromRGB(0,130,130), 7)
+-- Nút nhạc full width hàng 2
+local MusicBtn = makeBtn(CF,"🎵 MỞ NHẠC",
+    UDim2.new(1,0,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
+    Color3.fromRGB(80,0,120), 8)
 
 -- Mini bar
 local MinBar = Instance.new("Frame",MF)
@@ -529,34 +533,42 @@ end
 -- Loop click liên tục độc lập – luôn bấm clickScreen(475,250) khi đang farm hoặc boss
 task.spawn(function()
     while true do
-        task.wait(0.02)
+        task.wait(0.2)
         if (isRunning and not isSelling) or bossFarmActive then
             clickScreen(475,250)
         end
     end
 end)
 
+-- Helper: có nên bấm ZXCV không?
+-- true  = bấm ZXCV
+-- false = bỏ qua (cá không nằm trong danh sách lọc)
+local function shouldPressZXCV()
+    if not isFilterLeg then return true end          -- lọc tắt → luôn bấm
+    local rarity = getVisibleFishRarity()
+    if not rarity then return true end               -- chưa thấy cá → bấm bình thường
+    return filterSelected[rarity] == true            -- chỉ bấm nếu rarity được tích chọn
+end
+
+local function doZXCV()
+    pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
+    pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
+    pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
+    pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.C)
+    pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.X)
+    pressKey(Enum.KeyCode.V); pressKey(Enum.KeyCode.V)
+end
+
 local function func5_Spam()
     setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
     for _ = 1,3 do
         if not isRunning or isSelling then break end
-        -- clickScreen đã có loop riêng bên trên, không cần gọi lại ở đây
-        local doKeys = true
-        if isFilterLeg then
-            local rarity = getVisibleFishRarity()
-            if rarity and not filterSelected[rarity] then
-                doKeys = false
-                setActive(6)
-                setStatus("⏸ Lọc: bỏ ["..rarity.."]",Color3.fromRGB(220,200,0))
-            end
-        end
-        if doKeys then
-            pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
-            pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
-            pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
-            pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.C)
-            pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.X)
-            pressKey(Enum.KeyCode.V); pressKey(Enum.KeyCode.V)
+        if shouldPressZXCV() then
+            doZXCV()
+        else
+            local rarity = getVisibleFishRarity() or "?"
+            setActive(6)
+            setStatus("⏸ Lọc: bỏ ["..rarity.."]",Color3.fromRGB(220,200,0))
         end
         task.wait(0.01)
     end
@@ -566,23 +578,12 @@ end
 local function func5_BossSpam()
     setActive(5); setStatus("👹 Boss: Spam+ZXCV...",Color3.fromRGB(255,100,0))
     for _ = 1,3 do
-        -- clickScreen đã có loop riêng bên trên
-        local doKeys = true
-        if isFilterLeg then
-            local rarity = getVisibleFishRarity()
-            if rarity and not filterSelected[rarity] then
-                doKeys = false
-                setActive(6)
-                setStatus("⏸ [Boss] Lọc: bỏ ["..rarity.."]",Color3.fromRGB(220,200,0))
-            end
-        end
-        if doKeys then
-            pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
-            pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
-            pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.C)
-            pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.C)
-            pressKey(Enum.KeyCode.X); pressKey(Enum.KeyCode.X)
-            pressKey(Enum.KeyCode.V); pressKey(Enum.KeyCode.V)
+        if shouldPressZXCV() then
+            doZXCV()
+        else
+            local rarity = getVisibleFishRarity() or "?"
+            setActive(6)
+            setStatus("⏸ [Boss] Lọc: bỏ ["..rarity.."]",Color3.fromRGB(220,200,0))
         end
         task.wait(0.01)
     end
@@ -670,6 +671,230 @@ mainLoop = function()
         task.wait(0.08)
     end
     clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+end
+
+-- ═══════════════════════════════════════════════════════
+--                🎵 MUSIC PLAYER
+-- ═══════════════════════════════════════════════════════
+local musicList = {
+    {name = "Nhạc Tiếng Anh Ko Bt", id = "133623839519479"},
+    {name = "Nhạc Chill",            id = "76463442516219"},
+    {name = "2 Phút Hơn",            id = "115091532639966"},
+}
+local currentMusicIdx = 1
+local isMusicPlaying  = false
+local MusicPanel      = nil
+local isMusicOpen     = false
+
+local musicSound = Instance.new("Sound")
+musicSound.Volume   = 0.8
+musicSound.Looped   = true
+musicSound.Parent   = SoundService
+
+local musicNameLbls = {} -- refs để update highlight
+
+local function stopMusic()
+    isMusicPlaying = false
+    musicSound:Stop()
+    if MusicPanel then
+        -- cập nhật nút Mở Nhạc
+        for _, v in ipairs(MusicPanel:GetDescendants()) do
+            if v:IsA("TextButton") and v.Name == "PlayBtn" then
+                v.Text = "▶ Mở Nhạc🎵"
+                v.BackgroundColor3 = Color3.fromRGB(0,140,80)
+            end
+        end
+    end
+end
+
+local function playMusicIdx(idx)
+    currentMusicIdx = idx
+    local m = musicList[idx]
+    musicSound.SoundId = "rbxassetid://" .. m.id
+    musicSound:Stop()
+    musicSound:Play()
+    isMusicPlaying = true
+    -- highlight tên bài đang phát
+    for i, lbl in ipairs(musicNameLbls) do
+        if lbl and lbl.Parent then
+            lbl.TextColor3 = (i == idx)
+                and Color3.fromRGB(255,210,0)
+                or  Color3.fromRGB(180,180,220)
+            lbl.Font = (i == idx) and Enum.Font.GothamBold or Enum.Font.Gotham
+        end
+    end
+    if MusicPanel then
+        for _, v in ipairs(MusicPanel:GetDescendants()) do
+            if v:IsA("TextButton") and v.Name == "PlayBtn" then
+                v.Text = "⏹ Dừng Nhạc"
+                v.BackgroundColor3 = Color3.fromRGB(180,30,30)
+            end
+        end
+    end
+end
+
+local function openMusicPanel()
+    if MusicPanel then MusicPanel:Destroy(); MusicPanel = nil end
+    musicNameLbls = {}
+
+    local pw, ph = 200, 210
+    MusicPanel = Instance.new("Frame", SG)
+    MusicPanel.Name = "MusicPanel"
+    MusicPanel.Size = UDim2.new(0,pw,0,ph)
+    MusicPanel.Position = UDim2.new(0.5,-pw/2,0.5,-ph/2)
+    MusicPanel.BackgroundColor3 = Color3.fromRGB(10,6,24)
+    MusicPanel.BorderSizePixel = 0
+    MusicPanel.Active = true; MusicPanel.Draggable = true; MusicPanel.ZIndex = 20
+    Instance.new("UICorner",MusicPanel).CornerRadius = UDim.new(0,10)
+    local mpStroke = Instance.new("UIStroke",MusicPanel)
+    mpStroke.Color = Color3.fromRGB(140,0,255); mpStroke.Thickness = 1.5
+
+    -- TopBar
+    local mpBar = Instance.new("Frame",MusicPanel)
+    mpBar.Size = UDim2.new(1,0,0,32); mpBar.BackgroundColor3 = Color3.fromRGB(60,0,120)
+    mpBar.BorderSizePixel = 0; mpBar.ZIndex = 21
+    Instance.new("UICorner",mpBar).CornerRadius = UDim.new(0,10)
+    local mpFix = Instance.new("Frame",mpBar)
+    mpFix.Size = UDim2.new(1,0,0,10); mpFix.Position = UDim2.new(0,0,1,-10)
+    mpFix.BackgroundColor3 = Color3.fromRGB(60,0,120); mpFix.BorderSizePixel = 0
+    local mpTitle = Instance.new("TextLabel",mpBar)
+    mpTitle.Size = UDim2.new(1,-30,1,0); mpTitle.Position = UDim2.new(0,10,0,0)
+    mpTitle.BackgroundTransparency = 1; mpTitle.Text = "🎵 Music Player"
+    mpTitle.TextColor3 = Color3.new(1,1,1); mpTitle.TextSize = 12
+    mpTitle.Font = Enum.Font.GothamBold; mpTitle.ZIndex = 22
+    mpTitle.TextXAlignment = Enum.TextXAlignment.Left
+    local mpClose = makeBtn(mpBar,"✕",UDim2.new(0,20,0,20),UDim2.new(1,-24,0,6),Color3.fromRGB(200,40,40),9)
+    mpClose.ZIndex = 23
+    mpClose.MouseButton1Click:Connect(function()
+        playClick(); isMusicOpen = false
+        MusicPanel:Destroy(); MusicPanel = nil
+        MusicBtn.Text = "🎵 MỞ NHẠC"
+        MusicBtn.BackgroundColor3 = Color3.fromRGB(80,0,120)
+    end)
+
+    -- Danh sách bài
+    for i, m in ipairs(musicList) do
+        local row = Instance.new("Frame", MusicPanel)
+        row.Size = UDim2.new(1,-14,0,26); row.Position = UDim2.new(0,7,0,36+(i-1)*30)
+        row.BackgroundColor3 = Color3.fromRGB(18,10,38); row.BorderSizePixel = 0
+        row.ZIndex = 22
+        Instance.new("UICorner",row).CornerRadius = UDim.new(0,6)
+        local rowStroke = Instance.new("UIStroke",row)
+        rowStroke.Color = Color3.fromRGB(80,0,160); rowStroke.Thickness = 1; rowStroke.ZIndex = 22
+
+        local numLbl = Instance.new("TextLabel",row)
+        numLbl.Size = UDim2.new(0,18,1,0); numLbl.Position = UDim2.new(0,4,0,0)
+        numLbl.BackgroundTransparency = 1; numLbl.Text = tostring(i).."."
+        numLbl.TextColor3 = Color3.fromRGB(120,80,200); numLbl.TextSize = 10
+        numLbl.Font = Enum.Font.GothamBold; numLbl.ZIndex = 23
+
+        local nameLbl = Instance.new("TextLabel",row)
+        nameLbl.Size = UDim2.new(1,-26,1,0); nameLbl.Position = UDim2.new(0,22,0,0)
+        nameLbl.BackgroundTransparency = 1; nameLbl.Text = m.name
+        nameLbl.TextColor3 = (isMusicPlaying and currentMusicIdx == i)
+            and Color3.fromRGB(255,210,0) or Color3.fromRGB(180,180,220)
+        nameLbl.Font = (isMusicPlaying and currentMusicIdx == i)
+            and Enum.Font.GothamBold or Enum.Font.Gotham
+        nameLbl.TextSize = 10; nameLbl.ZIndex = 23
+        nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+        musicNameLbls[i] = nameLbl
+
+        -- Click vào hàng để phát
+        local rowBtn = Instance.new("TextButton",row)
+        rowBtn.Size = UDim2.new(1,0,1,0); rowBtn.BackgroundTransparency = 1
+        rowBtn.Text = ""; rowBtn.ZIndex = 24
+        rowBtn.MouseButton1Click:Connect(function()
+            playClick(); playMusicIdx(i)
+        end)
+        rowBtn.MouseEnter:Connect(function()
+            TweenService:Create(row,TweenInfo.new(0.1),{BackgroundColor3=Color3.fromRGB(30,10,60)}):Play()
+        end)
+        rowBtn.MouseLeave:Connect(function()
+            TweenService:Create(row,TweenInfo.new(0.1),{BackgroundColor3=Color3.fromRGB(18,10,38)}):Play()
+        end)
+    end
+
+    -- 5 nút điều khiển dưới cùng
+    local ctrlY = 36 + #musicList * 30 + 6
+    local cw, ch, cg = 34, 26, 3
+
+    -- Tắt tất cả
+    local btnStop = makeBtn(MusicPanel,"🔇",UDim2.new(0,cw,0,ch),UDim2.new(0,7,0,ctrlY),Color3.fromRGB(80,30,30),10)
+    btnStop.ZIndex = 22
+    btnStop.MouseButton1Click:Connect(function() playClick(); stopMusic() end)
+    local sl = Instance.new("TextLabel",btnStop); sl.Size=UDim2.new(1,0,0,10)
+    sl.Position=UDim2.new(0,0,1,1); sl.BackgroundTransparency=1; sl.Text="Tắt"
+    sl.TextColor3=Color3.fromRGB(180,120,120); sl.TextSize=7; sl.Font=Enum.Font.Gotham; sl.ZIndex=23
+
+    -- Sau ⬅️
+    local btnPrev = makeBtn(MusicPanel,"⬅",UDim2.new(0,cw,0,ch),UDim2.new(0,7+cw+cg,0,ctrlY),Color3.fromRGB(40,40,100),10)
+    btnPrev.ZIndex = 22
+    btnPrev.MouseButton1Click:Connect(function()
+        playClick()
+        currentMusicIdx = (currentMusicIdx - 2) % #musicList + 1
+        playMusicIdx(currentMusicIdx)
+    end)
+    local pl = Instance.new("TextLabel",btnPrev); pl.Size=UDim2.new(1,0,0,10)
+    pl.Position=UDim2.new(0,0,1,1); pl.BackgroundTransparency=1; pl.Text="Sau"
+    pl.TextColor3=Color3.fromRGB(130,130,200); pl.TextSize=7; pl.Font=Enum.Font.Gotham; pl.ZIndex=23
+
+    -- Mở Nhạc / Dừng (nút giữa rộng hơn)
+    local playBtnW = pw - 14 - (cw+cg)*4
+    local btnPlay = makeBtn(MusicPanel, isMusicPlaying and "⏹ Dừng Nhạc" or "▶ Mở Nhạc🎵",
+        UDim2.new(0,playBtnW,0,ch), UDim2.new(0,7+(cw+cg)*2,0,ctrlY),
+        isMusicPlaying and Color3.fromRGB(180,30,30) or Color3.fromRGB(0,140,80), 8)
+    btnPlay.Name = "PlayBtn"; btnPlay.ZIndex = 22
+    btnPlay.MouseButton1Click:Connect(function()
+        playClick()
+        if isMusicPlaying then
+            stopMusic()
+        else
+            playMusicIdx(currentMusicIdx)
+        end
+    end)
+
+    -- Trước ➡️
+    local btnNext = makeBtn(MusicPanel,"➡",UDim2.new(0,cw,0,ch),
+        UDim2.new(0,7+(cw+cg)*2+playBtnW+cg,0,ctrlY),Color3.fromRGB(40,40,100),10)
+    btnNext.ZIndex = 22
+    btnNext.MouseButton1Click:Connect(function()
+        playClick()
+        currentMusicIdx = currentMusicIdx % #musicList + 1
+        playMusicIdx(currentMusicIdx)
+    end)
+    local nl = Instance.new("TextLabel",btnNext); nl.Size=UDim2.new(1,0,0,10)
+    nl.Position=UDim2.new(0,0,1,1); nl.BackgroundTransparency=1; nl.Text="Trước"
+    nl.TextColor3=Color3.fromRGB(130,130,200); nl.TextSize=7; nl.Font=Enum.Font.Gotham; nl.ZIndex=23
+
+    -- Ngẫu nhiên 🎧
+    local btnRand = makeBtn(MusicPanel,"🎧",UDim2.new(0,cw,0,ch),
+        UDim2.new(0,pw-7-cw,0,ctrlY),Color3.fromRGB(100,40,0),10)
+    btnRand.ZIndex = 22
+    btnRand.MouseButton1Click:Connect(function()
+        playClick()
+        local r = math.random(1,#musicList)
+        playMusicIdx(r)
+    end)
+    local rl = Instance.new("TextLabel",btnRand); rl.Size=UDim2.new(1,0,0,10)
+    rl.Position=UDim2.new(0,0,1,1); rl.BackgroundTransparency=1; rl.Text="Ngẫu Nhiên"
+    rl.TextColor3=Color3.fromRGB(200,140,80); rl.TextSize=7; rl.Font=Enum.Font.Gotham; rl.ZIndex=23
+
+    -- resize panel vừa nút
+    MusicPanel.Size = UDim2.new(0,pw,0,ctrlY+ch+14)
+end
+
+local function toggleMusic()
+    playClick()
+    isMusicOpen = not isMusicOpen
+    if isMusicOpen then
+        openMusicPanel()
+        MusicBtn.Text = "🎵 ĐÓNG NHẠC"
+        MusicBtn.BackgroundColor3 = Color3.fromRGB(130,0,180)
+    else
+        if MusicPanel then MusicPanel:Destroy(); MusicPanel = nil end
+        MusicBtn.Text = "🎵 MỞ NHẠC"
+        MusicBtn.BackgroundColor3 = Color3.fromRGB(80,0,120)
+    end
 end
 
 -- ═══════════════════════════════════════════════════════
@@ -907,6 +1132,7 @@ ToggleBtn.MouseButton1Click:Connect(toggleFarm)
 BossBtn.MouseButton1Click:Connect(toggleBoss)
 TeleBtn.MouseButton1Click:Connect(doTele)
 FilterBtn.MouseButton1Click:Connect(toggleFilter)
+MusicBtn.MouseButton1Click:Connect(toggleMusic)
 MiniToggle.MouseButton1Click:Connect(toggleFarm)
 MiniBoss.MouseButton1Click:Connect(toggleBoss)
 MiniTele.MouseButton1Click:Connect(doTele)
@@ -931,6 +1157,8 @@ CloseBtn.MouseButton1Click:Connect(function()
     isRunning=false; isSelling=false; isBossFarm=false; bossFarmActive=false
     if TelePanel then TelePanel:Destroy() end
     if FilterPanel then FilterPanel:Destroy() end
+    if MusicPanel then MusicPanel:Destroy() end
+    musicSound:Stop()
     SG:Destroy()
 end)
 
@@ -943,6 +1171,7 @@ addHover(ToggleBtn,  Color3.fromRGB(0,210,90),   Color3.fromRGB(0,170,75))
 addHover(BossBtn,    Color3.fromRGB(220,80,0),    Color3.fromRGB(120,20,0))
 addHover(TeleBtn,    Color3.fromRGB(140,30,240),  Color3.fromRGB(100,0,200))
 addHover(FilterBtn,  Color3.fromRGB(0,180,180),   Color3.fromRGB(0,130,130))
+addHover(MusicBtn,   Color3.fromRGB(130,0,180),   Color3.fromRGB(80,0,120))
 addHover(MiniToggle, Color3.fromRGB(0,210,90),    Color3.fromRGB(0,170,75))
 addHover(MiniBoss,   Color3.fromRGB(220,80,0),    Color3.fromRGB(120,20,0))
 addHover(MiniTele,   Color3.fromRGB(140,30,240),  Color3.fromRGB(100,0,200))
