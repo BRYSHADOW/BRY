@@ -1,33 +1,33 @@
--- AUTO FARM TITAN FISHING v6 | BY BRYDZVL
--- FIX: 1)+13 studs  2)tele không bị kéo về  3)lọc chỉ chặn ZXCV
---      4)xoá webhook  5)loading 0/1 siêu nhiều + delay 1.5s
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
+-- AUTO FARM TITAN FISHING v7 | BY BRYDZVL
+-- UPDATE v7:
+--   1) +Auto Farm SK kế bên Auto Farm (câu đảo SK, bán Master Kung Fu)
+--   2) Xoá Đi Bộ → TP thẳng khi bật farm
+--   3) ProximityPrompt tự bật ngay khi load script
+--   4) Lọc Cá: GUI chọn đa độ hiếm (Common→Legendary)
+--   5) Auto Farm: GUI chọn Farm Tại Chỗ / Farm Đảo Gần + lưu lựa chọn + nút Reset
+
 local Noclip = nil
-local Clip = nil
+local Clip   = nil
 
 function noclip()
-	Clip = false
-	local function Nocl()
-		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
-			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
-					v.CanCollide = false
-				end
-			end
-		end
-		wait(0.21) -- basic optimization
-	end
-	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+    Clip = false
+    local function Nocl()
+        if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+            for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+                    v.CanCollide = false
+                end
+            end
+        end
+        wait(0.21)
+    end
+    Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
 end
-
 function clip()
-	if Noclip then Noclip:Disconnect() end
-	Clip = true
+    if Noclip then Noclip:Disconnect() end
+    Clip = true
 end
-
-noclip() -- to toggle noclip() and clip()
+noclip()
 
 -- ── CHỐNG CHẠY 2 SCRIPT CÙNG LÚC ────────────────────────
 if _G.TitanHubLoaded then
@@ -44,30 +44,71 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local HttpService         = game:GetService("HttpService")
 local SoundService        = game:GetService("SoundService")
 local StarterGui          = game:GetService("StarterGui")
+local RunService          = game:GetService("RunService")
 
-local player        = Players.LocalPlayer
-local isRunning     = false
-local isSelling     = false
-local isFilterLeg   = false
-local isTeleOpen    = false
-local TelePanel     = nil
+local player      = Players.LocalPlayer
+
+-- ── STATE ────────────────────────────────────────────────
+local isRunning   = false   -- auto farm thường
+local isRunningSK = false   -- auto farm SK
+local isSelling   = false   -- đang bán (farm thường)
+local isSellingFK = false   -- đang bán (farm SK)
+local isTeleOpen  = false
+local TelePanel   = nil
+local FilterPanel = nil
+local isFilterOpen= false
+local FarmModePanel = nil
+
+-- [5] farmMode: nil = chưa chọn | "spot" = tại chỗ | "island" = đảo gần
+local farmMode  = nil
+local farmNoAsk = false
+
+-- [4] selectedRarities: {["Legendary"]=true, ...} (rỗng = tắt lọc)
+local selectedRarities = {}
 
 -- Forward declare
-local mainLoop
+local mainLoop, mainLoopSK
 
 -- ═══════════════════════════════════════════════════════
 --              STATE SAVE / LOAD
 -- ═══════════════════════════════════════════════════════
-local STATE_FILE = "TitanFishState.json"
+local STATE_FILE    = "TitanFishState.json"
+local FARMMODE_FILE = "TitanFarmMode.json"
+local FILTER_FILE   = "TitanFilter.json"
+
 local function saveState()
     pcall(function()
-        writefile(STATE_FILE, HttpService:JSONEncode({farm=isRunning}))
+        writefile(STATE_FILE, HttpService:JSONEncode({farm=isRunning, farmSK=isRunningSK}))
     end)
 end
 local function loadState()
     local ok,r = pcall(function() return HttpService:JSONDecode(readfile(STATE_FILE)) end)
     return ok and r or nil
 end
+local function saveFarmMode()
+    pcall(function()
+        writefile(FARMMODE_FILE, HttpService:JSONEncode({mode=farmMode, noAsk=farmNoAsk}))
+    end)
+end
+local function loadFarmModeFile()
+    local ok,r = pcall(function() return HttpService:JSONDecode(readfile(FARMMODE_FILE)) end)
+    return ok and r or nil
+end
+local function saveFilter()
+    pcall(function()
+        local t = {}
+        for k in pairs(selectedRarities) do table.insert(t,k) end
+        writefile(FILTER_FILE, HttpService:JSONEncode(t))
+    end)
+end
+local function loadFilter()
+    local ok,r = pcall(function() return HttpService:JSONDecode(readfile(FILTER_FILE)) end)
+    if ok and type(r) == "table" then
+        selectedRarities = {}
+        for _,v in ipairs(r) do selectedRarities[v] = true end
+    end
+end
+loadFilter()
 
 if queue_on_teleport then
     queue_on_teleport([[
@@ -107,52 +148,55 @@ Instance.new("UICorner",AvatarBtn).CornerRadius = UDim.new(0,8)
 local avStroke = Instance.new("UIStroke",AvatarBtn)
 avStroke.Color = Color3.fromRGB(0,190,255); avStroke.Thickness = 1.5
 
-local W, H = 218, 257
+-- [5] Reset Farm Button – nằm dưới avatar, di chuyển cùng vì là con của AvatarBtn
+local ResetFarmBtn = Instance.new("TextButton", AvatarBtn)
+ResetFarmBtn.Size     = UDim2.new(1,0,0,18)
+ResetFarmBtn.Position = UDim2.new(0,0,1,5)
+ResetFarmBtn.BackgroundColor3 = Color3.fromRGB(55,12,75)
+ResetFarmBtn.BorderSizePixel  = 0
+ResetFarmBtn.Text      = "↺ Reset Farm"
+ResetFarmBtn.TextColor3= Color3.new(1,1,1)
+ResetFarmBtn.TextSize  = 8
+ResetFarmBtn.Font      = Enum.Font.GothamBold
+ResetFarmBtn.ZIndex    = 11
+Instance.new("UICorner",ResetFarmBtn).CornerRadius = UDim.new(0,6)
+local rfStroke = Instance.new("UIStroke",ResetFarmBtn)
+rfStroke.Color = Color3.fromRGB(150,40,200); rfStroke.Thickness = 1
+
+local W, H = 218, 295   -- tăng H thêm 38px để chứa 2 hàng nút
 
 local MF = Instance.new("Frame")
 MF.Size = UDim2.new(0,W,0,H); MF.Position = UDim2.new(0.5,-W/2,0.5,-H/2)
 MF.BackgroundColor3 = Color3.fromRGB(8,10,18); MF.BorderSizePixel = 0
-MF.Active = true; MF.Draggable = true; MF.Parent = SG
-MF.Visible = false
+MF.Active = true; MF.Draggable = true; MF.Parent = SG; MF.Visible = false
 Instance.new("UICorner",MF).CornerRadius = UDim.new(0,10)
 local ms = Instance.new("UIStroke",MF)
 ms.Color = Color3.fromRGB(0,190,255); ms.Thickness = 1.2; ms.Transparency = 0.35
 
 AvatarBtn.MouseButton1Click:Connect(function() MF.Visible = not MF.Visible end)
 
--- Boss Indicator kề bên AvatarBtn (di chuyển cùng khi kéo)
+-- Boss Indicator (con của AvatarBtn, di chuyển cùng)
 local BossIndicator = Instance.new("Frame", AvatarBtn)
 BossIndicator.Size = UDim2.new(0,76,0,42)
 BossIndicator.Position = UDim2.new(1,6,0,0)
 BossIndicator.BackgroundColor3 = Color3.fromRGB(18,22,40)
-BossIndicator.BorderSizePixel = 0
-BossIndicator.ZIndex = 10
+BossIndicator.BorderSizePixel = 0; BossIndicator.ZIndex = 10
 Instance.new("UICorner",BossIndicator).CornerRadius = UDim.new(0,8)
 local biStroke = Instance.new("UIStroke",BossIndicator)
 biStroke.Color = Color3.fromRGB(80,80,110); biStroke.Thickness = 1.2
 
 local BossIconLbl = Instance.new("TextLabel", BossIndicator)
-BossIconLbl.Size = UDim2.new(0,22,1,0)
-BossIconLbl.Position = UDim2.new(0,2,0,0)
-BossIconLbl.BackgroundTransparency = 1
-BossIconLbl.Text = "👹"
-BossIconLbl.TextSize = 14
-BossIconLbl.Font = Enum.Font.GothamBold
-BossIconLbl.TextColor3 = Color3.fromRGB(220,220,220)
-BossIconLbl.ZIndex = 11
-BossIconLbl.TextXAlignment = Enum.TextXAlignment.Center
+BossIconLbl.Size = UDim2.new(0,22,1,0); BossIconLbl.Position = UDim2.new(0,2,0,0)
+BossIconLbl.BackgroundTransparency = 1; BossIconLbl.Text = "👹"; BossIconLbl.TextSize = 14
+BossIconLbl.Font = Enum.Font.GothamBold; BossIconLbl.TextColor3 = Color3.fromRGB(220,220,220)
+BossIconLbl.ZIndex = 11; BossIconLbl.TextXAlignment = Enum.TextXAlignment.Center
 
 local BossStatusLbl = Instance.new("TextLabel", BossIndicator)
-BossStatusLbl.Size = UDim2.new(1,-26,1,0)
-BossStatusLbl.Position = UDim2.new(0,24,0,0)
-BossStatusLbl.BackgroundTransparency = 1
-BossStatusLbl.Text = "❌\nKhông\nCó Boss"
-BossStatusLbl.TextSize = 7
-BossStatusLbl.Font = Enum.Font.GothamBold
-BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
-BossStatusLbl.TextWrapped = true
-BossStatusLbl.ZIndex = 11
-BossStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+BossStatusLbl.Size = UDim2.new(1,-26,1,0); BossStatusLbl.Position = UDim2.new(0,24,0,0)
+BossStatusLbl.BackgroundTransparency = 1; BossStatusLbl.Text = "❌\nKhông\nCó Boss"
+BossStatusLbl.TextSize = 7; BossStatusLbl.Font = Enum.Font.GothamBold
+BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160); BossStatusLbl.TextWrapped = true
+BossStatusLbl.ZIndex = 11; BossStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
 
 -- TopBar
 local TB = Instance.new("Frame",MF)
@@ -200,12 +244,12 @@ local StatusLbl = makeLabel(SB,"⏸ Chờ bật...",UDim2.new(1,-8,1,0),
 
 -- 6 function rows
 local funcDefs = {
-    {icon="⚡", name="ProximityPrompt", note="1x khi bật"},
-    {icon="🔍", name="Detect Full",     note="scan 0.05s"},
-    {icon="🖱",  name="Click Bán Hàng", note="khi Full"},
-    {icon="🗺", name="TP Đảo Gần",     note="lặp"},
-    {icon="⚡", name="Spam+Phím ZXCV", note="luôn chạy"},
-    {icon="🐟", name="Lọc Legendary",  note="chỉ câu Leg."},
+    {icon="⚡", name="ProximityPrompt",  note="auto khi load"},
+    {icon="🔍", name="Detect Full",      note="scan 0.05s"},
+    {icon="🖱",  name="Click Bán Hàng",  note="khi Full"},
+    {icon="🗺", name="TP Đảo Gần",      note="lặp"},
+    {icon="⚡", name="Spam+Phím ZXCV",  note="luôn chạy"},
+    {icon="🐟", name="Lọc Cá",          note="chọn độ hiếm"},
 }
 local ROW_H, ROW_GAP = 21, 22
 local fRows = {}
@@ -220,29 +264,40 @@ for i,fd in ipairs(funcDefs) do
     dot.BackgroundColor3 = Color3.fromRGB(35,45,65); dot.BorderSizePixel = 0
     Instance.new("UICorner",dot).CornerRadius = UDim.new(0.5,0)
     makeLabel(row,fd.icon.." "..fd.name,UDim2.new(1,-68,1,0),UDim2.new(0,17,0,0),9,true,Color3.fromRGB(0,200,255))
-    makeLabel(row,fd.note,UDim2.new(0,58,1,0),UDim2.new(1,-60,0,0),8,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
+    makeLabel(row,fd.note,UDim2.new(0,62,1,0),UDim2.new(1,-64,0,0),8,false,Color3.fromRGB(90,115,140),Enum.TextXAlignment.Right)
     fRows[i] = {row=row, dot=dot}
 end
 
--- 3 nút chính (66*3 + 4*2 = 206 = đúng width CF)
-local BTN_W, BTN_H, BTN_GAP = 66, 26, 4
+-- 4 nút chính – 2 hàng × 2 cột
+-- CF width = W-12 = 206, 2 btn + 1 gap = (206-4)/2 = 101
+local BTN_W2 = math.floor((W - 12 - 4) / 2)   -- 101
+local BTN_H  = 26
+local BTN_GAP = 4
+
+-- Hàng 1: AUTO FARM | FARM SK
 local ToggleBtn = makeBtn(CF,"▶ AUTO FARM",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W2,0,BTN_H), UDim2.new(0,0,1,-(BTN_H*2+BTN_GAP+4)),
     Color3.fromRGB(0,170,75), 7)
+local SKBtn = makeBtn(CF,"▶ FARM SK",
+    UDim2.new(0,BTN_W2,0,BTN_H), UDim2.new(0,BTN_W2+BTN_GAP,1,-(BTN_H*2+BTN_GAP+4)),
+    Color3.fromRGB(160,85,0), 7)
+
+-- Hàng 2: TELE | LỌC CÁ
 local TeleBtn = makeBtn(CF,"🗺 TELE",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,BTN_W+BTN_GAP,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W2,0,BTN_H), UDim2.new(0,0,1,-(BTN_H+2)),
     Color3.fromRGB(100,0,200), 7)
 local FilterBtn = makeBtn(CF,"🐟 LỌC CÁ",
-    UDim2.new(0,BTN_W,0,BTN_H), UDim2.new(0,(BTN_W+BTN_GAP)*2,1,-(BTN_H+2)),
+    UDim2.new(0,BTN_W2,0,BTN_H), UDim2.new(0,BTN_W2+BTN_GAP,1,-(BTN_H+2)),
     Color3.fromRGB(0,130,130), 7)
 
--- Mini bar
+-- Mini bar (khi minimize) – 4 nút 48px
 local MinBar = Instance.new("Frame",MF)
 MinBar.Size = UDim2.new(1,-12,0,34); MinBar.Position = UDim2.new(0,6,0,39)
 MinBar.BackgroundTransparency = 1; MinBar.Visible = false
-local MiniToggle = makeBtn(MinBar,"▶ FARM",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,0,0,4),Color3.fromRGB(0,170,75),7)
-local MiniTele   = makeBtn(MinBar,"🗺 TELE",  UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,BTN_W+BTN_GAP,0,4),Color3.fromRGB(100,0,200),7)
-local MiniFilter = makeBtn(MinBar,"🐟 LỌC",   UDim2.new(0,BTN_W,0,BTN_H),UDim2.new(0,(BTN_W+BTN_GAP)*2,0,4),Color3.fromRGB(0,130,130),7)
+local MiniToggle = makeBtn(MinBar,"▶ FARM", UDim2.new(0,48,0,BTN_H),UDim2.new(0,0,  0,4),Color3.fromRGB(0,170,75),7)
+local MiniSK     = makeBtn(MinBar,"▶ SK",   UDim2.new(0,48,0,BTN_H),UDim2.new(0,52, 0,4),Color3.fromRGB(160,85,0),7)
+local MiniTele   = makeBtn(MinBar,"🗺",      UDim2.new(0,48,0,BTN_H),UDim2.new(0,104,0,4),Color3.fromRGB(100,0,200),7)
+local MiniFilter = makeBtn(MinBar,"🐟",      UDim2.new(0,48,0,BTN_H),UDim2.new(0,156,0,4),Color3.fromRGB(0,130,130),7)
 
 -- ═══════════════════════════════════════════════════════
 --                     HELPERS
@@ -251,55 +306,44 @@ local function getRoot()
     local c = player.Character; return c and c:FindFirstChild("HumanoidRootPart")
 end
 
--- Xoá toàn bộ force/mover kéo về
 local function clearMovers()
     local char = player.Character; if not char then return end
     for _,obj in ipairs(char:GetDescendants()) do
-        if obj:IsA("BodyPosition")   or obj:IsA("BodyVelocity") or
-           obj:IsA("BodyGyro")       or obj:IsA("BodyForce")    or
-           obj:IsA("AlignPosition")  or obj:IsA("VectorForce")  or
+        if obj:IsA("BodyPosition") or obj:IsA("BodyVelocity") or
+           obj:IsA("BodyGyro")     or obj:IsA("BodyForce")    or
+           obj:IsA("AlignPosition")or obj:IsA("VectorForce")  or
            obj:IsA("LinearVelocity") or obj:IsA("AngularVelocity") then
             pcall(function() obj:Destroy() end)
         end
     end
     local r = getRoot()
-    if r then
-        pcall(function()
-            r.AssemblyLinearVelocity  = Vector3.zero
-            r.AssemblyAngularVelocity = Vector3.zero
-        end)
-    end
+    if r then pcall(function()
+        r.AssemblyLinearVelocity  = Vector3.zero
+        r.AssemblyAngularVelocity = Vector3.zero
+    end) end
 end
 
-local RunService = game:GetService("RunService")
-
--- teleportTo thường (1 lần, dùng khi auto farm loop)
 local function teleportTo(pos)
     local r = getRoot(); if not r then return end
     r.CFrame = CFrame.new(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
--- teleportToLocked: TP + giữ vị trí bằng Heartbeat trong N giây
--- Dùng khi bán cá để không bị kéo về
 local function teleportToLocked(pos, duration)
     local r = getRoot(); if not r then return end
-    r.CFrame = CFrame.new(pos)
-    clearMovers()
+    r.CFrame = CFrame.new(pos); clearMovers()
     local conn
     conn = RunService.Heartbeat:Connect(function()
         local root = getRoot()
         if not root then conn:Disconnect(); return end
         if (root.Position - pos).Magnitude > 2 then
-            root.CFrame = CFrame.new(pos)
-            clearMovers()
+            root.CFrame = CFrame.new(pos); clearMovers()
         end
     end)
     task.wait(duration or 2)
     conn:Disconnect()
 end
 
--- Tele thủ công – chỉ dịch chuyển 1 lần, không lock gì cả
 local function manualTeleport(pos)
     local r = getRoot(); if not r then return end
     r.CFrame = CFrame.new(pos)
@@ -331,8 +375,13 @@ local function clearActive()
         fr.row.BackgroundColor3 = Color3.fromRGB(12,18,32)
     end
 end
+local function filterIsActive()
+    for _ in pairs(selectedRarities) do return true end
+    return false
+end
 
 local function syncBtns()
+    -- Auto Farm
     if isRunning then
         ToggleBtn.Text="⏹ AUTO FARM"; ToggleBtn.BackgroundColor3=Color3.fromRGB(190,35,35)
         MiniToggle.Text="⏹ FARM";     MiniToggle.BackgroundColor3=Color3.fromRGB(190,35,35)
@@ -340,12 +389,22 @@ local function syncBtns()
         ToggleBtn.Text="▶ AUTO FARM"; ToggleBtn.BackgroundColor3=Color3.fromRGB(0,170,75)
         MiniToggle.Text="▶ FARM";     MiniToggle.BackgroundColor3=Color3.fromRGB(0,170,75)
     end
-    if isFilterLeg then
-        FilterBtn.Text="🐟 LỌC ON";  FilterBtn.BackgroundColor3=Color3.fromRGB(0,180,180)
-        MiniFilter.Text="🐟 LỌC ON"; MiniFilter.BackgroundColor3=Color3.fromRGB(0,180,180)
+    -- Farm SK
+    if isRunningSK then
+        SKBtn.Text="⏹ FARM SK"; SKBtn.BackgroundColor3=Color3.fromRGB(190,35,35)
+        MiniSK.Text="⏹ SK";     MiniSK.BackgroundColor3=Color3.fromRGB(190,35,35)
+    else
+        SKBtn.Text="▶ FARM SK"; SKBtn.BackgroundColor3=Color3.fromRGB(160,85,0)
+        MiniSK.Text="▶ SK";     MiniSK.BackgroundColor3=Color3.fromRGB(160,85,0)
+    end
+    -- Filter
+    if filterIsActive() then
+        local cnt = 0; for _ in pairs(selectedRarities) do cnt=cnt+1 end
+        FilterBtn.Text="🐟 LỌC ["..cnt.."]"; FilterBtn.BackgroundColor3=Color3.fromRGB(0,180,180)
+        MiniFilter.Text="🐟["..cnt.."]";      MiniFilter.BackgroundColor3=Color3.fromRGB(0,180,180)
     else
         FilterBtn.Text="🐟 LỌC CÁ"; FilterBtn.BackgroundColor3=Color3.fromRGB(0,130,130)
-        MiniFilter.Text="🐟 LỌC";   MiniFilter.BackgroundColor3=Color3.fromRGB(0,130,130)
+        MiniFilter.Text="🐟";        MiniFilter.BackgroundColor3=Color3.fromRGB(0,130,130)
     end
 end
 
@@ -365,14 +424,15 @@ local function nearestIsland()
     local r = getRoot(); if not r then return nil end
     local best,bd = nil,math.huge
     for _,isle in ipairs(islands) do
-        local d = (r.Position-isle.pos).Magnitude
+        local d=(r.Position-isle.pos).Magnitude
         if d<bd then bd=d; best=isle end
     end
     return best
 end
 
 -- ═══════════════════════════════════════════════════════
---         CHỨC NĂNG 1 – ProximityPrompt
+-- CHỨC NĂNG 1 – ProximityPrompt
+-- [3] Gọi ngay khi load script (không cần bật farm)
 -- ═══════════════════════════════════════════════════════
 local func1Done = false
 local function func1_Once()
@@ -384,9 +444,10 @@ local function func1_Once()
         if p:IsA("ProximityPrompt") then p.HoldDuration=0; p.RequiresLineOfSight=false end
     end)
 end
+func1_Once()   -- [3] TỰ ĐỘNG bật khi script load
 
 -- ═══════════════════════════════════════════════════════
---         CHỨC NĂNG 2 – Detect Full
+-- CHỨC NĂNG 2 – Detect Full
 -- ═══════════════════════════════════════════════════════
 local function isScreenFull()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
@@ -404,7 +465,7 @@ local function findNPCSeller()
             local pos = n:IsA("BasePart") and n.Position
                      or (n:IsA("Model") and n:GetPivot().Position)
             if pos then
-                local d = (r.Position-pos).Magnitude
+                local d=(r.Position-pos).Magnitude
                 if d<bd then bd=d; best=pos end
             end
         end
@@ -413,7 +474,7 @@ local function findNPCSeller()
 end
 
 -- ═══════════════════════════════════════════════════════
---         CHỨC NĂNG 3 – Click bán
+-- CHỨC NĂNG 3 – Click bán (farm thường)
 -- ═══════════════════════════════════════════════════════
 local sellConfirmCoords = {{259,230},{491,140}}
 local function func3_SellUI()
@@ -427,30 +488,65 @@ local function func3_SellUI()
 end
 
 -- ═══════════════════════════════════════════════════════
--- CHỨC NĂNG 4 – TP đảo (vị trí gốc, không cao thêm)
+-- [1] CHỨC NĂNG 3b – Bán SK (Master Kung Fu NPC)
+-- ═══════════════════════════════════════════════════════
+local skPos = Vector3.new(607.42, 18.58, 780.31)
+
+local function findMasterKungFu()
+    local npcsF = workspace:FindFirstChild("NPCs"); if not npcsF then return nil end
+    local npc = npcsF:FindFirstChild("Master Kung Fu"); if not npc then return nil end
+    if npc:IsA("Model")    then return npc:GetPivot().Position end
+    if npc:IsA("BasePart") then return npc.Position end
+    -- fallback: tìm HumanoidRootPart trong model
+    local hrp = npc:FindFirstChild("HumanoidRootPart")
+    return hrp and hrp.Position or nil
+end
+
+local function func3_SellSK()
+    setActive(3)
+    setStatus("🥋 Đến Master Kung Fu...",Color3.fromRGB(255,180,0))
+    local mPos = findMasterKungFu()
+    if mPos then
+        teleportToLocked(mPos + Vector3.new(0,3,0), 0.3)
+    end
+    setStatus("🖱 Bán SK (E×2)...",Color3.fromRGB(0,210,255))
+    pressKey(Enum.KeyCode.E); task.wait(0.35)
+    pressKey(Enum.KeyCode.E); task.wait(0.35)
+    -- click toạ độ (520, 240) 2 lần
+    clickScreen(520,240); task.wait(0.25)
+    clickScreen(520,240); task.wait(0.25)
+    setStatus("💰 SK: Đang bán...",Color3.fromRGB(255,220,0))
+    if mPos then
+        teleportToLocked(mPos + Vector3.new(0,3,0), 2)
+    else
+        task.wait(2)
+    end
+    setStatus("🔁 Về đảo SK câu tiếp...",Color3.fromRGB(100,255,150))
+    teleportTo(skPos); task.wait(0.5)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- CHỨC NĂNG 4 – TP đảo gần
 -- ═══════════════════════════════════════════════════════
 local lockedIsland = nil
-
 local function func4_TPIsland()
     setActive(4)
     local r = getRoot(); if not r then return end
     if not lockedIsland then lockedIsland = nearestIsland() end
     if not lockedIsland then return end
-    local dist = (r.Position - lockedIsland.pos).Magnitude
+    local dist=(r.Position - lockedIsland.pos).Magnitude
     if dist > 10 then
         setStatus("🔁 Ra "..lockedIsland.name.."! TP về...",Color3.fromRGB(255,180,0))
-        teleportTo(lockedIsland.pos)
-        task.wait(0.25)
+        teleportTo(lockedIsland.pos); task.wait(0.25)
     else
         setStatus("📍 Đang ở "..lockedIsland.name,Color3.fromRGB(100,255,150))
     end
 end
 
--- Theo dõi chữ "Cannot cast while in Air!" → ép về đảo đang câu
 local function isAirCastError()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
         if (o:IsA("TextLabel") or o:IsA("TextButton")) and o.Visible then
-            local t = string.lower(o.Text or "")
+            local t=string.lower(o.Text or "")
             if string.find(t,"cannot cast",1,true) or string.find(t,"in air",1,true) then
                 return true
             end
@@ -462,23 +558,18 @@ task.spawn(function()
     while true do
         task.wait(0.08)
         if isRunning and lockedIsland then
-            if isAirCastError() then
-                teleportTo(lockedIsland.pos)
-                task.wait(0.3)
-            end
+            if isAirCastError() then teleportTo(lockedIsland.pos); task.wait(0.3) end
         end
     end
 end)
 
--- Xoá liên tục mỗi 0.2s toàn bộ children trong Workspace.Map.Dao6."Dao 6".base
--- CHỈ khi đang câu ở đảo 6
 task.spawn(function()
     while true do
         task.wait(0.2)
         if lockedIsland and lockedIsland.name == "Đảo 6" then
             pcall(function()
                 local base = workspace.Map.Dao6["Dao 6"].base
-                for _, child in ipairs(base:GetChildren()) do
+                for _,child in ipairs(base:GetChildren()) do
                     pcall(function() child:Destroy() end)
                 end
             end)
@@ -487,15 +578,15 @@ task.spawn(function()
 end)
 
 -- ═══════════════════════════════════════════════════════
--- CHỨC NĂNG 5 – Spam + ZXCV  (lọc legendary)
+-- CHỨC NĂNG 5 – Spam + ZXCV  ([4] lọc đa độ hiếm)
 -- ═══════════════════════════════════════════════════════
 local rarityList = {"Legendary","Mythic","Epic","Rare","Uncommon","Common","Special","Unique"}
 local function getVisibleFishRarity()
     for _,o in ipairs(player.PlayerGui:GetDescendants()) do
         if o:IsA("TextLabel") and o.Visible then
-            local t = o.Text or ""
+            local t=o.Text or ""
             for _,rarity in ipairs(rarityList) do
-                if string.find(t, rarity, 1, true) then return rarity end
+                if string.find(t,rarity,1,true) then return rarity end
             end
         end
     end
@@ -505,22 +596,18 @@ end
 local function func5_Spam()
     setActive(5); setStatus("⚡ Spam click + phím...",Color3.fromRGB(255,170,0))
     for _ = 1,3 do
-        if not isRunning or isSelling then break end
-
-        -- [3] clickScreen(475,250) LUÔN LUÔN chạy dù lọc hay không
+        if (not isRunning) and (not isRunningSK) then break end
+        if isSelling or isSellingFK then break end
         clickScreen(475,250)
-
-        -- [3] ZXCV chỉ bị chặn khi bộ lọc bật VÀ cá không phải Legendary
         local doKeys = true
-        if isFilterLeg then
+        if filterIsActive() then
             local rarity = getVisibleFishRarity()
-            if rarity and rarity ~= "Legendary" then
+            if rarity and not selectedRarities[rarity] then
                 doKeys = false
                 setActive(6)
                 setStatus("⏸ Lọc: bỏ ["..rarity.."]",Color3.fromRGB(220,200,0))
             end
         end
-
         if doKeys then
             pressKey(Enum.KeyCode.Z); pressKey(Enum.KeyCode.X)
             pressKey(Enum.KeyCode.C); pressKey(Enum.KeyCode.V)
@@ -534,83 +621,259 @@ local function func5_Spam()
 end
 
 -- ═══════════════════════════════════════════════════════
---                     MAIN LOOP
+-- [5] FARM MODE GUI
+-- ═══════════════════════════════════════════════════════
+local function destroyFarmModePanel()
+    if FarmModePanel then FarmModePanel:Destroy(); FarmModePanel = nil end
+end
+
+local function showFarmModeGUI(onChosen)
+    destroyFarmModePanel()
+    local pW,pH = 204,148
+    FarmModePanel = Instance.new("Frame",SG)
+    FarmModePanel.Size     = UDim2.new(0,pW,0,pH)
+    FarmModePanel.Position = UDim2.new(0.5,-pW/2,0.5,-pH/2)
+    FarmModePanel.BackgroundColor3 = Color3.fromRGB(8,10,22)
+    FarmModePanel.BorderSizePixel  = 0
+    FarmModePanel.Active = true; FarmModePanel.Draggable = true
+    FarmModePanel.ZIndex = 30
+    Instance.new("UICorner",FarmModePanel).CornerRadius = UDim.new(0,10)
+    local fmStroke = Instance.new("UIStroke",FarmModePanel)
+    fmStroke.Color = Color3.fromRGB(0,170,255); fmStroke.Thickness = 1.5
+
+    -- Header
+    local fmBar = Instance.new("Frame",FarmModePanel)
+    fmBar.Size = UDim2.new(1,0,0,30); fmBar.BackgroundColor3 = Color3.fromRGB(0,100,180)
+    fmBar.BorderSizePixel = 0; fmBar.ZIndex = 31
+    Instance.new("UICorner",fmBar).CornerRadius = UDim.new(0,10)
+    local fmFix = Instance.new("Frame",fmBar)
+    fmFix.Size = UDim2.new(1,0,0,8); fmFix.Position = UDim2.new(0,0,1,-8)
+    fmFix.BackgroundColor3 = Color3.fromRGB(0,100,180); fmFix.BorderSizePixel = 0
+    local fmTitle = Instance.new("TextLabel",fmBar)
+    fmTitle.Size = UDim2.new(1,0,1,0); fmTitle.BackgroundTransparency = 1
+    fmTitle.Text = "🏠 Chọn Chế Độ Farm"; fmTitle.TextSize = 11
+    fmTitle.Font = Enum.Font.GothamBold; fmTitle.TextColor3 = Color3.new(1,1,1)
+    fmTitle.TextXAlignment = Enum.TextXAlignment.Center; fmTitle.ZIndex = 32
+
+    local noAskChecked = false
+    local function pickMode(mode)
+        farmMode = mode
+        if noAskChecked then farmNoAsk = true; saveFarmMode() end
+        destroyFarmModePanel()
+        if onChosen then onChosen() end
+    end
+
+    local btn1 = makeBtn(FarmModePanel,"📍 Farm Tại Chỗ Đang Đứng",
+        UDim2.new(1,-14,0,28), UDim2.new(0,7,0,34),
+        Color3.fromRGB(0,100,55), 9)
+    btn1.ZIndex = 32; btn1.TextXAlignment = Enum.TextXAlignment.Center
+    btn1.MouseButton1Click:Connect(function() playClick(); pickMode("spot") end)
+
+    local btn2 = makeBtn(FarmModePanel,"🌊 Farm Đảo Ở Gần",
+        UDim2.new(1,-14,0,28), UDim2.new(0,7,0,68),
+        Color3.fromRGB(0,55,140), 9)
+    btn2.ZIndex = 32; btn2.TextXAlignment = Enum.TextXAlignment.Center
+    btn2.MouseButton1Click:Connect(function() playClick(); pickMode("island") end)
+
+    local noAskBtn = makeBtn(FarmModePanel,"☐  Không hỏi lại",
+        UDim2.new(1,-14,0,22), UDim2.new(0,7,0,102),
+        Color3.fromRGB(28,12,48), 9)
+    noAskBtn.ZIndex = 32; noAskBtn.TextXAlignment = Enum.TextXAlignment.Left
+    noAskBtn.MouseButton1Click:Connect(function()
+        playClick(); noAskChecked = not noAskChecked
+        noAskBtn.Text = (noAskChecked and "☑" or "☐").."  Không hỏi lại"
+        noAskBtn.BackgroundColor3 = noAskChecked and Color3.fromRGB(55,0,100) or Color3.fromRGB(28,12,48)
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- [4] FILTER GUI – Chọn Độ Hiếm (đa chọn)
+-- ═══════════════════════════════════════════════════════
+local rarityOptions = {"Common","Uncommon","Rare","Epic","Legendary"}
+local rarityColors  = {
+    Common    = Color3.fromRGB(200,200,200),
+    Uncommon  = Color3.fromRGB(80,200,80),
+    Rare      = Color3.fromRGB(60,120,230),
+    Epic      = Color3.fromRGB(160,60,230),
+    Legendary = Color3.fromRGB(255,180,0),
+}
+local rarityBtnMap = {}
+
+local function destroyFilterPanel()
+    if FilterPanel then FilterPanel:Destroy(); FilterPanel = nil end
+    isFilterOpen = false
+end
+
+local function showFilterGUI()
+    destroyFilterPanel(); isFilterOpen = true
+    local pW     = 184
+    local pHdr   = 32
+    local pBtnH  = 26
+    local pGap   = 4
+    local pH = pHdr + 4 + (#rarityOptions*(pBtnH+pGap)) + (pBtnH+pGap) + 4
+
+    FilterPanel = Instance.new("Frame",SG)
+    FilterPanel.Size     = UDim2.new(0,pW,0,pH)
+    FilterPanel.Position = UDim2.new(0.5,-pW/2,0.5,-pH/2)
+    FilterPanel.BackgroundColor3 = Color3.fromRGB(8,10,22)
+    FilterPanel.BorderSizePixel  = 0
+    FilterPanel.Active = true; FilterPanel.Draggable = true; FilterPanel.ZIndex = 25
+    Instance.new("UICorner",FilterPanel).CornerRadius = UDim.new(0,10)
+    local flStroke = Instance.new("UIStroke",FilterPanel)
+    flStroke.Color = Color3.fromRGB(0,180,180); flStroke.Thickness = 1.5
+
+    -- Header
+    local flBar = Instance.new("Frame",FilterPanel)
+    flBar.Size = UDim2.new(1,0,0,pHdr); flBar.BackgroundColor3 = Color3.fromRGB(0,100,100)
+    flBar.BorderSizePixel = 0; flBar.ZIndex = 26
+    Instance.new("UICorner",flBar).CornerRadius = UDim.new(0,10)
+    local flFix = Instance.new("Frame",flBar)
+    flFix.Size = UDim2.new(1,0,0,10); flFix.Position = UDim2.new(0,0,1,-10)
+    flFix.BackgroundColor3 = Color3.fromRGB(0,100,100); flFix.BorderSizePixel = 0
+    local flTitle = Instance.new("TextLabel",flBar)
+    flTitle.Size = UDim2.new(1,-32,1,0); flTitle.Position = UDim2.new(0,8,0,0)
+    flTitle.BackgroundTransparency = 1; flTitle.Text = "🐟 Chọn Độ Hiếm Câu"
+    flTitle.TextSize = 11; flTitle.Font = Enum.Font.GothamBold
+    flTitle.TextColor3 = Color3.new(1,1,1); flTitle.ZIndex = 27
+    flTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    local flClose = makeBtn(flBar,"✕",UDim2.new(0,20,0,20),
+        UDim2.new(1,-24,0,6),Color3.fromRGB(200,40,40),9)
+    flClose.ZIndex = 27
+    flClose.MouseButton1Click:Connect(function()
+        playClick(); saveFilter(); destroyFilterPanel(); syncBtns()
+    end)
+
+    -- Rarity buttons
+    rarityBtnMap = {}
+    for i,rName in ipairs(rarityOptions) do
+        local selected = selectedRarities[rName] == true
+        local yOff = pHdr + 4 + (i-1)*(pBtnH+pGap)
+        local bgCol = selected and rarityColors[rName] or Color3.fromRGB(18,22,40)
+        local txCol = selected and Color3.fromRGB(10,10,10) or (rarityColors[rName] or Color3.new(1,1,1))
+        local rbtn  = makeBtn(FilterPanel,"● "..rName,
+            UDim2.new(1,-14,0,pBtnH), UDim2.new(0,7,0,yOff),
+            bgCol, 10)
+        rbtn.ZIndex = 26; rbtn.TextXAlignment = Enum.TextXAlignment.Center
+        rbtn.TextColor3 = txCol
+        local rbStroke = Instance.new("UIStroke",rbtn)
+        rbStroke.Color = rarityColors[rName] or Color3.fromRGB(180,180,180)
+        rbStroke.Thickness = 1.2; rbStroke.Transparency = selected and 0.8 or 0.2
+        rarityBtnMap[rName] = {btn=rbtn, stroke=rbStroke}
+
+        rbtn.MouseButton1Click:Connect(function()
+            playClick()
+            if selectedRarities[rName] then
+                selectedRarities[rName] = nil
+                rbtn.BackgroundColor3 = Color3.fromRGB(18,22,40)
+                rbtn.TextColor3 = rarityColors[rName] or Color3.new(1,1,1)
+                rbStroke.Transparency = 0.2
+            else
+                selectedRarities[rName] = true
+                rbtn.BackgroundColor3 = rarityColors[rName] or Color3.fromRGB(100,100,100)
+                rbtn.TextColor3 = Color3.fromRGB(10,10,10)
+                rbStroke.Transparency = 0.8
+            end
+            syncBtns()
+        end)
+    end
+
+    -- Nút Tắt Lọc
+    local clearY = pHdr + 4 + #rarityOptions*(pBtnH+pGap)
+    local clearBtn = makeBtn(FilterPanel,"🚫 Tắt Lọc (câu tất cả)",
+        UDim2.new(1,-14,0,pBtnH), UDim2.new(0,7,0,clearY),
+        Color3.fromRGB(85,15,15), 9)
+    clearBtn.ZIndex = 26; clearBtn.TextXAlignment = Enum.TextXAlignment.Center
+    clearBtn.MouseButton1Click:Connect(function()
+        playClick(); selectedRarities = {}
+        for _,rName in ipairs(rarityOptions) do
+            local entry = rarityBtnMap[rName]
+            if entry then
+                entry.btn.BackgroundColor3 = Color3.fromRGB(18,22,40)
+                entry.btn.TextColor3 = rarityColors[rName] or Color3.new(1,1,1)
+                entry.stroke.Transparency = 0.2
+            end
+        end
+        syncBtns()
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+--                     MAIN LOOP (Farm Thường)
+-- [2] Xoá đi bộ → TP thẳng
+-- [5] Dùng farmMode để quyết định TP hay đứng tại chỗ
 -- ═══════════════════════════════════════════════════════
 mainLoop = function()
     local sellCooldown = 0
 
-    -- Khi bắt đầu: nếu xa đảo gần nhất → đi bộ tốc độ game đến gần
-    -- Khi còn 8 studs → TP đến đảo rồi mới farm
-    if not lockedIsland then lockedIsland = nearestIsland() end
-    if lockedIsland then
-        local r = getRoot()
-        if r then
-            local dist = (r.Position - lockedIsland.pos).Magnitude
-            if dist > 8 then
-                setStatus("🚶 Đi bộ đến "..lockedIsland.name.."...",Color3.fromRGB(200,200,100))
-                local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    -- Bật noclip cho nhân vật
-                    local function setNoclip(state)
-                        local char = player.Character; if not char then return end
-                        for _, part in ipairs(char:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = not state
-                            end
-                        end
-                    end
-                    setNoclip(true)
-                    hum:MoveTo(lockedIsland.pos)
-                    while isRunning do
-                        task.wait(0.1)
-                        local root = getRoot(); if not root then break end
-                        if (root.Position - lockedIsland.pos).Magnitude <= 8 then break end
-                        hum:MoveTo(lockedIsland.pos)
-                    end
-                    setNoclip(false)
-                end
-                if not isRunning then
-                    clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
-                    return
-                end
-                setStatus("🚀 TP đến "..lockedIsland.name.."...",Color3.fromRGB(100,200,255))
-                teleportTo(lockedIsland.pos)
-                task.wait(0.4)
-            end
+    -- [2] Không đi bộ nữa – TP thẳng đến đảo nếu chọn "island"
+    if farmMode == "island" then
+        if not lockedIsland then lockedIsland = nearestIsland() end
+        if lockedIsland then
+            setStatus("🚀 TP → "..lockedIsland.name,Color3.fromRGB(100,200,255))
+            teleportTo(lockedIsland.pos); task.wait(0.4)
         end
     end
+    -- farmMode == "spot": câu ngay tại chỗ, không TP
 
     while isRunning do
         setActive(2); setStatus("🔍 Đang quét...",Color3.fromRGB(150,200,255))
         task.wait(0.05)
         local full = isScreenFull()
         local now  = tick()
-        if full and (now - sellCooldown) > 8 then
+        if full and (now-sellCooldown) > 8 then
             isSelling = true
-            if not lockedIsland then lockedIsland = nearestIsland() end
             local savedIsland = lockedIsland
             setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
-            if npcPos then
-                -- TP đến NPC + giữ đứng yên 2 giây để bán
-                teleportToLocked(npcPos + Vector3.new(0,3,0), 0.3)
-            end
+            if npcPos then teleportToLocked(npcPos+Vector3.new(0,3,0),0.3) end
             func3_SellUI()
-            -- Đứng tại chỗ 2s (Heartbeat giữ không bị kéo về)
             setStatus("💰 Đang bán...",Color3.fromRGB(255,220,0))
-            if npcPos then
-                teleportToLocked(npcPos + Vector3.new(0,3,0), 2)
-            else
-                task.wait(2)
-            end
-            if savedIsland then
+            if npcPos then teleportToLocked(npcPos+Vector3.new(0,3,0),2) else task.wait(2) end
+            if farmMode == "island" and savedIsland then
                 setStatus("🔁 Về "..savedIsland.name.." câu tiếp...",Color3.fromRGB(100,255,150))
                 teleportTo(savedIsland.pos); task.wait(0.5)
             end
             isSelling = false; sellCooldown = tick()
         else
-            func4_TPIsland()
+            if farmMode == "island" then func4_TPIsland() end
             if isRunning and not isSelling then func5_Spam() end
+        end
+        task.wait(0.08)
+    end
+    clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+end
+
+-- ═══════════════════════════════════════════════════════
+-- [1] MAIN LOOP SK (Auto Farm SK)
+-- Câu tại đảo SK, bán qua Master Kung Fu
+-- ═══════════════════════════════════════════════════════
+mainLoopSK = function()
+    local sellCooldown = 0
+    -- TP thẳng đến đảo SK
+    setStatus("🚀 TP đến Đảo SK...",Color3.fromRGB(255,140,0))
+    teleportTo(skPos); task.wait(0.4)
+
+    while isRunningSK do
+        setActive(2); setStatus("🔍 SK: Đang quét...",Color3.fromRGB(200,170,100))
+        task.wait(0.05)
+        local full = isScreenFull()
+        local now  = tick()
+        if full and (now-sellCooldown) > 8 then
+            isSellingFK = true
+            setStatus("🐟 Full SK! Bán...",Color3.fromRGB(255,220,0))
+            func3_SellSK()
+            isSellingFK = false; sellCooldown = tick()
+        else
+            -- giữ vị trí đảo SK
+            local r = getRoot()
+            if r and (r.Position - skPos).Magnitude > 10 then
+                setStatus("🔁 SK: TP về đảo...",Color3.fromRGB(255,180,0))
+                teleportTo(skPos); task.wait(0.25)
+            else
+                setStatus("📍 SK: Đang câu...",Color3.fromRGB(255,200,100))
+            end
+            if isRunningSK and not isSellingFK then func5_Spam() end
         end
         task.wait(0.08)
     end
@@ -620,20 +883,51 @@ end
 -- ═══════════════════════════════════════════════════════
 --                  BUTTON LOGIC
 -- ═══════════════════════════════════════════════════════
-local function toggleFarm()
-    playClick()
-    isRunning = not isRunning
-    if isRunning then
-        setStatus("▶ Đang chạy...",Color3.fromRGB(100,255,150))
-        setActive(1); func1_Once(); task.wait(0.1); task.spawn(mainLoop)
-    else
-        isRunning=false; isSelling=false; lockedIsland=nil
-        clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
-    end
-    syncBtns(); saveState()
+local function startFarm()
+    isRunning = true; syncBtns(); saveState()
+    setStatus("▶ Đang chạy...",Color3.fromRGB(100,255,150))
+    func1_Once(); task.wait(0.1); task.spawn(mainLoop)
 end
 
--- [2] Tele thủ công
+local function toggleFarm()
+    playClick()
+    if isRunning then
+        isRunning=false; isSelling=false; lockedIsland=nil
+        clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+        syncBtns(); saveState(); return
+    end
+    -- Dừng SK nếu đang chạy
+    if isRunningSK then
+        isRunningSK=false; isSellingFK=false; task.wait(0.15)
+    end
+    -- [5] Kiểm tra farmMode
+    local saved = loadFarmModeFile()
+    if saved and saved.noAsk and saved.mode then
+        farmMode = saved.mode; farmNoAsk = true
+        startFarm()
+    elseif farmMode ~= nil then
+        startFarm()
+    else
+        showFarmModeGUI(function() startFarm() end)
+    end
+end
+
+local function toggleSK()
+    playClick()
+    if isRunningSK then
+        isRunningSK=false; isSellingFK=false
+        clearActive(); setStatus("⏸ Đã dừng",Color3.fromRGB(130,190,255))
+        syncBtns(); saveState(); return
+    end
+    -- Dừng farm thường nếu đang chạy
+    if isRunning then
+        isRunning=false; isSelling=false; lockedIsland=nil; task.wait(0.15)
+    end
+    isRunningSK=true; syncBtns(); saveState()
+    setStatus("▶ FARM SK...",Color3.fromRGB(255,140,0))
+    func1_Once(); task.wait(0.1); task.spawn(mainLoopSK)
+end
+
 local function doTele()
     playClick()
     isTeleOpen = not isTeleOpen
@@ -643,12 +937,11 @@ local function doTele()
         local panelH = #islands * 30 + 42
         TelePanel = Instance.new("Frame", SG)
         TelePanel.Name = "TeleIslandPanel"
-        TelePanel.Size = UDim2.new(0, panelW, 0, panelH)
-        TelePanel.Position = UDim2.new(0.5, -panelW/2, 0.5, -panelH/2)
+        TelePanel.Size = UDim2.new(0,panelW,0,panelH)
+        TelePanel.Position = UDim2.new(0.5,-panelW/2,0.5,-panelH/2)
         TelePanel.BackgroundColor3 = Color3.fromRGB(8,10,22)
         TelePanel.BorderSizePixel = 0
-        TelePanel.Active = true; TelePanel.Draggable = true
-        TelePanel.ZIndex = 20
+        TelePanel.Active = true; TelePanel.Draggable = true; TelePanel.ZIndex = 20
         Instance.new("UICorner",TelePanel).CornerRadius = UDim.new(0,10)
         local tpStroke = Instance.new("UIStroke",TelePanel)
         tpStroke.Color = Color3.fromRGB(100,0,200); tpStroke.Thickness = 1.5
@@ -674,19 +967,16 @@ local function doTele()
             playClick(); isTeleOpen = false
             TelePanel:Destroy(); TelePanel = nil
             TeleBtn.Text="🗺 TELE"; TeleBtn.BackgroundColor3=Color3.fromRGB(100,0,200)
-            MiniTele.Text="🗺 TELE"; MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
+            MiniTele.Text="🗺";     MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
         end)
 
-        for i, isle in ipairs(islands) do
-            local btn = makeBtn(TelePanel, "📍 "..isle.name,
+        for i,isle in ipairs(islands) do
+            local btn = makeBtn(TelePanel,"📍 "..isle.name,
                 UDim2.new(1,-14,0,24), UDim2.new(0,7,0,34+(i-1)*30),
                 Color3.fromRGB(22,8,48), 10)
-            btn.ZIndex = 22
-            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.ZIndex = 22; btn.TextXAlignment = Enum.TextXAlignment.Left
             btn.MouseButton1Click:Connect(function()
-                playClick()
-                -- [2] dùng manualTeleport chống kéo về
-                lockedIsland = isle
+                playClick(); lockedIsland = isle
                 manualTeleport(isle.pos)
                 setStatus("🗺 TP → "..isle.name,Color3.fromRGB(200,130,255))
             end)
@@ -699,40 +989,50 @@ local function doTele()
         end
 
         TeleBtn.Text="🗺 OFF"; TeleBtn.BackgroundColor3=Color3.fromRGB(190,35,35)
-        MiniTele.Text="🗺 OFF"; MiniTele.BackgroundColor3=Color3.fromRGB(190,35,35)
+        MiniTele.Text="OFF";   MiniTele.BackgroundColor3=Color3.fromRGB(190,35,35)
     else
-        if TelePanel then TelePanel:Destroy(); TelePanel = nil end
+        if TelePanel then TelePanel:Destroy(); TelePanel=nil end
         TeleBtn.Text="🗺 TELE"; TeleBtn.BackgroundColor3=Color3.fromRGB(100,0,200)
-        MiniTele.Text="🗺 TELE"; MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
+        MiniTele.Text="🗺";     MiniTele.BackgroundColor3=Color3.fromRGB(100,0,200)
     end
 end
 
 local function toggleFilter()
     playClick()
-    isFilterLeg = not isFilterLeg
-    if isFilterLeg then
-        setActive(6)
-        setStatus("🐟 Lọc ON: chỉ ZXCV khi Legendary",Color3.fromRGB(0,220,180))
+    if isFilterOpen then
+        saveFilter(); destroyFilterPanel(); syncBtns()
     else
-        clearActive()
-        setStatus("🐟 Lọc cá: OFF",Color3.fromRGB(130,190,255))
+        showFilterGUI()
     end
-    syncBtns()
 end
 
 -- Kết nối nút
 ToggleBtn.MouseButton1Click:Connect(toggleFarm)
+SKBtn.MouseButton1Click:Connect(toggleSK)
 TeleBtn.MouseButton1Click:Connect(doTele)
 FilterBtn.MouseButton1Click:Connect(toggleFilter)
 MiniToggle.MouseButton1Click:Connect(toggleFarm)
+MiniSK.MouseButton1Click:Connect(toggleSK)
 MiniTele.MouseButton1Click:Connect(doTele)
 MiniFilter.MouseButton1Click:Connect(toggleFilter)
+
+-- [5] Reset Farm Button
+ResetFarmBtn.MouseButton1Click:Connect(function()
+    playClick()
+    farmMode = nil; farmNoAsk = false
+    pcall(function() writefile(FARMMODE_FILE, HttpService:JSONEncode({mode=nil,noAsk=false})) end)
+    showFarmModeGUI(function()
+        if isRunning then
+            isRunning=false; isSelling=false; task.wait(0.1)
+            startFarm()
+        end
+    end)
+end)
 
 -- Minimize
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
-    playClick()
-    isMinimized = not isMinimized
+    playClick(); isMinimized = not isMinimized
     if isMinimized then
         CF.Visible=false; MinBar.Visible=true
         MF.Size=UDim2.new(0,W,0,78); MinBtn.Text="+"; syncBtns()
@@ -744,34 +1044,36 @@ end)
 
 CloseBtn.MouseButton1Click:Connect(function()
     playClick()
-    isRunning=false; isSelling=false
-    if TelePanel then TelePanel:Destroy() end
+    isRunning=false; isRunningSK=false; isSelling=false; isSellingFK=false
+    if TelePanel    then TelePanel:Destroy() end
+    if FilterPanel  then FilterPanel:Destroy() end
+    if FarmModePanel then FarmModePanel:Destroy() end
     SG:Destroy()
 end)
 
--- Hover
+-- Hover effects
 local function addHover(btn,on,off)
     btn.MouseEnter:Connect(function() TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=on}):Play() end)
     btn.MouseLeave:Connect(function() TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3=off}):Play() end)
 end
 addHover(ToggleBtn,  Color3.fromRGB(0,210,90),   Color3.fromRGB(0,170,75))
-addHover(TeleBtn,    Color3.fromRGB(140,30,240),  Color3.fromRGB(100,0,200))
-addHover(FilterBtn,  Color3.fromRGB(0,180,180),   Color3.fromRGB(0,130,130))
-addHover(MiniToggle, Color3.fromRGB(0,210,90),    Color3.fromRGB(0,170,75))
-addHover(MiniTele,   Color3.fromRGB(140,30,240),  Color3.fromRGB(100,0,200))
-addHover(MiniFilter, Color3.fromRGB(0,180,180),   Color3.fromRGB(0,130,130))
+addHover(SKBtn,      Color3.fromRGB(200,110,0),  Color3.fromRGB(160,85,0))
+addHover(TeleBtn,    Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
+addHover(FilterBtn,  Color3.fromRGB(0,180,180),  Color3.fromRGB(0,130,130))
+addHover(MiniToggle, Color3.fromRGB(0,210,90),   Color3.fromRGB(0,170,75))
+addHover(MiniSK,     Color3.fromRGB(200,110,0),  Color3.fromRGB(160,85,0))
+addHover(MiniTele,   Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
+addHover(MiniFilter, Color3.fromRGB(0,180,180),  Color3.fromRGB(0,130,130))
 
-print("[TitanFishing Hub v6] Loaded | BY BRYDZVL")
+print("[TitanFishing Hub v7] Loaded | BY BRYDZVL")
 
 -- ═══════════════════════════════════════════════════════
--- BOSS SPAWN SCAN – cập nhật trạng thái label mỗi 1s
+-- BOSS SPAWN SCAN – cập nhật mỗi 1s
 -- ═══════════════════════════════════════════════════════
 local bossIslandNames = {
-    {zone="Island 1", label="Đảo 1"},
-    {zone="Island 2", label="Đảo 2"},
-    {zone="Island 3", label="Đảo 3"},
-    {zone="Island 4", label="Đảo 4"},
-    {zone="Island 5", label="Đảo 5"},
+    {zone="Island 1",label="Đảo 1"},{zone="Island 2",label="Đảo 2"},
+    {zone="Island 3",label="Đảo 3"},{zone="Island 4",label="Đảo 4"},
+    {zone="Island 5",label="Đảo 5"},
 }
 local lastBossFound = false
 task.spawn(function()
@@ -780,38 +1082,35 @@ task.spawn(function()
         local found = nil
         local bz = workspace:FindFirstChild("BossZones")
         if bz then
-            for _, entry in ipairs(bossIslandNames) do
+            for _,entry in ipairs(bossIslandNames) do
                 local isle = bz:FindFirstChild(entry.zone)
                 if isle then
                     local zone = isle:FindFirstChild("BossSpawnZone")
-                    if zone then found = entry.label; break end
+                    if zone then found=entry.label; break end
                 end
             end
         end
         if found then
-            -- Thông báo lần đầu khi boss vừa xuất hiện
             if not lastBossFound then
                 pcall(function()
-                    StarterGui:SetCore("SendNotification", {
-                        Title = "👹 Boss Spawn!",
-                        Text = "Boss Đang Spawn " .. found .. "!",
-                        Duration = 4,
+                    StarterGui:SetCore("SendNotification",{
+                        Title="👹 Boss Spawn!",
+                        Text="Boss Đang Spawn "..found.."!",
+                        Duration=4,
                     })
                 end)
                 lastBossFound = true
             end
-            BossIconLbl.Text = "👹"
-            BossStatusLbl.Text = "✅\n" .. found
-            BossStatusLbl.TextColor3 = Color3.fromRGB(255,80,80)
-            BossIndicator.BackgroundColor3 = Color3.fromRGB(40,10,10)
-            biStroke.Color = Color3.fromRGB(255,60,60)
+            BossIconLbl.Text="👹"; BossStatusLbl.Text="✅\n"..found
+            BossStatusLbl.TextColor3=Color3.fromRGB(255,80,80)
+            BossIndicator.BackgroundColor3=Color3.fromRGB(40,10,10)
+            biStroke.Color=Color3.fromRGB(255,60,60)
         else
             lastBossFound = false
-            BossIconLbl.Text = "👹"
-            BossStatusLbl.Text = "❌\nKhông\nCó Boss"
-            BossStatusLbl.TextColor3 = Color3.fromRGB(160,160,160)
-            BossIndicator.BackgroundColor3 = Color3.fromRGB(18,22,40)
-            biStroke.Color = Color3.fromRGB(80,80,110)
+            BossIconLbl.Text="👹"; BossStatusLbl.Text="❌\nKhông\nCó Boss"
+            BossStatusLbl.TextColor3=Color3.fromRGB(160,160,160)
+            BossIndicator.BackgroundColor3=Color3.fromRGB(18,22,40)
+            biStroke.Color=Color3.fromRGB(80,80,110)
         end
     end
 end)
@@ -822,343 +1121,317 @@ end)
 task.spawn(function()
     task.wait(3)
     local state = loadState()
-    if not state or not state.farm then
+    if not state or (not state.farm and not state.farmSK) then
         MF.Visible = true; return
     end
     setStatus("⏳ Chờ server ổn định...",Color3.fromRGB(200,200,100))
     task.wait(5)
     local r = getRoot()
     if r then
-        VirtualInputManager:SendMouseButtonEvent(287,305,0,true,game,1); task.wait(0.05)
+        VirtualInputManager:SendMouseButtonEvent(287,305,0,true,game,1);  task.wait(0.05)
         VirtualInputManager:SendMouseButtonEvent(287,305,0,false,game,1); task.wait(0.3)
     end
     MF.Visible = false
-    if state.farm then task.wait(0.5)
-        isRunning = true; syncBtns()
+    if state.farmSK then
+        task.wait(0.5); isRunningSK=true; syncBtns()
+        setStatus("▶ Tự bật Farm SK...",Color3.fromRGB(255,140,0))
+        func1_Once(); task.spawn(mainLoopSK); saveState()
+    elseif state.farm then
+        -- Load lại farmMode đã lưu
+        local fm = loadFarmModeFile()
+        if fm and fm.mode then farmMode=fm.mode; farmNoAsk=fm.noAsk or false end
+        task.wait(0.5); isRunning=true; syncBtns()
         setStatus("▶ Tự bật Farm...",Color3.fromRGB(100,255,150))
         func1_Once(); task.spawn(mainLoop); saveState()
     end
 end)
 
 -- ═══════════════════════════════════════════════════════
--- Safety: xoá Part cũ → tạo kính cao 7 studs
+-- Safety: xoá Part cũ → tạo kính cao 9 studs
 -- ═══════════════════════════════════════════════════════
 task.spawn(function()
     while true do
         local safety = workspace:FindFirstChild("Safety")
         if safety and safety:FindFirstChild("Part") then
             local oldPart = safety.Part
-            local size = oldPart.Size
-            local cf   = oldPart.CFrame
+            local size = oldPart.Size; local cf = oldPart.CFrame
             oldPart:Destroy()
             local glass = Instance.new("Part")
-            glass.Name = "GlassPart"
-            glass.Size = Vector3.new(size.X, 9, size.Z)
-            glass.CFrame = cf * CFrame.new(0, (9 - size.Y) * 0.5, 0)
-            glass.Anchored = true
-            glass.Material = Enum.Material.Glass
-            glass.Transparency = 0.3
-            glass.CanCollide = true
-            glass.Parent = workspace
+            glass.Name="GlassPart"; glass.Size=Vector3.new(size.X,9,size.Z)
+            glass.CFrame=cf*CFrame.new(0,(9-size.Y)*0.5,0)
+            glass.Anchored=true; glass.Material=Enum.Material.Glass
+            glass.Transparency=0.3; glass.CanCollide=true; glass.Parent=workspace
         end
         task.wait(0.1)
     end
 end)
 
 -- ═══════════════════════════════════════════════════════
--- ██ HACKER LOADING SCREEN v6 ██
--- [5] 0/1 siêu nhiều – khi game 100% delay 1.5s rồi tắt
+-- ██ HACKER LOADING SCREEN v7 ██
+-- [3] ProximityPrompt bật trong loading; 0/1 rain; delay 1.5s
 -- ═══════════════════════════════════════════════════════
 do
     local _TS = game:GetService("TweenService")
-
     local LoadSG = Instance.new("ScreenGui")
-    LoadSG.Name = "TitanLoadScreen"; LoadSG.ResetOnSpawn = false
-    LoadSG.DisplayOrder = 999
-    LoadSG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    LoadSG.Parent = game.CoreGui
+    LoadSG.Name="TitanLoadScreen"; LoadSG.ResetOnSpawn=false
+    LoadSG.DisplayOrder=999; LoadSG.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+    LoadSG.Parent=game.CoreGui
 
-    -- Full BG
-    local LBG = Instance.new("Frame", LoadSG)
-    LBG.Size = UDim2.new(1,0,1,0); LBG.BackgroundColor3 = Color3.fromRGB(2,4,12)
-    LBG.BorderSizePixel = 0; LBG.ZIndex = 1
-    local bgGrad = Instance.new("UIGradient", LBG)
-    bgGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0,   Color3.fromRGB(0,8,22)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(2,4,12)),
-        ColorSequenceKeypoint.new(1,   Color3.fromRGB(0,6,18)),
-    }); bgGrad.Rotation = 135
+    local LBG = Instance.new("Frame",LoadSG)
+    LBG.Size=UDim2.new(1,0,1,0); LBG.BackgroundColor3=Color3.fromRGB(2,4,12)
+    LBG.BorderSizePixel=0; LBG.ZIndex=1
+    local bgGrad = Instance.new("UIGradient",LBG)
+    bgGrad.Color=ColorSequence.new({
+        ColorSequenceKeypoint.new(0,  Color3.fromRGB(0,8,22)),
+        ColorSequenceKeypoint.new(0.5,Color3.fromRGB(2,4,12)),
+        ColorSequenceKeypoint.new(1,  Color3.fromRGB(0,6,18)),
+    }); bgGrad.Rotation=135
 
-    -- [5] Matrix rain: ~70% ký tự là "0" và "1",
-    --     số lượng cột tăng từ 28 → 48 để rơi khắp màn hình
-    local MCHARS = {}
-    -- nhồi 0 và 1 rất nhiều
-    for _ = 1, 40 do table.insert(MCHARS, "0") end
-    for _ = 1, 40 do table.insert(MCHARS, "1") end
-    -- xen kẽ thêm 0 1 ngẫu nhiên
-    for _ = 1, 20 do table.insert(MCHARS, math.random(0,1)==0 and "0" or "1") end
-    -- ký tự phụ (ít hơn nhiều)
-    for _, c in ipairs({"█","▓","░","$","#","!","@","&","ア","イ","ウ","エ","オ","カ","コ","テ"}) do
-        table.insert(MCHARS, c)
+    local MCHARS={}
+    for _=1,40 do table.insert(MCHARS,"0") end
+    for _=1,40 do table.insert(MCHARS,"1") end
+    for _=1,20 do table.insert(MCHARS,math.random(0,1)==0 and "0" or "1") end
+    for _,c in ipairs({"█","▓","░","$","#","!","@","&","ア","イ","ウ","エ","オ","カ","コ","テ"}) do
+        table.insert(MCHARS,c)
     end
 
-    for col = 1, 48 do
+    for col=1,48 do
         task.spawn(function()
-            task.wait(math.random() * 2.5)
-            local xFrac = (col - 1) / 48
-            local spd   = 1.5 + math.random() * 2.5
+            task.wait(math.random()*2.5)
+            local xFrac=(col-1)/48
+            local spd=1.5+math.random()*2.5
             while LoadSG and LoadSG.Parent do
-                local ch = Instance.new("TextLabel", LBG)
-                ch.Size = UDim2.new(0,14,0,14)
-                ch.Position = UDim2.new(xFrac + math.random(-2,2)*0.001, 0, -0.04, 0)
-                ch.BackgroundTransparency = 1
-                local picked = MCHARS[math.random(1,#MCHARS)]
-                ch.Text = picked
-                -- 0 và 1 sáng trắng xanh nổi bật
-                if picked == "0" or picked == "1" then
-                    local g = math.random(210,255)
-                    ch.TextColor3 = Color3.fromRGB(g, 255, g)
-                    ch.TextSize   = math.random(12,15)
+                local ch=Instance.new("TextLabel",LBG)
+                ch.Size=UDim2.new(0,14,0,14)
+                ch.Position=UDim2.new(xFrac+math.random(-2,2)*0.001,0,-0.04,0)
+                ch.BackgroundTransparency=1
+                local picked=MCHARS[math.random(1,#MCHARS)]
+                ch.Text=picked
+                if picked=="0" or picked=="1" then
+                    local g=math.random(210,255)
+                    ch.TextColor3=Color3.fromRGB(g,255,g); ch.TextSize=math.random(12,15)
                 else
-                    ch.TextColor3 = Color3.fromRGB(0, math.random(120,200), 60)
-                    ch.TextSize   = 13
+                    ch.TextColor3=Color3.fromRGB(0,math.random(120,200),60); ch.TextSize=13
                 end
-                ch.Font = Enum.Font.Code; ch.ZIndex = 2
-                local tw = _TS:Create(ch, TweenInfo.new(spd, Enum.EasingStyle.Linear), {
-                    Position = UDim2.new(xFrac + math.random(-2,2)*0.001, 0, 1.04, 0),
-                    TextTransparency = 0.85,
+                ch.Font=Enum.Font.Code; ch.ZIndex=2
+                local tw=_TS:Create(ch,TweenInfo.new(spd,Enum.EasingStyle.Linear),{
+                    Position=UDim2.new(xFrac+math.random(-2,2)*0.001,0,1.04,0),
+                    TextTransparency=0.85,
                 })
-                tw:Play(); task.wait(spd + 0.04); ch:Destroy()
-                task.wait(math.random() * 0.3)
+                tw:Play(); task.wait(spd+0.04); ch:Destroy()
+                task.wait(math.random()*0.3)
             end
         end)
     end
 
-    -- Scan line
-    local scanLn = Instance.new("Frame", LBG)
-    scanLn.Size = UDim2.new(1,0,0,2); scanLn.Position = UDim2.new(0,0,-0.01,0)
-    scanLn.BackgroundColor3 = Color3.fromRGB(0,255,110)
-    scanLn.BackgroundTransparency = 0.72; scanLn.BorderSizePixel = 0; scanLn.ZIndex = 7
+    local scanLn=Instance.new("Frame",LBG)
+    scanLn.Size=UDim2.new(1,0,0,2); scanLn.Position=UDim2.new(0,0,-0.01,0)
+    scanLn.BackgroundColor3=Color3.fromRGB(0,255,110)
+    scanLn.BackgroundTransparency=0.72; scanLn.BorderSizePixel=0; scanLn.ZIndex=7
     task.spawn(function()
         while LoadSG and LoadSG.Parent do
-            local t = _TS:Create(scanLn, TweenInfo.new(3.2, Enum.EasingStyle.Linear),
-                {Position = UDim2.new(0,0,1.01,0)})
-            t:Play(); t.Completed:Wait()
-            scanLn.Position = UDim2.new(0,0,-0.01,0)
+            local t=_TS:Create(scanLn,TweenInfo.new(3.2,Enum.EasingStyle.Linear),
+                {Position=UDim2.new(0,0,1.01,0)})
+            t:Play(); t.Completed:Wait(); scanLn.Position=UDim2.new(0,0,-0.01,0)
         end
     end)
 
-    -- Center Panel
-    local LPanel = Instance.new("Frame", LBG)
-    LPanel.Size = UDim2.new(0,310,0,410)
-    LPanel.Position = UDim2.new(0.5,-155,0.5,-205)
-    LPanel.BackgroundColor3 = Color3.fromRGB(3,8,22)
-    LPanel.BackgroundTransparency = 0.25
-    LPanel.BorderSizePixel = 0; LPanel.ZIndex = 9
-    Instance.new("UICorner",LPanel).CornerRadius = UDim.new(0,14)
-    local pStroke = Instance.new("UIStroke", LPanel)
-    pStroke.Color = Color3.fromRGB(0,230,110); pStroke.Thickness = 1.5; pStroke.Transparency = 0.1
-    _TS:Create(pStroke, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut,-1,true),
+    local LPanel=Instance.new("Frame",LBG)
+    LPanel.Size=UDim2.new(0,310,0,410); LPanel.Position=UDim2.new(0.5,-155,0.5,-205)
+    LPanel.BackgroundColor3=Color3.fromRGB(3,8,22); LPanel.BackgroundTransparency=0.25
+    LPanel.BorderSizePixel=0; LPanel.ZIndex=9
+    Instance.new("UICorner",LPanel).CornerRadius=UDim.new(0,14)
+    local pStroke=Instance.new("UIStroke",LPanel)
+    pStroke.Color=Color3.fromRGB(0,230,110); pStroke.Thickness=1.5; pStroke.Transparency=0.1
+    _TS:Create(pStroke,TweenInfo.new(1.4,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),
         {Transparency=0.75}):Play()
 
-    local function mkBracket(px, py)
-        local f = Instance.new("Frame", LPanel)
-        f.Size = UDim2.new(0,18,0,18)
-        f.Position = UDim2.new(px, px==0 and 7 or -25, py, py==0 and 7 or -25)
-        f.BackgroundTransparency = 1; f.BorderSizePixel = 0; f.ZIndex = 11
-        local h = Instance.new("Frame",f)
-        h.Size = UDim2.new(1,0,0,2); h.BackgroundColor3 = Color3.fromRGB(0,255,120)
-        h.BorderSizePixel = 0; h.ZIndex = 11
-        local v = Instance.new("Frame",f)
-        v.Size = UDim2.new(0,2,1,0)
-        v.Position = UDim2.new(px==0 and 0 or 1, px==0 and 0 or -2, 0, 0)
-        v.BackgroundColor3 = Color3.fromRGB(0,255,120); v.BorderSizePixel = 0; v.ZIndex = 11
+    local function mkBracket(px,py)
+        local f=Instance.new("Frame",LPanel)
+        f.Size=UDim2.new(0,18,0,18)
+        f.Position=UDim2.new(px,px==0 and 7 or -25,py,py==0 and 7 or -25)
+        f.BackgroundTransparency=1; f.BorderSizePixel=0; f.ZIndex=11
+        local h=Instance.new("Frame",f)
+        h.Size=UDim2.new(1,0,0,2); h.BackgroundColor3=Color3.fromRGB(0,255,120)
+        h.BorderSizePixel=0; h.ZIndex=11
+        local v=Instance.new("Frame",f)
+        v.Size=UDim2.new(0,2,1,0)
+        v.Position=UDim2.new(px==0 and 0 or 1,px==0 and 0 or -2,0,0)
+        v.BackgroundColor3=Color3.fromRGB(0,255,120); v.BorderSizePixel=0; v.ZIndex=11
     end
     mkBracket(0,0); mkBracket(1,0); mkBracket(0,1); mkBracket(1,1)
 
     local function lbl(parent,txt,y,sz,col,xa,bold)
-        local l = Instance.new("TextLabel", parent)
-        l.Size = UDim2.new(1,-16,0,sz+4); l.Position = UDim2.new(0,8,0,y)
-        l.BackgroundTransparency = 1; l.Text = txt; l.TextSize = sz
-        l.Font = bold and Enum.Font.GothamBold or Enum.Font.Code
-        l.TextColor3 = col or Color3.fromRGB(0,255,120)
-        l.TextXAlignment = xa or Enum.TextXAlignment.Center; l.ZIndex = 11
+        local l=Instance.new("TextLabel",parent)
+        l.Size=UDim2.new(1,-16,0,sz+4); l.Position=UDim2.new(0,8,0,y)
+        l.BackgroundTransparency=1; l.Text=txt; l.TextSize=sz
+        l.Font=bold and Enum.Font.GothamBold or Enum.Font.Code
+        l.TextColor3=col or Color3.fromRGB(0,255,120)
+        l.TextXAlignment=xa or Enum.TextXAlignment.Center; l.ZIndex=11
         return l
     end
     local function div(parent,y)
-        local f = Instance.new("Frame", parent)
-        f.Size = UDim2.new(0.88,0,0,1); f.Position = UDim2.new(0.06,0,0,y)
-        f.BackgroundColor3 = Color3.fromRGB(0,200,100)
-        f.BackgroundTransparency = 0.55; f.BorderSizePixel = 0; f.ZIndex = 10
+        local f=Instance.new("Frame",parent)
+        f.Size=UDim2.new(0.88,0,0,1); f.Position=UDim2.new(0.06,0,0,y)
+        f.BackgroundColor3=Color3.fromRGB(0,200,100)
+        f.BackgroundTransparency=0.55; f.BorderSizePixel=0; f.ZIndex=10
     end
 
     lbl(LPanel,"[ TITAN FISHING SYSTEM ]",10,13,Color3.fromRGB(0,255,120))
     lbl(LPanel,"// BRYDZVL ACCESS TERMINAL //",28,9,Color3.fromRGB(0,150,75))
     div(LPanel,46)
 
-    local glowRing = Instance.new("ImageLabel", LPanel)
-    glowRing.Size = UDim2.new(0,148,0,148); glowRing.Position = UDim2.new(0.5,-74,0,52)
-    glowRing.BackgroundTransparency = 1; glowRing.Image = "rbxassetid://5028857084"
-    glowRing.ImageColor3 = Color3.fromRGB(0,200,100); glowRing.ImageTransparency = 0.45; glowRing.ZIndex = 10
-    _TS:Create(glowRing, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut,-1,true), {
-        ImageTransparency=0.82, Size=UDim2.new(0,158,0,158), Position=UDim2.new(0.5,-79,0,47)
+    local glowRing=Instance.new("ImageLabel",LPanel)
+    glowRing.Size=UDim2.new(0,148,0,148); glowRing.Position=UDim2.new(0.5,-74,0,52)
+    glowRing.BackgroundTransparency=1; glowRing.Image="rbxassetid://5028857084"
+    glowRing.ImageColor3=Color3.fromRGB(0,200,100); glowRing.ImageTransparency=0.45; glowRing.ZIndex=10
+    _TS:Create(glowRing,TweenInfo.new(2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),{
+        ImageTransparency=0.82,Size=UDim2.new(0,158,0,158),Position=UDim2.new(0.5,-79,0,47)
     }):Play()
 
-    local AvBig = Instance.new("ImageLabel", LPanel)
-    AvBig.Size = UDim2.new(0,128,0,128); AvBig.Position = UDim2.new(0.5,-64,0,57)
-    AvBig.BackgroundColor3 = Color3.fromRGB(0,12,30); AvBig.BorderSizePixel = 0
-    AvBig.Image = "rbxassetid://93792227174261"; AvBig.ScaleType = Enum.ScaleType.Fit; AvBig.ZIndex = 12
-    Instance.new("UICorner",AvBig).CornerRadius = UDim.new(0,14)
-    local avStr = Instance.new("UIStroke", AvBig)
-    avStr.Color = Color3.fromRGB(0,255,120); avStr.Thickness = 2.2
-    _TS:Create(avStr, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut,-1,true),
+    local AvBig=Instance.new("ImageLabel",LPanel)
+    AvBig.Size=UDim2.new(0,128,0,128); AvBig.Position=UDim2.new(0.5,-64,0,57)
+    AvBig.BackgroundColor3=Color3.fromRGB(0,12,30); AvBig.BorderSizePixel=0
+    AvBig.Image="rbxassetid://93792227174261"; AvBig.ScaleType=Enum.ScaleType.Fit; AvBig.ZIndex=12
+    Instance.new("UICorner",AvBig).CornerRadius=UDim.new(0,14)
+    local avStr=Instance.new("UIStroke",AvBig)
+    avStr.Color=Color3.fromRGB(0,255,120); avStr.Thickness=2.2
+    _TS:Create(avStr,TweenInfo.new(1.2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),
         {Transparency=0.65}):Play()
 
     div(LPanel,196)
 
-    local hackStatus = lbl(LPanel,"> INITIALIZING...",202,11,Color3.fromRGB(0,255,120))
-    local hackMsgs = {
+    local hackStatus=lbl(LPanel,"> INITIALIZING...",202,11,Color3.fromRGB(0,255,120))
+    local hackMsgs={
         "> BYPASSING ANTI-CHEAT...",    "> SCANNING MEMORY...",
-        "> PATCHING PROXIMITYPROMPT...", "> LOADING ISLAND DATA...",
-        "> CALIBRATING CLICK ENGINE...", "> DECRYPTING TOKEN...",
-        "> SYNCING FARM MODULES...",     "> INJECTING PAYLOAD...",
-        "> ESTABLISHING UPLINK...",      "> VALIDATING SESSION...",
+        "> PATCHING PROXIMITYPROMPT...","> LOADING ISLAND DATA...",
+        "> CALIBRATING CLICK ENGINE...","> DECRYPTING TOKEN...",
+        "> SYNCING FARM MODULES...",    "> INJECTING PAYLOAD...",
+        "> ESTABLISHING UPLINK...",     "> VALIDATING SESSION...",
     }
     task.spawn(function()
-        local idx = 1
+        local idx=1
         while LoadSG and LoadSG.Parent do
             task.wait(1.8)
-            if not (LoadSG and LoadSG.Parent) then break end
-            hackStatus.Text = hackMsgs[idx]; idx = idx % #hackMsgs + 1
+            if not(LoadSG and LoadSG.Parent) then break end
+            hackStatus.Text=hackMsgs[idx]; idx=idx%#hackMsgs+1
         end
     end)
 
     div(LPanel,224)
 
-    local loadTxt = lbl(LPanel,"[░░░░░░░░░░░░░░░░░░░░]   0%",230,10,Color3.fromRGB(0,200,100))
-    local barBG = Instance.new("Frame", LPanel)
-    barBG.Size = UDim2.new(0.86,0,0,13); barBG.Position = UDim2.new(0.07,0,0,251)
-    barBG.BackgroundColor3 = Color3.fromRGB(4,12,28); barBG.BorderSizePixel = 0; barBG.ZIndex = 11
-    Instance.new("UICorner",barBG).CornerRadius = UDim.new(0,4)
-    local bStr = Instance.new("UIStroke",barBG); bStr.Color = Color3.fromRGB(0,100,55); bStr.Thickness = 1
+    local loadTxt=lbl(LPanel,"[░░░░░░░░░░░░░░░░░░░░]   0%",230,10,Color3.fromRGB(0,200,100))
+    local barBG=Instance.new("Frame",LPanel)
+    barBG.Size=UDim2.new(0.86,0,0,13); barBG.Position=UDim2.new(0.07,0,0,251)
+    barBG.BackgroundColor3=Color3.fromRGB(4,12,28); barBG.BorderSizePixel=0; barBG.ZIndex=11
+    Instance.new("UICorner",barBG).CornerRadius=UDim.new(0,4)
+    local bStr=Instance.new("UIStroke",barBG); bStr.Color=Color3.fromRGB(0,100,55); bStr.Thickness=1
 
-    local barFill = Instance.new("Frame", barBG)
-    barFill.Size = UDim2.new(0,0,1,0); barFill.BackgroundColor3 = Color3.fromRGB(0,235,100)
-    barFill.BorderSizePixel = 0; barFill.ZIndex = 12
-    Instance.new("UICorner",barFill).CornerRadius = UDim.new(0,4)
-    local bfGrad = Instance.new("UIGradient", barFill)
-    bfGrad.Color = ColorSequence.new(Color3.fromRGB(0,160,75), Color3.fromRGB(0,255,140))
+    local barFill=Instance.new("Frame",barBG)
+    barFill.Size=UDim2.new(0,0,1,0); barFill.BackgroundColor3=Color3.fromRGB(0,235,100)
+    barFill.BorderSizePixel=0; barFill.ZIndex=12
+    Instance.new("UICorner",barFill).CornerRadius=UDim.new(0,4)
+    local bfGrad=Instance.new("UIGradient",barFill)
+    bfGrad.Color=ColorSequence.new(Color3.fromRGB(0,160,75),Color3.fromRGB(0,255,140))
 
-    local pctLbl = lbl(LPanel,"0%",268,11,Color3.fromRGB(0,255,120),Enum.TextXAlignment.Center,true)
+    local pctLbl=lbl(LPanel,"0%",268,11,Color3.fromRGB(0,255,120),Enum.TextXAlignment.Center,true)
 
-    local logLines = {}
-    for i = 1,4 do
-        local l = Instance.new("TextLabel", LPanel)
-        l.Size = UDim2.new(0.88,0,0,13); l.Position = UDim2.new(0.06,0,0,292+(i-1)*15)
-        l.BackgroundTransparency = 1; l.Text = ""
-        l.TextColor3 = Color3.fromRGB(0,130,65)
-        l.Font = Enum.Font.Code; l.TextSize = 10
-        l.TextXAlignment = Enum.TextXAlignment.Left; l.ZIndex = 11
-        logLines[i] = l
+    local logLines={}
+    for i=1,4 do
+        local l=Instance.new("TextLabel",LPanel)
+        l.Size=UDim2.new(0.88,0,0,13); l.Position=UDim2.new(0.06,0,0,292+(i-1)*15)
+        l.BackgroundTransparency=1; l.Text=""
+        l.TextColor3=Color3.fromRGB(0,130,65)
+        l.Font=Enum.Font.Code; l.TextSize=10
+        l.TextXAlignment=Enum.TextXAlignment.Left; l.ZIndex=11
+        logLines[i]=l
     end
-    for i,t in ipairs({"[OK] TITAN_HUB v6 LOADED","[OK] PLAYER VERIFIED","[OK] ANTI-DETECT ACTIVE","[OK] MODULES ONLINE"}) do
-        task.spawn(function() task.wait(i*0.35); logLines[i].Text = t end)
+    for i,t in ipairs({"[OK] TITAN_HUB v7 LOADED","[OK] PLAYER VERIFIED","[OK] ANTI-DETECT ACTIVE","[OK] MODULES ONLINE"}) do
+        task.spawn(function() task.wait(i*0.35); logLines[i].Text=t end)
     end
 
-    -- [5] Loading logic: đồng bộ % game, khi 100% delay 1.5s rồi tắt
     local function getGameLoadPct()
-        local result = nil
+        local result=nil
         local function search(parent)
             if not parent then return end
-            local ok, list = pcall(function() return parent:GetDescendants() end)
+            local ok,list=pcall(function() return parent:GetDescendants() end)
             if not ok then return end
-            for _, o in ipairs(list) do
+            for _,o in ipairs(list) do
                 if o:IsA("TextLabel") or o:IsA("TextButton") then
-                    local t = o.Text or ""
-                    local n = t:match("[Ll]oading[^%d]*(%d+)%%")
-                    if n then result = tonumber(n) / 100; return end
+                    local t=o.Text or ""
+                    local n=t:match("[Ll]oading[^%d]*(%d+)%%")
+                    if n then result=tonumber(n)/100; return end
                 end
             end
         end
-        pcall(search, game.CoreGui)
-        if not result then pcall(search, player.PlayerGui) end
+        pcall(search,game.CoreGui)
+        if not result then pcall(search,player.PlayerGui) end
         return result
     end
 
     task.spawn(function()
-        -- Thử tìm loading game trong 1 giây đầu
-        -- Nếu không tìm thấy → tắt loading screen luôn, không hiện
-        local foundGame = false
-        local checkStart = tick()
+        local foundGame=false
+        local checkStart=tick()
         repeat
             task.wait(0.1)
-            if getGameLoadPct() then foundGame = true; break end
-        until tick() - checkStart > 1
+            if getGameLoadPct() then foundGame=true; break end
+        until tick()-checkStart>1
 
         if not foundGame then
-            -- Không có loading game → tắt ngay
             if LoadSG and LoadSG.Parent then LoadSG:Destroy() end
             return
         end
 
-        local startTime  = tick()
-        local FALLBACK_T = 20
-        local lastPct    = 0
-        local milestones = {
-            {pct=0.05, msg="> CONNECTING TO SERVER...",     log="[OK] NETWORK CONNECTED"},
-            {pct=0.15, msg="> BYPASSING ANTI-CHEAT...",      log="[OK] ANTI-CHEAT BYPASSED"},
-            {pct=0.28, msg="> SCANNING MEMORY...",            log="[OK] MEMORY MAPPED"},
-            {pct=0.40, msg="> LOADING ISLAND DATA...",        log="[OK] ISLANDS LOADED"},
-            {pct=0.52, msg="> PATCHING PROXIMITYPROMPT...",   log="[OK] PROMPTS PATCHED"},
-            {pct=0.63, msg="> SYNCING FARM MODULES...",       log="[OK] FARM ENGINE READY"},
-            {pct=0.74, msg="> INJECTING PAYLOAD...",          log="[OK] PAYLOAD INJECTED"},
-            {pct=0.84, msg="> ESTABLISHING UPLINK...",        log="[OK] UPLINK STABLE"},
-            {pct=0.93, msg="> VALIDATING SESSION...",         log="[OK] SESSION VALID"},
-            {pct=1.00, msg="> ACCESS GRANTED.",               log="[OK] LAUNCH COMPLETE"},
+        local startTime=tick(); local FALLBACK_T=20; local lastPct=0
+        local milestones={
+            {pct=0.05,msg="> CONNECTING TO SERVER...",     log="[OK] NETWORK CONNECTED"},
+            {pct=0.15,msg="> BYPASSING ANTI-CHEAT...",     log="[OK] ANTI-CHEAT BYPASSED"},
+            {pct=0.28,msg="> SCANNING MEMORY...",          log="[OK] MEMORY MAPPED"},
+            {pct=0.40,msg="> LOADING ISLAND DATA...",      log="[OK] ISLANDS LOADED"},
+            {pct=0.52,msg="> PATCHING PROXIMITYPROMPT...", log="[OK] PROMPTS PATCHED"},
+            {pct=0.63,msg="> SYNCING FARM MODULES...",     log="[OK] FARM ENGINE READY"},
+            {pct=0.74,msg="> INJECTING PAYLOAD...",        log="[OK] PAYLOAD INJECTED"},
+            {pct=0.84,msg="> ESTABLISHING UPLINK...",      log="[OK] UPLINK STABLE"},
+            {pct=0.93,msg="> VALIDATING SESSION...",       log="[OK] SESSION VALID"},
+            {pct=1.00,msg="> ACCESS GRANTED.",             log="[OK] LAUNCH COMPLETE"},
         }
-        local passedM = {}
+        local passedM={}
 
-        local function setLoadPct(pct, msg)
-            pct = math.clamp(pct,0,1)
-            local p      = math.floor(pct*100)
-            local filled = math.floor(pct*20)
-            loadTxt.Text = "["..string.rep("█",filled)..string.rep("░",20-filled).."]  "..p.."%"
-            pctLbl.Text  = p.."%"
-            _TS:Create(barFill, TweenInfo.new(0.15, Enum.EasingStyle.Quad),
+        local function setLoadPct(pct,msg)
+            pct=math.clamp(pct,0,1)
+            local p=math.floor(pct*100)
+            local filled=math.floor(pct*20)
+            loadTxt.Text="["..string.rep("█",filled)..string.rep("░",20-filled).."]  "..p.."%"
+            pctLbl.Text=p.."%"
+            _TS:Create(barFill,TweenInfo.new(0.15,Enum.EasingStyle.Quad),
                 {Size=UDim2.new(pct,0,1,0)}):Play()
-            if msg then hackStatus.Text = msg end
+            if msg then hackStatus.Text=msg end
         end
         local function pushLog(txt)
-            for i=1,3 do logLines[i].Text = logLines[i+1].Text end
-            logLines[4].Text = txt
+            for i=1,3 do logLines[i].Text=logLines[i+1].Text end
+            logLines[4].Text=txt
         end
 
         while LoadSG and LoadSG.Parent do
             task.wait(0.1)
-            local gamePct = getGameLoadPct()
-            local elapsed = tick() - startTime
-            local cur = gamePct or math.min(elapsed / FALLBACK_T, 1)
-            if cur > lastPct then
-                lastPct = cur
-                setLoadPct(cur)
-            end
-            for _, m in ipairs(milestones) do
-                if lastPct >= m.pct and not passedM[m.pct] then
-                    passedM[m.pct] = true
-                    hackStatus.Text = m.msg
-                    pushLog(m.log)
+            local gamePct=getGameLoadPct()
+            local elapsed=tick()-startTime
+            local cur=gamePct or math.min(elapsed/FALLBACK_T,1)
+            if cur>lastPct then lastPct=cur; setLoadPct(cur) end
+            for _,m in ipairs(milestones) do
+                if lastPct>=m.pct and not passedM[m.pct] then
+                    passedM[m.pct]=true; hackStatus.Text=m.msg; pushLog(m.log)
                 end
             end
-            if lastPct >= 1 then break end
-            if elapsed > FALLBACK_T + 5 then break end
+            if lastPct>=1 then break end
+            if elapsed>FALLBACK_T+5 then break end
         end
 
-        -- [5] 100% xong → hiện "SYSTEM READY" → delay 1.5s → fade out
-        setLoadPct(1, "> SYSTEM READY. WELCOME.")
-        task.wait(1.5)   -- [5] delay 1.5 giây
-        _TS:Create(LBG,    TweenInfo.new(0.8, Enum.EasingStyle.Quad), {BackgroundTransparency=1}):Play()
-        _TS:Create(LPanel, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {
-            BackgroundTransparency=1, Position=UDim2.new(0.5,-155,0.4,-205)
+        setLoadPct(1,"> SYSTEM READY. WELCOME.")
+        task.wait(1.5)
+        _TS:Create(LBG,   TweenInfo.new(0.8,Enum.EasingStyle.Quad),{BackgroundTransparency=1}):Play()
+        _TS:Create(LPanel,TweenInfo.new(0.8,Enum.EasingStyle.Quad),{
+            BackgroundTransparency=1,Position=UDim2.new(0.5,-155,0.4,-205)
         }):Play()
         task.wait(0.9)
         if LoadSG and LoadSG.Parent then LoadSG:Destroy() end
