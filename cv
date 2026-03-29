@@ -490,7 +490,7 @@ end
 -- ═══════════════════════════════════════════════════════
 -- [1] CHỨC NĂNG 3b – Bán SK (Master Kung Fu NPC)
 -- ═══════════════════════════════════════════════════════
-local skPos = Vector3.new(782.64, 18.58, 797.48)
+local skPos = Vector3.new(607.42, 18.58, 780.31)
 
 local function findMasterKungFu()
     local npcsF = workspace:FindFirstChild("NPCs"); if not npcsF then return nil end
@@ -845,6 +845,79 @@ mainLoop = function()
 end
 
 -- ═══════════════════════════════════════════════════════
+-- [NÂNG CẤP] TÌM SERVER ĐÔNG HƠN cho Farm SK
+-- Quét mỗi 0.5s, nếu ≤ 3 người thì đổi server
+-- ═══════════════════════════════════════════════════════
+local function findAndJoinBetterServer()
+    local TeleportService = game:GetService("TeleportService")
+    local placeId    = game.PlaceId
+    local currentJobId = game.JobId
+
+    -- Thử tìm server đông qua API Roblox
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(
+            game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Desc&limit=100")
+        )
+    end)
+
+    if ok and data and data.data then
+        local bestServer = nil
+        local bestCount  = 3  -- chỉ nhảy nếu server đó > 3 người
+
+        for _, server in ipairs(data.data) do
+            if server.id ~= currentJobId
+            and type(server.playing) == "number"
+            and type(server.maxPlayers) == "number" then
+                -- Bắt buộc phải còn ít nhất 1 slot trống (không full)
+                local hasSlot = server.playing < server.maxPlayers
+                if hasSlot and server.playing > bestCount then
+                    bestCount  = server.playing
+                    bestServer = server
+                end
+            end
+        end
+
+        if bestServer then
+            local slots = bestServer.maxPlayers - bestServer.playing
+            setStatus("🚀 Đổi server ("..bestCount.."/"..bestServer.maxPlayers.." | còn "..slots.." slot)...", Color3.fromRGB(80,255,150))
+            task.wait(0.5)
+            local tpOk = pcall(function()
+                TeleportService:TeleportToPlaceInstance(placeId, bestServer.id, Players.LocalPlayer)
+            end)
+            if tpOk then task.wait(5) end  -- đợi teleport xảy ra
+            return
+        end
+    end
+
+    -- Fallback: nhảy server ngẫu nhiên
+    setStatus("🚀 Không tìm được server tốt, đổi ngẫu nhiên...", Color3.fromRGB(255,160,0))
+    task.wait(0.3)
+    pcall(function()
+        TeleportService:Teleport(placeId)
+    end)
+    task.wait(5)  -- chờ teleport, nếu fail thì quét lại
+end
+
+-- Vòng quét server LIÊN TỤC 0.5s cho Farm SK
+-- Khi server ≤ 3 người → đổi ngay, đổi xong lại quét tiếp
+local function startSKServerScan()
+    task.spawn(function()
+        while isRunningSK do
+            task.wait(0.5)
+            if not isRunningSK then break end
+
+            local playerCount = #Players:GetPlayers()  -- tính cả mình
+            if playerCount <= 3 then
+                setStatus("⚠️ Server còn "..playerCount.." người! Đang đổi server...", Color3.fromRGB(255,80,80))
+                task.wait(0.3)
+                findAndJoinBetterServer()
+                -- Sau khi gọi xong (teleport thất bại hoặc chờ), tiếp tục quét
+            end
+        end
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
 -- [1] MAIN LOOP SK (Auto Farm SK)
 -- Câu tại đảo SK, bán qua Master Kung Fu
 -- ═══════════════════════════════════════════════════════
@@ -853,6 +926,9 @@ mainLoopSK = function()
     -- TP thẳng đến đảo SK
     setStatus("🚀 TP đến Đảo SK...",Color3.fromRGB(255,140,0))
     teleportTo(skPos); task.wait(0.4)
+
+    -- [NÂNG CẤP] Bắt đầu quét server song song
+    startSKServerScan()
 
     while isRunningSK do
         setActive(2); setStatus("🔍 SK: Đang quét...",Color3.fromRGB(200,170,100))
@@ -1166,11 +1242,7 @@ task.spawn(function()
     end
 end)
 
--- ═══════════════════════════════════════════════════════
--- ██ HACKER LOADING SCREEN v7 ██
--- [3] ProximityPrompt bật trong loading; 0/1 rain; delay 1.5s
--- ═══════════════════════════════════════════════════════
-do
+do if false then -- loading screen removed
     local _TS = game:GetService("TweenService")
     local LoadSG = Instance.new("ScreenGui")
     LoadSG.Name="TitanLoadScreen"; LoadSG.ResetOnSpawn=false
