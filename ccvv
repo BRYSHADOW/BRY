@@ -845,6 +845,77 @@ mainLoop = function()
 end
 
 -- ═══════════════════════════════════════════════════════
+-- [NÂNG CẤP] TÌM SERVER ĐÔNG HƠN cho Farm SK
+-- Quét mỗi 0.5s, nếu ≤ 3 người thì đổi server
+-- ═══════════════════════════════════════════════════════
+local isSwitchingServer = false
+
+local function findAndJoinBetterServer()
+    if isSwitchingServer then return end
+    isSwitchingServer = true
+    setStatus("🔎 Server ít người! Tìm server đông...", Color3.fromRGB(255,80,80))
+
+    local TeleportService = game:GetService("TeleportService")
+    local placeId = game.PlaceId
+    local currentJobId = game.JobId
+
+    -- Thử tìm server đông qua API Roblox
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(
+            game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Desc&limit=100")
+        )
+    end)
+
+    if ok and data and data.data then
+        local bestServer = nil
+        local bestCount  = 3  -- chỉ nhảy nếu server đó > 3 người
+
+        for _, server in ipairs(data.data) do
+            if server.id ~= currentJobId and type(server.playing) == "number" then
+                if server.playing > bestCount then
+                    bestCount  = server.playing
+                    bestServer = server
+                end
+            end
+        end
+
+        if bestServer then
+            setStatus("🚀 Đổi server ("..bestCount.." người)...", Color3.fromRGB(80,255,150))
+            task.wait(0.5)
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(placeId, bestServer.id, Players.LocalPlayer)
+            end)
+            return  -- đợi teleport, không reset flag
+        end
+    end
+
+    -- Fallback: nhảy server ngẫu nhiên
+    setStatus("🚀 Đổi server ngẫu nhiên...", Color3.fromRGB(255,160,0))
+    task.wait(0.5)
+    pcall(function()
+        TeleportService:Teleport(placeId)
+    end)
+    -- nếu Teleport thất bại thì cho phép thử lại sau 5s
+    task.wait(5)
+    isSwitchingServer = false
+end
+
+-- Vòng quét server cho Farm SK (chạy song song trong mainLoopSK)
+local function startSKServerScan()
+    task.spawn(function()
+        while isRunningSK do
+            task.wait(0.5)
+            if not isRunningSK then break end
+            local playerCount = #Players:GetPlayers()  -- đếm cả mình
+            if playerCount <= 3 then
+                findAndJoinBetterServer()
+                break  -- sau khi gọi xong thì loop kết thúc (sắp teleport)
+            end
+        end
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
 -- [1] MAIN LOOP SK (Auto Farm SK)
 -- Câu tại đảo SK, bán qua Master Kung Fu
 -- ═══════════════════════════════════════════════════════
@@ -853,6 +924,10 @@ mainLoopSK = function()
     -- TP thẳng đến đảo SK
     setStatus("🚀 TP đến Đảo SK...",Color3.fromRGB(255,140,0))
     teleportTo(skPos); task.wait(0.4)
+
+    -- [NÂNG CẤP] Bắt đầu quét server song song
+    isSwitchingServer = false
+    startSKServerScan()
 
     while isRunningSK do
         setActive(2); setStatus("🔍 SK: Đang quét...",Color3.fromRGB(200,170,100))
