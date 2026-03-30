@@ -419,6 +419,8 @@ local islands = {
     {name="Đảo 5", pos=Vector3.new(-453.73,15.90,981.65)},
     {name="Đảo 6", pos=Vector3.new(-992.23,18.58,-61.70)},
     {name="Đảo 7", pos=Vector3.new(-779.95,18.58,-1362.72)},
+    {name="Đảo 8", pos=Vector3.new(2020.97,18.58,-1733.56)},
+    {name="Đảo 9", pos=Vector3.new(2475.45,18.58,873.62)},
 }
 local function nearestIsland()
     local r = getRoot(); if not r then return nil end
@@ -824,6 +826,12 @@ mainLoop = function()
         if full and (now-sellCooldown) > 8 then
             isSelling = true
             local savedIsland = lockedIsland
+            -- Lưu vị trí đứng hiện tại trước khi đi bán (dùng cho farmMode spot)
+            local savedSpotPos = nil
+            if farmMode == "spot" then
+                local r2 = getRoot()
+                if r2 then savedSpotPos = r2.Position end
+            end
             setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
             if npcPos then teleportToLocked(npcPos+Vector3.new(0,3,0),0.3) end
@@ -833,6 +841,9 @@ mainLoop = function()
             if farmMode == "island" and savedIsland then
                 setStatus("🔁 Về "..savedIsland.name.." câu tiếp...",Color3.fromRGB(100,255,150))
                 teleportTo(savedIsland.pos); task.wait(0.5)
+            elseif farmMode == "spot" and savedSpotPos then
+                setStatus("🔁 Về chỗ cũ câu tiếp...",Color3.fromRGB(100,255,150))
+                teleportTo(savedSpotPos); task.wait(0.5)
             end
             isSelling = false; sellCooldown = tick()
         else
