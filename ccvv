@@ -1,10 +1,12 @@
--- AUTO FARM TITAN FISHING v7 | BY BRYDZVL
--- UPDATE v7:
---   1) +Auto Farm SK kế bên Auto Farm (câu đảo SK, bán Master Kung Fu)
---   2) Xoá Đi Bộ → TP thẳng khi bật farm
---   3) ProximityPrompt tự bật ngay khi load script
---   4) Lọc Cá: GUI chọn đa độ hiếm (Common→Legendary)
---   5) Auto Farm: GUI chọn Farm Tại Chỗ / Farm Đảo Gần + lưu lựa chọn + nút Reset
+-- AUTO FARM TITAN FISHING v8 | BY BRYDZVL
+-- UPDATE v8:
+--   1) Đổi NPC path → workspace.Map.NPCs.bluewaterrobux
+--   2) Đổi Safety path → workspace.Map.Safety
+--   3) Đổi Master Kung Fu path → workspace.Map.NPCs["Master Kung Fu"]
+--   4) Auto Farm SK: đổi server khi < 5 người (thay vì ≤3)
+--   5) Check Point lúc [Giờ:55] – ≥2000 ở lại, <2000 đổi server
+--   6) 6 phút đầu: TẤT CẢ tele đều ĐI BỘ | Sau 6 phút: tele bình thường
+--   7) Sell: đi bộ tới NPC nếu <6 phút, tele nếu ≥6 phút
 
 local Noclip = nil
 local Clip   = nil
@@ -28,6 +30,9 @@ function clip()
     Clip = true
 end
 noclip()
+
+-- ── THỜI GIAN BẮT ĐẦU SCRIPT (dùng cho logic 6 phút đi bộ) ─────
+local scriptStartTime = tick()
 
 -- ── CHỐNG CHẠY 2 SCRIPT CÙNG LÚC ────────────────────────
 if _G.TitanHubLoaded then
@@ -350,6 +355,44 @@ local function manualTeleport(pos)
     task.spawn(function() task.wait(0.05); clearMovers() end)
 end
 
+-- ═══════════════════════════════════════════════════════
+-- ██ 6 PHÚT ĐẦU ĐI BỘ – SAU 6 PHÚT TELE THẲNG ██
+-- ═══════════════════════════════════════════════════════
+local function isEarlyPhase()
+    return (tick() - scriptStartTime) < 360  -- 6 phút = 360 giây
+end
+
+local function walkTo(targetPos, timeout)
+    timeout = timeout or 40
+    local char = player.Character; if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid"); if not humanoid then return end
+    humanoid:MoveTo(targetPos)
+    local startT = tick()
+    local r = getRoot()
+    while r and (r.Position - targetPos).Magnitude > 8 and tick()-startT < timeout do
+        task.wait(0.25)
+        r = getRoot()
+        if not r then break end
+    end
+end
+
+-- smartTP: đi bộ nếu đang trong 6 phút đầu, tele nếu sau 6 phút
+local function smartTP(pos)
+    if isEarlyPhase() then
+        walkTo(pos)
+    else
+        teleportTo(pos)
+    end
+end
+
+local function smartTPLocked(pos, duration)
+    if isEarlyPhase() then
+        walkTo(pos, (duration or 2) + 20)
+    else
+        teleportToLocked(pos, duration)
+    end
+end
+
 local function clickScreen(x,y)
     VirtualInputManager:SendMouseButtonEvent(x,y,0,true,game,1);  task.wait(0.02)
     VirtualInputManager:SendMouseButtonEvent(x,y,0,false,game,1); task.wait(0.02)
@@ -460,7 +503,8 @@ local function isScreenFull()
 end
 local function findNPCSeller()
     local r = getRoot(); if not r then return nil end
-    local npcsF = workspace:FindFirstChild("NPCs"); if not npcsF then return nil end
+    local mapF = workspace:FindFirstChild("Map"); if not mapF then return nil end
+    local npcsF = mapF:FindFirstChild("NPCs"); if not npcsF then return nil end
     local best,bd = nil,math.huge
     for _,n in ipairs(npcsF:GetDescendants()) do
         if string.find(string.lower(n.Name),"bluewaterrobux") then
@@ -495,7 +539,8 @@ end
 local skPos = Vector3.new(607.42, 18.58, 780.31)
 
 local function findMasterKungFu()
-    local npcsF = workspace:FindFirstChild("NPCs"); if not npcsF then return nil end
+    local mapF = workspace:FindFirstChild("Map"); if not mapF then return nil end
+    local npcsF = mapF:FindFirstChild("NPCs"); if not npcsF then return nil end
     local npc = npcsF:FindFirstChild("Master Kung Fu"); if not npc then return nil end
     if npc:IsA("Model")    then return npc:GetPivot().Position end
     if npc:IsA("BasePart") then return npc.Position end
@@ -509,7 +554,7 @@ local function func3_SellSK()
     setStatus("🥋 Đến Master Kung Fu...",Color3.fromRGB(255,180,0))
     local mPos = findMasterKungFu()
     if mPos then
-        teleportToLocked(mPos + Vector3.new(0,3,0), 0.3)
+        smartTPLocked(mPos + Vector3.new(0,3,0), 0.3)
     end
     setStatus("🖱 Bán SK (E×2)...",Color3.fromRGB(0,210,255))
     pressKey(Enum.KeyCode.E); task.wait(0.35)
@@ -524,7 +569,7 @@ local function func3_SellSK()
         task.wait(2)
     end
     setStatus("🔁 Về đảo SK câu tiếp...",Color3.fromRGB(100,255,150))
-    teleportTo(skPos); task.wait(0.5)
+    smartTP(skPos); task.wait(0.5)
 end
 
 -- ═══════════════════════════════════════════════════════
@@ -812,8 +857,8 @@ mainLoop = function()
     if farmMode == "island" then
         if not lockedIsland then lockedIsland = nearestIsland() end
         if lockedIsland then
-            setStatus("🚀 TP → "..lockedIsland.name,Color3.fromRGB(100,200,255))
-            teleportTo(lockedIsland.pos); task.wait(0.4)
+            setStatus("🚀 Đến "..lockedIsland.name,Color3.fromRGB(100,200,255))
+            smartTP(lockedIsland.pos); task.wait(0.4)
         end
     end
     -- farmMode == "spot": câu ngay tại chỗ, không TP
@@ -834,16 +879,16 @@ mainLoop = function()
             end
             setStatus("🐟 Full! Đến NPC...",Color3.fromRGB(255,220,0))
             local npcPos = findNPCSeller()
-            if npcPos then teleportToLocked(npcPos+Vector3.new(0,3,0),0.3) end
+            if npcPos then smartTPLocked(npcPos+Vector3.new(0,3,0),0.3) end
             func3_SellUI()
             setStatus("💰 Đang bán...",Color3.fromRGB(255,220,0))
             if npcPos then teleportToLocked(npcPos+Vector3.new(0,3,0),2) else task.wait(2) end
             if farmMode == "island" and savedIsland then
                 setStatus("🔁 Về "..savedIsland.name.." câu tiếp...",Color3.fromRGB(100,255,150))
-                teleportTo(savedIsland.pos); task.wait(0.5)
+                smartTP(savedIsland.pos); task.wait(0.5)
             elseif farmMode == "spot" and savedSpotPos then
                 setStatus("🔁 Về chỗ cũ câu tiếp...",Color3.fromRGB(100,255,150))
-                teleportTo(savedSpotPos); task.wait(0.5)
+                smartTP(savedSpotPos); task.wait(0.5)
             end
             isSelling = false; sellCooldown = tick()
         else
@@ -918,7 +963,7 @@ local function startSKServerScan()
             if not isRunningSK then break end
 
             local playerCount = #Players:GetPlayers()  -- tính cả mình
-            if playerCount <= 3 then
+            if playerCount < 5 then
                 setStatus("⚠️ Server còn "..playerCount.." người! Đang đổi server...", Color3.fromRGB(255,80,80))
                 task.wait(0.3)
                 findAndJoinBetterServer()
@@ -934,9 +979,9 @@ end
 -- ═══════════════════════════════════════════════════════
 mainLoopSK = function()
     local sellCooldown = 0
-    -- TP thẳng đến đảo SK
-    setStatus("🚀 TP đến Đảo SK...",Color3.fromRGB(255,140,0))
-    teleportTo(skPos); task.wait(0.4)
+    -- TP/đi bộ đến đảo SK
+    setStatus("🚀 Đến Đảo SK...",Color3.fromRGB(255,140,0))
+    smartTP(skPos); task.wait(0.4)
 
     -- [NÂNG CẤP] Bắt đầu quét server song song
     startSKServerScan()
@@ -955,8 +1000,8 @@ mainLoopSK = function()
             -- giữ vị trí đảo SK
             local r = getRoot()
             if r and (r.Position - skPos).Magnitude > 10 then
-                setStatus("🔁 SK: TP về đảo...",Color3.fromRGB(255,180,0))
-                teleportTo(skPos); task.wait(0.25)
+                setStatus("🔁 SK: Về đảo...",Color3.fromRGB(255,180,0))
+                smartTP(skPos); task.wait(0.25)
             else
                 setStatus("📍 SK: Đang câu...",Color3.fromRGB(255,200,100))
             end
@@ -1152,7 +1197,7 @@ addHover(MiniSK,     Color3.fromRGB(200,110,0),  Color3.fromRGB(160,85,0))
 addHover(MiniTele,   Color3.fromRGB(140,30,240), Color3.fromRGB(100,0,200))
 addHover(MiniFilter, Color3.fromRGB(0,180,180),  Color3.fromRGB(0,130,130))
 
-print("[TitanFishing Hub v7] Loaded | BY BRYDZVL")
+print("[TitanFishing Hub v8] Loaded | BY BRYDZVL")
 
 -- ═══════════════════════════════════════════════════════
 -- BOSS SPAWN SCAN – cập nhật mỗi 1s
@@ -1238,7 +1283,8 @@ end)
 -- ═══════════════════════════════════════════════════════
 task.spawn(function()
     while true do
-        local safety = workspace:FindFirstChild("Safety")
+        local mapF = workspace:FindFirstChild("Map")
+        local safety = mapF and mapF:FindFirstChild("Safety")
         if safety and safety:FindFirstChild("Part") then
             local oldPart = safety.Part
             local size = oldPart.Size; local cf = oldPart.CFrame
@@ -1250,6 +1296,75 @@ task.spawn(function()
             glass.Transparency=0.3; glass.CanCollide=true; glass.Parent=workspace
         end
         task.wait(0.1)
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════
+-- ██ CHECK POINT LÚC [GIỜ:55] – TaijiEvent ██
+-- Nếu point ≥ 2000 → ở lại server
+-- Nếu point < 2000  → đổi server
+-- ═══════════════════════════════════════════════════════
+task.spawn(function()
+    local lastCheckedMinute = -1
+    while true do
+        task.wait(10)  -- kiểm tra mỗi 10 giây
+
+        -- Lấy thời gian thực từ server
+        local ok, lightingTime = pcall(function()
+            return game:GetService("Lighting").TimeOfDay
+        end)
+        if not ok then continue end
+
+        -- Parse giờ:phút từ chuỗi "HH:MM:SS"
+        local hh, mm = lightingTime:match("(%d+):(%d+):")
+        mm = tonumber(mm)
+        if not mm then continue end
+
+        -- Chỉ check đúng lúc phút = 55, và chỉ check 1 lần mỗi lần phút 55
+        if mm == 55 and lastCheckedMinute ~= mm then
+            lastCheckedMinute = mm
+
+            -- Đọc point từ TaijiEvent
+            local point = nil
+            pcall(function()
+                local lbl = workspace.TaijiEvent.PointDisplay.SurfaceGui.Frame.TextLabel
+                if lbl then
+                    local txt = lbl.Text or ""
+                    -- Lấy số từ text (vd: "2297" hoặc "2,297" hoặc "Point: 2297")
+                    local num = txt:match("%d+%.?%d*"):gsub(",","")
+                    point = tonumber(num)
+                end
+            end)
+
+            if point ~= nil then
+                if point >= 2000 then
+                    setStatus("✅ Point: "..point.." ≥2000 → Ở lại server!", Color3.fromRGB(0,255,150))
+                    pcall(function()
+                        game:GetService("StarterGui"):SetCore("SendNotification",{
+                            Title="⭐ Point Check [GIỜ:55]",
+                            Text="Point: "..point.." ≥ 2000 → Ở lại server!",
+                            Duration=5,
+                        })
+                    end)
+                else
+                    setStatus("⚠️ Point: "..point.." <2000 → Đổi server...", Color3.fromRGB(255,100,0))
+                    pcall(function()
+                        game:GetService("StarterGui"):SetCore("SendNotification",{
+                            Title="🔄 Point Check [GIỜ:55]",
+                            Text="Point: "..point.." < 2000 → Đổi server!",
+                            Duration=4,
+                        })
+                    end)
+                    task.wait(1)
+                    findAndJoinBetterServer()
+                end
+            else
+                -- Không đọc được point → bỏ qua lần này
+                setStatus("❓ Không đọc được Point lúc :55", Color3.fromRGB(180,180,0))
+            end
+        elseif mm ~= 55 then
+            lastCheckedMinute = -1  -- reset để check được lần tiếp theo
+        end
     end
 end)
 
